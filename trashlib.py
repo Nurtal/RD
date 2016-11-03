@@ -351,13 +351,13 @@ quickClustering(truc, 4)
 
 
 '''General Procedure'''
-
+"""
 inputFolder = "DATA"
 data = generate_DataMatrixFromPatientFiles(inputFolder)
 y = get_targetedY("center", inputFolder)
 target_name = get_targetNames("center", inputFolder)
 quickPCA(data, y, target_name, "3d")
-
+"""
 '''Dummy Data'''
 """
 patient1 = [1, 1, 1, 1]
