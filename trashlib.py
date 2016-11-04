@@ -17,6 +17,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 import glob
 
+import matplotlib.cm as cm
+
 
 def generate_data(numberOfPatients, numberOfParameters, separator, filename):
 	"""
@@ -172,18 +174,21 @@ def convertPatientToVector(patientFile, patientInVectorFile):
 def generate_DataMatrixFromPatientFiles(inputFolder):
 	"""
 	Use all patients files present in
-	DATA folder.
+	DATA/PATIENT folder.
 	return a numpy.array (data matrice)
+	-> Parsring path file shoud be adapt windows / linux
 	"""
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfVectorFiles = []
 
 	for patientFile in listOfPatientFiles:
 		patientFilesInArray = patientFile.split(".")
-		vectorFileName = patientFilesInArray[0]+"_VECTOR.csv"
+		patientFilesInArray = patientFilesInArray[0]
+		patientFilesInArray = patientFilesInArray.split("/") # change on windows
+		patientFilesInArray = patientFilesInArray[-1]
+		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector(patientFile, vectorFileName)
 		listOfVectorFiles.append(vectorFileName)
-
 	listOfVector = []
 	for vectorFile in listOfVectorFiles:
 		vectorData = open(vectorFile, "r")
@@ -200,11 +205,12 @@ def generate_DataMatrixFromPatientFiles(inputFolder):
 	data = numpy.array(tuple(listOfVector))
 	return data
 
-def quickClustering(matrice, numberOfClusters):
+def quickClustering(matrice, numberOfClusters, saveFile):
 	"""
 	perform and display a kmean clusterring
 	-> matrice is a numpy.array
 	-> numberOfClusters is a int
+	-> saveFile is a string
 	"""
 	pca = PCA()
 	C = pca.fit(matrice).transform(matrice)
@@ -213,16 +219,19 @@ def quickClustering(matrice, numberOfClusters):
 	est.fit(matrice)
 	classe=est.labels_
 
+	print classe
+
 	fig = plt.figure(1, figsize=(8, 6))
 	ax = Axes3D(fig, elev=-150, azim=110)
 	ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=classe, cmap=plt.cm.Paired)
-	ax.set_title("ACP: trois premieres composantes")
+	ax.set_title("kmean : "+str(numberOfClusters)+" clusters")
 	ax.set_xlabel("Comp1")
 	ax.w_xaxis.set_ticklabels([])
 	ax.set_ylabel("Comp2")
 	ax.w_yaxis.set_ticklabels([])
 	ax.set_zlabel("Comp3")
 	ax.w_zaxis.set_ticklabels([])
+	plt.savefig(saveFile)
 	plt.show()
 
 
@@ -296,7 +305,7 @@ def get_targetedY(target, inputFolder):
 		return target_date
 
 
-def quickPCA(data, y, target_name, projection):
+def quickPCA(data, y, target_name, projection, saveName):
 	"""
 	-> perform and display pca
 	-> data is a numpy.array object
@@ -304,10 +313,15 @@ def quickPCA(data, y, target_name, projection):
 		Encoder en int
 	-> target_name : le nom des parametre en y
 	-> projection: 2d ou 3d
+	-> saveName is a string, name of the file where fig is saved
 	"""
 
 	pca = PCA()
 	C = pca.fit(data).transform(data)
+
+	covar = numpy.cov(data.transpose())
+	print covar
+
 
 	if(projection == "2d"):
 		plt.figure()
@@ -315,7 +329,9 @@ def quickPCA(data, y, target_name, projection):
 			plt.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
 		plt.legend()
 		plt.title("ACP")
+		plt.savefig(saveName)
 		plt.show()
+		plt.close()
 	elif(projection =="3d"):
 		fig = plt.figure(1, figsize=(8, 6))
 		ax = Axes3D(fig, elev=-150, azim=110)
@@ -327,11 +343,56 @@ def quickPCA(data, y, target_name, projection):
 		ax.w_yaxis.set_ticklabels([])
 		ax.set_zlabel("Comp3")
 		ax.w_zaxis.set_ticklabels([])
+		plt.savefig(saveName)
 		plt.show()
+		plt.close()
 
+
+def display_correlationMatrix(data, listOfParameters):
+	"""
+	display a graphe representation of the correlation matrix of
+	data.
+	-> data is numpy.Array object
+	-> listOfParameters is the list of parameters in data.
+	-> may have to transpose data (data.transpose())
+	"""
+	matrixCorr = numpy.corrcoef(data)
+	listOfIndex = range(0, len(listOfParameters))
+	plt.imshow(matrixCorr, cmap=cm.jet, interpolation='nearest')
+	plt.colorbar()
+	plt.xticks(listOfIndex, listOfParameters, rotation=90)
+	plt.yticks(listOfIndex, listOfParameters)
+	plt.show()
+
+
+def get_listOfParameters(inputFolder):
+	"""
+	return the list of parameters in patient file
+	-> inputFolder is a string, indicate the folder where are patients files
+	-> only work on "ABSOLUTE" parameters for now
+	"""
+
+	listOfParameters = []
+	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
+	for patientFile in listOfPatientFiles:
+		dataInPatientFile = open(patientFile, "r")
+		for line in dataInPatientFile:
+			lineInArray = line.split(";")
+			if(lineInArray[2] == "ABSOLUTE"):
+				parameter = lineInArray[1]
+				if(parameter not in listOfParameters):
+					listOfParameters.append(parameter)
+		dataInPatientFile.close()
+
+	return listOfParameters
 
 
 """Test Space"""
+
+
+
+
+
 
 '''Exemple Procedure'''
 """
@@ -351,30 +412,57 @@ quickClustering(truc, 4)
 
 
 '''General Procedure'''
+
 """
-inputFolder = "DATA"
+inputFolder = "DATA/PATIENT"
 data = generate_DataMatrixFromPatientFiles(inputFolder)
 y = get_targetedY("center", inputFolder)
 target_name = get_targetNames("center", inputFolder)
-quickPCA(data, y, target_name, "3d")
+
+parameters = get_listOfParameters(inputFolder)
+display_correlationMatrix(data.transpose(), parameters)
 """
+
+"""
+pca = PCA()
+C = pca.fit(data).transform(data)
+covar = numpy.cov(data.transpose())
+"""
+
+"""
+plt.plot(pca.explained_variance_ratio_)
+plt.show()
+plt.boxplot(C[:,0:50])
+plt.show()
+"""
+
+
 '''Dummy Data'''
+
+
 """
-patient1 = [1, 1, 1, 1]
-patient2 = [9, 9, 9, 9]
-patient3 = [10, 10, 10, 10]
-patient4 = [10, 9, 10, 9]
+patient1 = [2, 1, 1, 1]
+patient2 = [1, 2, 9, 8]
+patient3 = [10, 9, 5, 10]
+patient4 = [9, 10, 10, 1]
 X = numpy.array((patient1, patient2, patient3, patient4))
 y = numpy.array((0, 1, 1, 1))
-print y
 target_name = ["Sain", "Malade"]
 
 pca = PCA()
 C = pca.fit(X).transform(X)
-print C
 
+print numpy.linalg.eig(numpy.cov(C.transpose()))
 
+plt.plot(pca.explained_variance_ratio_)
+plt.show()
+plt.boxplot(C[:,0:20])
+plt.show()
 
+params = ['mon', 'tue', 'wed', 'stuff']
+display_correlationMatrix(X, params)
+"""
+"""
 plt.figure()
 for c, i, target_name in zip("rgbcmykrgb", [0,1,2,3,4,5,6,7,8,9], target_name):
 	plt.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
