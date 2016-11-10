@@ -12,5 +12,4 @@ from procedure import *
 #show_PCA("DATA/PATIENT", "center", "3d", "test4.png")
 #show_cluster("DATA/PATIENT", 30, "testCluster.png")
 #show_correlationMatrix("DATA/PATIENT", "correlationMatrix_Panel1.jpg")
-
 RunOnFullData()
