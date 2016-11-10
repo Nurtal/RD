@@ -159,7 +159,7 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 """TEST SPACE"""
 
 
-machin = get_listOfParameters2("DATA/PATIENT", "ALL")
-truc = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "ALL")
+#machin = get_listOfParameters2("DATA/PATIENT", "ALL")
+#truc = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "ALL")
 	
 #print truc

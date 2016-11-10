@@ -181,10 +181,12 @@ def generate_DataMatrixFromPatientFiles(inputFolder):
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfVectorFiles = []
 
+	listOfVector = ([])
+
 	for patientFile in listOfPatientFiles:
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("/") # change on windows
+		patientFilesInArray = patientFilesInArray.split("\\") # change on windows
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector(patientFile, vectorFileName)
@@ -197,12 +199,25 @@ def generate_DataMatrixFromPatientFiles(inputFolder):
 			lineInArray = line.split(";")
 			if(lineInArray[0]!="id"):
 				parameterValue = lineInArray[1]
-				parameterValue = int(parameterValue[:-1])
-				listOfvalue.append(parameterValue)
+				try:
+					parameterValue = int(parameterValue[:-1])
+				except ValueError:
+					parameterValue = 0
+				listOfvalue.append(int(parameterValue))
 		vectorData.close()
-		listOfVector.append(listOfvalue)
+	
+		if len(listOfvalue) > 15:
+			print vectorFile		
 
-	data = numpy.array(tuple(listOfVector))
+		#listOfVector = list(listOfVector)
+		listOfVector.append(listOfvalue)
+		#listOfVector = tuple(listOfVector)
+		#print listOfVector
+		#listOfVector = (listOfVector,) + listOfvalue
+
+	tupleOfVector = tuple(list(x) for x in listOfVector)
+	#print tupleOfVector
+	data = numpy.array(tupleOfVector)
 	return data
 
 def quickClustering(matrice, numberOfClusters, saveFile):
@@ -348,7 +363,7 @@ def quickPCA(data, y, target_name, projection, saveName):
 		plt.close()
 
 
-def display_correlationMatrix(data, listOfParameters):
+def display_correlationMatrix(data, listOfParameters, saveName):
 	"""
 	display a graphe representation of the correlation matrix of
 	data.
@@ -362,7 +377,9 @@ def display_correlationMatrix(data, listOfParameters):
 	plt.colorbar()
 	plt.xticks(listOfIndex, listOfParameters, rotation=90)
 	plt.yticks(listOfIndex, listOfParameters)
+	plt.savefig(saveName)
 	plt.show()
+	plt.close()
 
 
 def get_listOfParameters(inputFolder):
@@ -387,7 +404,71 @@ def get_listOfParameters(inputFolder):
 	return listOfParameters
 
 
+def convert_tabSepratedFile(inputFolder, outputFolder):
+	"""
+	convert all tab separated files present in
+	inputfolder to ";" separated file in outputFolder
+	-> inputFolder is a string
+	-> outputFolder is a string
+	-> return nothing
+	"""
+
+	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
+		
+	for patientFile in listOfPatientFiles:
+		patientFileInArray = patientFile.split("\\") # Windows
+		patientFileName = patientFileInArray[-1]
+		newPatientFileName = outputFolder+"/"+str(patientFileName)
+
+		dataInPatientFile = open(patientFile, "r")
+		newPatientFile = open(newPatientFileName, "w")
+		for originalLine in dataInPatientFile:
+			originalLineInArray = originalLine.split("\t")
+			cmpt = 0
+			for element in originalLineInArray:
+				if(cmpt < len(originalLineInArray)-1):
+					newPatientFile.write(str(element)+";")
+				else:
+					newPatientFile.write(str(element))
+				cmpt = cmpt + 1
+
+		dataInPatientFile.close()
+		newPatientFile.close()
+
+		print "=> "+patientFileName+" Done"
+
+
 """Test Space"""
+
+
+#inputFolder = "DATA/INPUT"
+#outputFolder = "DATA/PATIENT"
+
+
+
+#data = generate_DataMatrixFromPatientFiles("DATA/PATIENT")
+#print data
+
+"""
+	patientFileInArray = patientFileInArray.split("_")
+
+		patient_id = patientFileInArray[0]
+		patient_center = patientFileInArray[1]
+		patient_date = patientFileInArray[2]
+			
+		if(target == "center"):
+			if(patient_center not in listOfCenter):
+				listOfCenter.append(patient_center)
+
+		elif(target == "date"):
+			if(patient_date not in listOfDate):
+				listOfDate.append(patient_date)
+
+	if(target == "center"):
+		return listOfCenter
+	elif(target == "date"):
+		return listOfDate
+"""
 
 
 
