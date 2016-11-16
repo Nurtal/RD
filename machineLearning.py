@@ -20,7 +20,7 @@ from sklearn import preprocessing
 
 
 import matplotlib.pyplot as plt
-
+from sklearn.covariance import EmpiricalCovariance, MinCovDet
 
 
 def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, displayResult, returnValidation):
@@ -234,6 +234,74 @@ def show_inlierDetection(modelFileName, trainingData, testData):
 
 
 
+
+def show_outlierDetection(X, X_outliers):
+	"""
+	-> X is a numpy array containing tje training data
+	-> X_outliers is the data to test
+
+	=> seems to have problem when X is small
+	"""
+
+	n_outliers = len(X_outliers)
+	n_samples = len(X)
+	X[-n_outliers:] = X_outliers
+
+	# fit a Minimum Covariance Determinant (MCD) robust estimator to data
+	# compare estimators learnt from the full data set with true parameters
+	robust_cov = MinCovDet().fit(X)
+	emp_cov = EmpiricalCovariance().fit(X)
+
+	fig = plt.figure(facecolor = "white")
+	plt.subplots_adjust(hspace=-.1, wspace=.4, top=.95, bottom=.05)
+
+	# Show data set
+	subfig1 = plt.subplot(3, 1, 1)
+	inlier_plot = subfig1.scatter(X[:, 0], X[:, 1], color='black', label='inliers')
+	outlier_plot = subfig1.scatter(X_outliers[:, 0], X_outliers[:, 1], color='red', label='outliers')
+	subfig1.set_xlim(subfig1.get_xlim()[0], 11.)
+	subfig1.set_title("Mahalanobis distances")
+
+	# Show contours of the distance functions
+	xx, yy = np.meshgrid(np.linspace(plt.xlim()[0], plt.xlim()[1], 100), np.linspace(plt.ylim()[0], plt.ylim()[1], 100))
+	zz = np.c_[xx.ravel(), yy.ravel()]
+	mahal_emp_cov = emp_cov.mahalanobis(zz)
+	mahal_emp_cov = mahal_emp_cov.reshape(xx.shape)
+	emp_cov_contour = subfig1.contour(xx, yy, np.sqrt(mahal_emp_cov), cmap=plt.cm.PuBu_r, linestyles='dashed')
+	mahal_robust_cov = robust_cov.mahalanobis(zz)
+	mahal_robust_cov = mahal_robust_cov.reshape(xx.shape)
+	robust_contour = subfig1.contour(xx, yy, np.sqrt(mahal_robust_cov), cmap=plt.cm.YlOrBr_r, linestyles='dotted')
+	subfig1.legend([emp_cov_contour.collections[1], robust_contour.collections[1], inlier_plot, outlier_plot], ['MLE dist', 'robust dist', 'inliers', 'test data'], loc="upper right", borderaxespad=0)
+	plt.xticks(())
+	plt.yticks(())
+
+	# SubPLot 1
+	emp_mahal = emp_cov.mahalanobis(X - np.mean(X, 0)) ** (0.33)
+	subfig2 = plt.subplot(2, 2, 3)
+	subfig2.boxplot([emp_mahal[:-n_outliers], emp_mahal[-n_outliers:]], widths=.25)
+	subfig2.plot(1.26 * np.ones(n_samples - n_outliers), emp_mahal[:-n_outliers], '+k', markeredgewidth=1)
+	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal[-n_outliers:], '+k', markeredgewidth=1)
+	subfig2.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig2.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
+	subfig2.set_title("1. from non-robust estimates\n(Maximum Likelihood)")
+	plt.yticks(())
+
+	# SubPLot 2
+	robust_mahal = robust_cov.mahalanobis(X - robust_cov.location_) ** (0.33)
+	subfig3 = plt.subplot(2, 2, 4)
+	subfig3.boxplot([robust_mahal[:-n_outliers], robust_mahal[-n_outliers:]], widths=.25)
+	subfig3.plot(1.26 * np.ones(n_samples - n_outliers), robust_mahal[:-n_outliers], '+k', markeredgewidth=1)
+	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal[-n_outliers:], '+k', markeredgewidth=1)
+	subfig3.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig3.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
+	subfig3.set_title("2. from robust estimates\n(Minimum Covariance Determinant)")
+	plt.yticks(())
+
+	plt.show()
+
+
+
+
 """Test Space"""
 
 """
@@ -267,17 +335,18 @@ y = [0] * 8 + [1] * 8
 #y = [0] * 100 + [1] * 50
 
 """
-
 X = generate_DataMatrixFromPatientFiles2("DATA/SMALL", "ABSOLUTE")
 X = PCA(n_components=2).fit_transform(X)
-y = get_targetAgainstTheRest("center", "CENTER5", "DATA/SMALL")
+#y = get_targetAgainstTheRest("center", "CENTER5", "DATA/SMALL")
 
-X_test = np.r_[X + 200, X - 200]
-
+X_test = np.random.uniform(low=3, high=4, size=(5, 2))
 
 #print str(len(y)) + " || " +str(len(X)) 
-scores = svmClassification(X, y, "linear", "filename.pkl", 0, 1, 0)
-show_inlierDetection("filename.pkl", X, X_test)
+#scores = svmClassification(X, y, "linear", "filename.pkl", 0, 1, 0)
+#show_inlierDetection("filename.pkl", X, X_test)
 #print scores
 
+show_outlierDetection(X, X_test)
+
 """
+
