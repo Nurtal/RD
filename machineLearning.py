@@ -11,9 +11,13 @@ from sklearn import svm
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
+import matplotlib.font_manager
 from sklearn import neighbors, datasets
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.externals import joblib
+from sklearn import preprocessing
+
 
 import matplotlib.pyplot as plt
 
@@ -43,7 +47,7 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 	   trouble when low number of class
 	"""
 
-	X = data
+	X = preprocessing.scale(data)
 	y = label
 
 	validation = "undef"
@@ -61,7 +65,7 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 
 	if(exploreCParameter):
 		# Compare The score of the model
-		# WIth different values of parameter C
+		# With different values of parameter C
 		# ( Penalty parameter of the error term )
 		# a small value for C means the margin is calculated
 		# using many or all of the observations around the
@@ -104,11 +108,11 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 		plt.scatter(X[:, 0], X[:, 1], c=y, zorder=10, cmap=plt.cm.Paired)
 		plt.axis('tight')
 		
-		# have to work on this
-		x_min = -3
-		x_max = 3
-		y_min = -3
-		y_max = 3
+		# grahpe scale
+		x_min = np.amin(X)
+		x_max = np.amax(X)
+		y_min = np.amin(X)
+		y_max = np.amax(X)
 
 		clf.decision_function_shape='ovo'
 		XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
@@ -134,10 +138,99 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 
 
 
+def get_targetAgainstTheRest(targetType, target, inputFolder):
+	"""
+	-> targetType is a string, could be:
+		- center
+		- date
+	-> target is a string, the name of a specific target
+	-> inputFolder is a string, name of the folder where
+	   patient files are stored.
+	-> return a numpy array containing 1 for element that belong to target,
+	else 0.
+	-> used to get boolean y value (labels of data)
+
+	=> TODO:
+		- implement targetType "diagnostic"
+		- parse new file name	
+	"""
+	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
+	listOfCenter = []
+	listOfDate = []
+
+	for patientFile in listOfPatientFiles:
+		patientFileInArray = patientFile.split("/")
+		patientFileInArray = patientFileInArray[-1]
+		patientFileInArray = patientFileInArray.split("_")
+
+		if(len(patientFileInArray) < 6):
+			patient_id = patientFileInArray[0]
+			patient_center = patientFileInArray[1]
+			patient_date = patientFileInArray[2]
+			
+			if(targetType == "center"):
+				if(patient_center == target):
+					listOfCenter.append(1)
+				else:
+					listOfCenter.append(0)
+
+			elif(targetType == "date"):
+				if(patient_date == target):
+					listOfDate.append(1)
+				else:
+					listOfDate.append(0)
+
+	if(targetType == "center"):
+		target_center = numpy.array(tuple(listOfCenter))
+		return target_center
+	elif(targetType == "date"):
+		target_date = numpy.array(tuple(listOfDate))
+		return target_date
 
 
+def show_inlierDetection(modelFileName, trainingData, testData):
+	"""
+	-> modelFileName is a string, name of the pkl file 
+	   containing the model.
+	-> trainingData is a Numpy Array
+	-> testData is a Numpy Array
+	"""
+	xx, yy = np.meshgrid(np.linspace(np.amin(trainingData), np.amax(trainingData), 500), np.linspace(np.amin(trainingData), np.amax(trainingData), 500))
 
+	clf = joblib.load(modelFileName) 
 
+	# standardization
+	trainingData = preprocessing.scale(trainingData)
+	testData = preprocessing.scale(testData)
+
+	y_pred_train = clf.predict(trainingData)
+	y_pred_test = clf.predict(testData)
+	n_error_train = y_pred_train[y_pred_train == -1].size
+	n_error_test = y_pred_test[y_pred_test == -1].size
+
+	# plot the line, the points, and the nearest vectors to the plane
+	Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+	Z = Z.reshape(xx.shape)
+
+	plt.title("Novelty Detection")
+	plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+	a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='darkred')
+	plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='palevioletred')
+
+	s = 40
+	b1 = plt.scatter(trainingData[:, 0], trainingData[:, 1], c='white', s=s)
+	b2 = plt.scatter(testData[:, 0], testData[:, 1], c='blueviolet', s=s)
+	plt.axis('tight')
+	plt.xlim((np.amin(trainingData), np.amax(trainingData)))
+	plt.ylim((np.amin(trainingData), np.amax(trainingData)))
+	plt.legend([a.collections[0], b1, b2],
+	           ["learned frontier", "training observations",
+	            "new observations"],
+	           loc="upper left",
+	           prop=matplotlib.font_manager.FontProperties(size=11))
+	plt.xlabel("Density Estimation with One class SVM ")
+	    
+	plt.show()
 
 
 
@@ -164,13 +257,27 @@ X = np.c_[(.4, -.7),
 
 y = [0] * 8 + [1] * 8
 
-
-iris = datasets.load_iris()
-X = iris.data
-X = PCA(n_components=2).fit_transform(iris.data)
-y = [0] * 100 + [1] * 50
 """
 
-scores = svmClassification(X, y, "poly", "filename.pkl", 0, 1, 0)
 
 
+#iris = datasets.load_iris()
+#X = iris.data
+#X = PCA(n_components=2).fit_transform(iris.data)
+#y = [0] * 100 + [1] * 50
+
+"""
+
+X = generate_DataMatrixFromPatientFiles2("DATA/SMALL", "ABSOLUTE")
+X = PCA(n_components=2).fit_transform(X)
+y = get_targetAgainstTheRest("center", "CENTER5", "DATA/SMALL")
+
+X_test = np.r_[X + 200, X - 200]
+
+
+#print str(len(y)) + " || " +str(len(X)) 
+scores = svmClassification(X, y, "linear", "filename.pkl", 0, 1, 0)
+show_inlierDetection("filename.pkl", X, X_test)
+#print scores
+
+"""
