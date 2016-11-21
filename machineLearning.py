@@ -5,6 +5,7 @@ for RD project.
 
 from trashlib import *
 from trashlib2 import *
+from procedure import *
 
 from sklearn import svm
 
@@ -14,9 +15,12 @@ from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import matplotlib.font_manager
 from sklearn import neighbors, datasets
-from sklearn.model_selection import KFold, cross_val_score
+
+from sklearn import *
+
+#from sklearn.model_selection import KFold, cross_val_score
 from sklearn.externals import joblib
-from sklearn import preprocessing
+#from sklearn import preprocessing
 
 
 import matplotlib.pyplot as plt
@@ -131,7 +135,11 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 		plt.yticks(())
 		fignum = fignum + 1
 
-		plt.show()
+		#plt.show()
+		figsaveName = modelSaveFile.split(".")
+		figsaveName = "IMAGES/"+figsaveName[0]+".jpg"
+		plt.savefig(figsaveName)
+		plt.close()
 
 	return validation
 
@@ -143,42 +151,47 @@ def get_targetAgainstTheRest(targetType, target, inputFolder):
 	-> targetType is a string, could be:
 		- center
 		- date
+		- disease
 	-> target is a string, the name of a specific target
 	-> inputFolder is a string, name of the folder where
 	   patient files are stored.
 	-> return a numpy array containing 1 for element that belong to target,
 	else 0.
 	-> used to get boolean y value (labels of data)
-
-	=> TODO:
-		- implement targetType "diagnostic"
-		- parse new file name	
 	"""
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfCenter = []
 	listOfDate = []
+	listOfDisease = []
 
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/")
+		patientFileInArray = patientFile.split("\\") # change on Linux / Windows
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 
-		if(len(patientFileInArray) < 6):
-			patient_id = patientFileInArray[0]
-			patient_center = patientFileInArray[1]
-			patient_date = patientFileInArray[2]
+		patient_disease = patientFileInArray[0]
+		patient_id = patientFileInArray[1]
+		patient_center = patientFileInArray[2]
+		patient_date = patientFileInArray[3]
 			
-			if(targetType == "center"):
-				if(patient_center == target):
-					listOfCenter.append(1)
-				else:
-					listOfCenter.append(0)
+		if(targetType == "center"):
+			if(patient_center == target):
+				listOfCenter.append(1)
+			else:
+				listOfCenter.append(0)
 
-			elif(targetType == "date"):
-				if(patient_date == target):
-					listOfDate.append(1)
-				else:
-					listOfDate.append(0)
+		elif(targetType == "date"):
+			if(patient_date == target):
+				listOfDate.append(1)
+			else:
+				listOfDate.append(0)
+
+		elif(targetType == "disease"):
+			if(patient_disease == target):
+				listOfDisease.append(1)
+			else:
+				listOfDisease.append(0)
+
 
 	if(targetType == "center"):
 		target_center = numpy.array(tuple(listOfCenter))
@@ -186,6 +199,9 @@ def get_targetAgainstTheRest(targetType, target, inputFolder):
 	elif(targetType == "date"):
 		target_date = numpy.array(tuple(listOfDate))
 		return target_date
+	elif(targetType == "disease"):
+		target_disease = numpy.array(tuple(listOfDisease))
+		return target_disease
 
 
 def show_inlierDetection(modelFileName, trainingData, testData):
@@ -335,18 +351,21 @@ y = [0] * 8 + [1] * 8
 #y = [0] * 100 + [1] * 50
 
 """
-X = generate_DataMatrixFromPatientFiles2("DATA/SMALL", "ABSOLUTE")
+checkAndFormat("DATA/PANEL_3", "DATA/PATIENT")
+X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
 X = PCA(n_components=2).fit_transform(X)
-#y = get_targetAgainstTheRest("center", "CENTER5", "DATA/SMALL")
+y = get_targetAgainstTheRest("disease", "RA", "DATA/PATIENT")
+scores = svmClassification(X, y, "poly", "filename.pkl", 0, 1, 0)
+print scores
+"""
 
-X_test = np.random.uniform(low=3, high=4, size=(5, 2))
+#X_test = np.random.uniform(low=3, high=4, size=(5, 2))
 
 #print str(len(y)) + " || " +str(len(X)) 
 #scores = svmClassification(X, y, "linear", "filename.pkl", 0, 1, 0)
 #show_inlierDetection("filename.pkl", X, X_test)
 #print scores
 
-show_outlierDetection(X, X_test)
+#show_outlierDetection(X, X_test)
 
-"""
 

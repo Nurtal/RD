@@ -4,10 +4,12 @@ ready to use
 """
 import os
 from trashlib import *
+from trashlib2 import *
+from machineLearning import *
 
 
 
-def show_PCA(inputFolder, target, projection, saveFile):
+def show_PCA(inputFolder, target, projection, saveFile, dataType, details):
 	"""
 	Perform and display PCA
 	-> inputFolder is a string, indicate the folder where are patients files
@@ -15,10 +17,10 @@ def show_PCA(inputFolder, target, projection, saveFile):
 	-> projection can be set to "3d" or "2d"
 	-> saveFile is a string, filename where graphical output is saved
 	"""
-	data = generate_DataMatrixFromPatientFiles(inputFolder)
+	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	y = get_targetedY(target, inputFolder)
 	target_name = get_targetNames(target, inputFolder)
-	quickPCA(data, y, target_name, projection, saveFile)
+	quickPCA(data, y, target_name, projection, saveFile, details)
 
 
 def show_cluster(inputFolder, numberOfCluster, saveFile):
@@ -32,12 +34,12 @@ def show_cluster(inputFolder, numberOfCluster, saveFile):
 	quickClustering(data, numberOfCluster, saveFile)
 
 
-def show_correlationMatrix(inputFolder, saveName):
+def show_correlationMatrix(inputFolder, saveName, dataType):
 	"""
 	IN ROGRESS
 	"""
-	data = generate_DataMatrixFromPatientFiles(inputFolder)
-	listOfParametres = get_listOfParameters(inputFolder)
+	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
+	listOfParametres = get_listOfParameters2(inputFolder, dataType)
 	display_correlationMatrix(data.transpose(), listOfParametres, saveName)
 
 
@@ -66,3 +68,35 @@ def RunOnFullData():
 		print folder
 		checkAndFormat(folder, "DATA/PATIENT")
 		show_correlationMatrix("DATA/PATIENT", saveName)
+
+
+
+def OverviewOnPanel(panel, dataType, target):
+	"""
+	IN PROGRESS
+	"""
+	folder = "DATA/"+str(panel)
+	saveName1 = "IMAGES/"+str(panel)+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+str(panel)+"_PCA2D.jpg"
+	saveName3 = "IMAGES/"+str(panel)+"_PCA3D.jpg"
+	checkAndFormat(folder, "DATA/PATIENT")
+	show_correlationMatrix("DATA/PATIENT", saveName1, dataType)
+	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0)
+	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)	
+
+
+
+def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName):
+	"""
+	IN PROGRESS
+
+	TODO : - pass argument to svmClassification function
+		   - resolve module problem on windows
+	"""
+
+	checkAndFormat("DATA/"+str(panel), "DATA/PATIENT")
+	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = PCA(n_components=2).fit_transform(X)
+	y = get_targetAgainstTheRest(targetType, target, "DATA/PATIENT")
+	scores = svmClassification(X, y, "poly", saveFileName, 0, 1, 0)	
+

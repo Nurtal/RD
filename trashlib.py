@@ -254,31 +254,41 @@ def get_targetNames(target, inputFolder):
 	"""
 	-> return the list of center or the list of date
 	occuring in patient file present in data folder
+	-> target is a string, could be:
+		- center
+		- date
+		- disease
 	"""	
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfCenter = []
 	listOfDate = []
+	listOfDisease = []
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/")
+		patientFileInArray = patientFile.split("\\") # change windows / Linux
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 
-		patient_id = patientFileInArray[0]
-		patient_center = patientFileInArray[1]
-		patient_date = patientFileInArray[2]
-			
+		patient_disease = patientFileInArray[0]
+		patient_id = patientFileInArray[1]
+		patient_center = patientFileInArray[2]
+		patient_date = patientFileInArray[3]
+
 		if(target == "center"):
 			if(patient_center not in listOfCenter):
 				listOfCenter.append(patient_center)
-
 		elif(target == "date"):
 			if(patient_date not in listOfDate):
 				listOfDate.append(patient_date)
+		elif(target == "disease"):
+			if(patient_disease not in listOfDisease):
+				listOfDisease.append(patient_disease)
 
 	if(target == "center"):
 		return listOfCenter
 	elif(target == "date"):
 		return listOfDate
+	elif(target == "disease"):
+		return listOfDisease
 
 
 
@@ -286,31 +296,37 @@ def get_targetedY(target, inputFolder):
 	"""
 	-> get an numpy.array containing date or center value
 	-> used to display 2 dimensional pca
+	-> target is a string, could be:
+		- center
+		- date
+		- disease
 	"""
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfCenter = []
 	listOfDate = []
+	listOfDisease = []
 
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/")
+		patientFileInArray = patientFile.split("\\") # change on Windows / Linux
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
-
-		
-		if(len(patientFileInArray) < 6):
-			patient_id = patientFileInArray[0]
-			patient_center = patientFileInArray[1]
-			patient_date = patientFileInArray[2]
-
-			target_names = get_targetNames(target, inputFolder)
 			
-			cmpt_color = 0
-			for element in target_names:
-				if(target == "center" and patient_center == element):	
-					listOfCenter.append(cmpt_color)
-				if(target == "date" and patient_date == element):
-					listOfDate.append(cmpt_color)
-				cmpt_color = cmpt_color + 1	
+		patient_disease = patientFileInArray[0]
+		patient_id = patientFileInArray[1]
+		patient_center = patientFileInArray[2]
+		patient_date = patientFileInArray[3]
+
+		target_names = get_targetNames(target, inputFolder)
+			
+		cmpt_color = 0
+		for element in target_names:
+			if(target == "center" and patient_center == element):	
+				listOfCenter.append(cmpt_color)
+			elif(target == "date" and patient_date == element):
+				listOfDate.append(cmpt_color)
+			elif(target == "disease" and patient_disease == element):
+				listOfDisease.append(cmpt_color)
+			cmpt_color = cmpt_color + 1	
 
 	if(target == "center"):
 		target_center = numpy.array(tuple(listOfCenter))
@@ -318,9 +334,12 @@ def get_targetedY(target, inputFolder):
 	elif(target == "date"):
 		target_date = numpy.array(tuple(listOfDate))
 		return target_date
+	elif(target == "disease"):
+		target_disease = numpy.array(tuple(listOfDisease))
+		return target_disease
 
 
-def quickPCA(data, y, target_name, projection, saveName):
+def quickPCA(data, y, target_name, projection, saveName, details):
 	"""
 	-> perform and display pca
 	-> data is a numpy.array object
@@ -329,14 +348,37 @@ def quickPCA(data, y, target_name, projection, saveName):
 	-> target_name : le nom des parametre en y
 	-> projection: 2d ou 3d
 	-> saveName is a string, name of the file where fig is saved
+	-> details is a boolean, should be 0 for normal pca, should be 1
+	   for Additional Graphics
 	"""
 
 	pca = PCA()
 	C = pca.fit(data).transform(data)
 
 	covar = numpy.cov(data.transpose())
-	print covar
+	
 
+	# Additional Graphics
+	# -> Decroissance de la variance explique
+	# ->Diagramme des premieres composante principales
+	#-------------------------------------------------
+	if(details):
+
+		saveNameInArray = saveName.split(".")
+		subSaveName1 = str(saveNameInArray[0]) + "_variance1.jpg"
+		subSaveName2 = str(saveNameInArray[0]) + "_variance2.jpg"
+
+		plt.figure()
+		plt.plot(pca.explained_variance_ratio_)
+		#plt.show()
+		plt.savefig(subSaveName1)
+		plt.close()
+
+		plt.figure()
+		plt.boxplot(C[:,0:20])
+		#plt.show()
+		plt.savefig(subSaveName2)
+		plt.close()
 
 	if(projection == "2d"):
 		plt.figure()
@@ -436,6 +478,13 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 		newPatientFile.close()
 
 		print "=> "+patientFileName+" Done"
+
+
+
+
+
+
+
 
 
 """Test Space"""

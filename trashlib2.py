@@ -23,6 +23,9 @@ def get_listOfParameters2(inputFolder, typeOfParameter):
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	for patientFile in listOfPatientFiles:
 		dataInPatientFile = open(patientFile, "r")
+
+		print "=> " +str(patientFile)
+
 		for line in dataInPatientFile:
 			lineInArray = line.split(";")
 			if(lineInArray[2] == typeOfParameter):
@@ -130,17 +133,18 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 
 	for patientFile in listOfPatientFiles:
 
-		print patientFile
-
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("/") # change on windows
+		patientFilesInArray = patientFilesInArray.split("\\") # change on windows
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector2(patientFile, vectorFileName, typeOfParameter)
 		listOfVectorFiles.append(vectorFileName)
 	listOfVector = []
 	for vectorFile in listOfVectorFiles:
+
+		#print vectorFile
+
 		vectorData = open(vectorFile, "r")
 		listOfvalue = []
 		for line in vectorData:
@@ -157,6 +161,104 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 
 
 """TEST SPACE"""
+
+
+
+
+def get_targetNames2(target, inputFolder):
+	"""
+	-> return the list of center or the list of date
+	occuring in patient file present in data folder
+	-> target is a string, could be:
+		- center
+		- date
+		- disease
+	"""	
+	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
+	listOfCenter = []
+	listOfDate = []
+	listOfDisease = []
+	for patientFile in listOfPatientFiles:
+		patientFileInArray = patientFile.split("\\") # change windows / Linux
+		patientFileInArray = patientFileInArray[-1]
+		patientFileInArray = patientFileInArray.split("_")
+
+		patient_disease = patientFileInArray[0]
+		patient_id = patientFileInArray[1]
+		patient_center = patientFileInArray[2]
+		patient_date = patientFileInArray[3]
+
+		if(target == "center"):
+			if(patient_center not in listOfCenter):
+				listOfCenter.append(patient_center)
+		elif(target == "date"):
+			if(patient_date not in listOfDate):
+				listOfDate.append(patient_date)
+		elif(target == "disease"):
+			if(patient_disease not in listOfDisease):
+				listOfDisease.append(patient_disease)
+
+	if(target == "center"):
+		return listOfCenter
+	elif(target == "date"):
+		return listOfDate
+	elif(target == "disease"):
+		return listOfDisease
+
+
+
+
+def get_targetedY2(target, inputFolder):
+	"""
+	-> get an numpy.array containing date or center value
+	-> used to display 2 dimensional pca
+	-> target is a string, could be:
+		- center
+		- date
+		- disease
+	"""
+	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
+	listOfCenter = []
+	listOfDate = []
+	listOfDisease = []
+
+	for patientFile in listOfPatientFiles:
+		patientFileInArray = patientFile.split("\\") # change on Windows / Linux
+		patientFileInArray = patientFileInArray[-1]
+		patientFileInArray = patientFileInArray.split("_")
+			
+		patient_disease = patientFileInArray[0]
+		patient_id = patientFileInArray[1]
+		patient_center = patientFileInArray[2]
+		patient_date = patientFileInArray[3]
+
+		target_names = get_targetNames2(target, inputFolder)
+			
+		cmpt_color = 0
+		for element in target_names:
+			if(target == "center" and patient_center == element):	
+				listOfCenter.append(cmpt_color)
+			elif(target == "date" and patient_date == element):
+				listOfDate.append(cmpt_color)
+			elif(target == "disease" and patient_disease == element):
+				listOfDisease.append(cmpt_color)
+			cmpt_color = cmpt_color + 1	
+
+	if(target == "center"):
+		target_center = numpy.array(tuple(listOfCenter))
+		return target_center
+	elif(target == "date"):
+		target_date = numpy.array(tuple(listOfDate))
+		return target_date
+	elif(target == "disease"):
+		target_disease = numpy.array(tuple(listOfDisease))
+		return target_disease
+
+
+
+#machin = get_targetedY2("disease", "DATA/PANEL_1")
+
+#print machin
 
 
 #machin = get_listOfParameters2("DATA/PATIENT", "ALL")
