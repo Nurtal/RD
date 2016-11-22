@@ -23,7 +23,10 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 		
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # Windows
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileName = patientFileInArray[-1]
 		newPatientFileName = outputFolder+"/"+str(patientFileName)
 
@@ -60,7 +63,10 @@ def apply_filter(targetType, target):
 
 	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/") # change on Windows / Linux
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 			
@@ -96,3 +102,65 @@ def restore_Data():
 	listOfPatientSaved = glob.glob("DATA/PATIENT_SAVE/*.csv")
 	for patientSaved in listOfPatientSaved:
 		shutil.copy(patientSaved, "DATA/PATIENT/")
+
+
+
+def fusion_panel(listOfPanels):
+	"""
+	IN PROGRESS
+
+	-> concat patient files, use all panel present in listOfPanels
+	-> listOfPanels is a list of string
+
+	TODO:
+		-> test on real data
+	"""
+
+
+	# initialiser les files
+	listOfPatientFiles = glob.glob("DATA/"+str(listOfPanels[0])+"/*.csv")
+	for patientFile in listOfPatientFiles:
+		if(platform.system() == "Linux"):
+				patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
+		
+		patientFileName = patientFileInArray[-1]
+		newPatientFileName = "DATA/PATIENT/"+str(patientFileName)
+		newFile = open(newPatientFileName, "w")
+		newFile.close()
+
+	# remplir le fichier
+	for panel in listOfPanels:
+		listOfPatientFiles = glob.glob("DATA/"+str(panel)+"/*.csv")
+		for patientFile in listOfPatientFiles:
+			if(platform.system() == "Linux"):
+				patientFileInArray = patientFile.split("/")
+			elif(platform.system() == "Windows"):
+				patientFileInArray = patientFile.split("\\")
+		patientFileName = patientFileInArray[-1]
+		newPatientFileName = "DATA/PATIENT/"+str(patientFileName)
+		sourceFile = open("DATA/"+str(panel)+"/"+patientFileName, "r")
+		dataToCopy = []
+		for line in sourceFile:
+			dataToCopy.append(line)
+		sourceFile.close()
+
+		destinationFile = open(newPatientFileName, "a")
+		for line in dataToCopy:
+			destinationFile.write(line)
+		destinationFile.close()
+
+
+
+
+"""Test Space"""
+
+
+
+
+
+
+
+
+
