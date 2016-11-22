@@ -3,7 +3,8 @@ convert, save, filter
 operation on data files
 """
 
-import trashlib
+from trashlib import *
+from trashlib2 import *
 
 import glob
 import shutil
