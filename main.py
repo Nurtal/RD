@@ -34,5 +34,6 @@ for panel in listOfPanel:
 
 
 
-
-inlierDetection("disease", "Control", "disease", "RA", "PROPORTION", "filename.pkl")
+checkAndFormat("DATA/PANEL_5", "DATA/PATIENT")
+save_data()
+outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
