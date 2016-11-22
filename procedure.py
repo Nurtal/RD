@@ -100,3 +100,78 @@ def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName):
 	y = get_targetAgainstTheRest(targetType, target, "DATA/PATIENT")
 	scores = svmClassification(X, y, "poly", saveFileName, 0, 1, 0)	
 
+
+
+def outlierDetection(targetType1, target1, targetType2, target2, dataType):
+	"""
+	IN PROGRESS
+
+	-> targetType (1 & 2) is a string, could be:
+		- center
+		- date
+		- disease
+	-> target is a string, the actual center, disease, date
+	   you're looking for ( e.g : UBO, RA ... )
+	-> dataType is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-RATIO
+		-MFI
+		-ALL
+
+	TODO:
+		-> implement panel gestion
+	"""
+
+	# training set
+	restore_Data()
+	apply_filter(targetType1, target1)
+	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = PCA(n_components=2).fit_transform(X)
+
+	# new observation
+	restore_Data()
+	apply_filter(targetType2, target2)
+	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X_test = PCA(n_components=2).fit_transform(X_test)
+
+	show_outlierDetection(X, X_test)
+
+
+
+
+def inlierDetection(targetType1, target1, targetType2, target2, dataType, saveFileName):
+	"""
+	IN PROGRESS
+
+	-> targetType (1 & 2) is a string, could be:
+		- center
+		- date
+		- disease
+	-> target is a string, the actual center, disease, date
+	   you're looking for ( e.g : UBO, RA ... )
+	-> dataType is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-RATIO
+		-MFI
+		-ALL
+	-> saveFileName is a string, filename where the model is saved 
+
+	TODO:
+		-> implement panel gestion
+	"""
+
+	# training set
+	restore_Data()
+	apply_filter(targetType1, target1)
+	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = PCA(n_components=2).fit_transform(X)
+
+	# new observation
+	restore_Data()
+	apply_filter(targetType2, target2)
+	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X_test = PCA(n_components=2).fit_transform(X_test)
+
+	show_inlierDetection(saveFileName, X, X_test)

@@ -135,7 +135,7 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("\\") # change on windows
+		patientFilesInArray = patientFilesInArray.split("/") # change on windows
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector2(patientFile, vectorFileName, typeOfParameter)
