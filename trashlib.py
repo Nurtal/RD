@@ -19,6 +19,11 @@ import glob
 
 import matplotlib.cm as cm
 
+import shutil
+import os
+
+import platform
+
 
 def generate_data(numberOfPatients, numberOfParameters, separator, filename):
 	"""
@@ -149,6 +154,7 @@ def convertPatientToVector(patientFile, patientInVectorFile):
 	take a patient filename
 	write a new "vector" file
 	only consider the "ABSOLUTE" parameters
+	=> Obsolete <=
 	"""
 	vectorFile = open(patientInVectorFile, "w")
 	patientData = open(patientFile, "r")
@@ -186,7 +192,10 @@ def generate_DataMatrixFromPatientFiles(inputFolder):
 	for patientFile in listOfPatientFiles:
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("\\") # change on windows
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector(patientFile, vectorFileName)
@@ -264,7 +273,10 @@ def get_targetNames(target, inputFolder):
 	listOfDate = []
 	listOfDisease = []
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # change windows / Linux
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 
@@ -307,7 +319,12 @@ def get_targetedY(target, inputFolder):
 	listOfDisease = []
 
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # change on Windows / Linux
+		
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
+
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 			
@@ -446,49 +463,32 @@ def get_listOfParameters(inputFolder):
 	return listOfParameters
 
 
-def convert_tabSepratedFile(inputFolder, outputFolder):
-	"""
-	convert all tab separated files present in
-	inputfolder to ";" separated file in outputFolder
-	-> inputFolder is a string
-	-> outputFolder is a string
-	-> return nothing
-	"""
-
-	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
-		
-	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # Windows
-		patientFileName = patientFileInArray[-1]
-		newPatientFileName = outputFolder+"/"+str(patientFileName)
-
-		dataInPatientFile = open(patientFile, "r")
-		newPatientFile = open(newPatientFileName, "w")
-		for originalLine in dataInPatientFile:
-			originalLineInArray = originalLine.split("\t")
-			cmpt = 0
-			for element in originalLineInArray:
-				if(cmpt < len(originalLineInArray)-1):
-					newPatientFile.write(str(element)+";")
-				else:
-					newPatientFile.write(str(element))
-				cmpt = cmpt + 1
-
-		dataInPatientFile.close()
-		newPatientFile.close()
-
-		print "=> "+patientFileName+" Done"
-
-
-
-
-
 
 
 
 
 """Test Space"""
 
+
+
+
+
+
+
+
+"""
+listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+
+for patientFile in listOfPatientFiles:
+	patientFileInArray = patientFile.split("/") # change on Windows / Linux
+	patientFileName = patientFileInArray[-1]
+	randindex = random.randint(0, 7)
+	newFileName = listOfDisease[randindex]+"_"+patientFileName
+	print newFileName
+
+	shutil.copy(patientFile, "DATA/PATIENT_1/"+newFileName)
+"""
 
 #inputFolder = "DATA/INPUT"
 #outputFolder = "DATA/PATIENT"

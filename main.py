@@ -19,6 +19,7 @@ listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 #show_correlationMatrix("DATA/PATIENT", "correlationMatrix_Pan0el1.jpg")
 #RunOnFullData()
 
+"""
 for panel in listOfPanel:
 	for disease in listOfDisease:
 		saveName = str(panel)+"_"+str(disease)+"_ABSOLUTE.pkl"
@@ -26,7 +27,12 @@ for panel in listOfPanel:
 		use_SupportVectorMachine(panel, "ABSOLUTE", "disease", disease, saveName, "poly")
 		use_SupportVectorMachine(panel, "ABSOLUTE", "disease", disease, saveName, "rbf")
 		
-
+"""
 
 #for panel in listOfPanel : 
 #	OverviewOnPanel(panel, "PROPORTION", "disease")
+
+
+
+
+inlierDetection("disease", "Control", "disease", "RA", "PROPORTION", "filename.pkl")

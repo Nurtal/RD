@@ -5,7 +5,7 @@ for RD project.
 
 from trashlib import *
 from trashlib2 import *
-from procedure import *
+#from procedure import *
 
 from sklearn import svm
 
@@ -346,7 +346,7 @@ y = [0] * 8 + [1] * 8
 """
 
 
-
+	
 #iris = datasets.load_iris()
 #X = iris.data
 #X = PCA(n_components=2).fit_transform(iris.data)
@@ -361,12 +361,33 @@ y = get_targetAgainstTheRest("disease", "RA", "DATA/PATIENT")
 scores = svmClassification(X, y, "poly", "filename.pkl", 0, 1, 0)
 print scores
 """
+"""
+restore_Data()
+apply_filter("disease", "Control")
+X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X = PCA(n_components=2).fit_transform(X)
 
+restore_Data()
+apply_filter("disease", "RA")
+X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X_test = PCA(n_components=2).fit_transform(X_test)
+
+show_outlierDetection(X, X_test)
+#show_inlierDetection("filename.pkl", X, X_test)
+"""
 #X_test = np.random.uniform(low=3, high=4, size=(5, 2))
 
 #print str(len(y)) + " || " +str(len(X)) 
 #scores = svmClassification(X, y, "linear", "filename.pkl", 0, 1, 0)
+
+
+#iris = datasets.load_iris()
+#X = iris.data
+#X = PCA(n_components=2).fit_transform(iris.data)
+#X_test = np.random.uniform(low=3, high=4, size=(5, 2))
+#show_outlierDetection(X, X_test)
 #show_inlierDetection("filename.pkl", X, X_test)
+
 #print scores
 
 #show_outlierDetection(X, X_test)
