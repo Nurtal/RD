@@ -22,6 +22,8 @@ import matplotlib.cm as cm
 import shutil
 import os
 
+import platform
+
 
 def generate_data(numberOfPatients, numberOfParameters, separator, filename):
 	"""
@@ -190,7 +192,10 @@ def generate_DataMatrixFromPatientFiles(inputFolder):
 	for patientFile in listOfPatientFiles:
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("/") # change on windows
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector(patientFile, vectorFileName)
@@ -268,7 +273,10 @@ def get_targetNames(target, inputFolder):
 	listOfDate = []
 	listOfDisease = []
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/") # change windows / Linux
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 
@@ -311,7 +319,12 @@ def get_targetedY(target, inputFolder):
 	listOfDisease = []
 
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("/") # change on Windows / Linux
+		
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
+
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 			
@@ -455,6 +468,7 @@ def get_listOfParameters(inputFolder):
 
 
 """Test Space"""
+
 
 
 

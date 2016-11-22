@@ -5,6 +5,7 @@ for the RD project
 
 import glob
 import numpy
+import platform
 
 
 def get_listOfParameters2(inputFolder, typeOfParameter):
@@ -135,7 +136,10 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
-		patientFilesInArray = patientFilesInArray.split("/") # change on windows
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector2(patientFile, vectorFileName, typeOfParameter)
@@ -179,7 +183,10 @@ def get_targetNames2(target, inputFolder):
 	listOfDate = []
 	listOfDisease = []
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # change windows / Linux
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 
@@ -223,7 +230,10 @@ def get_targetedY2(target, inputFolder):
 	listOfDisease = []
 
 	for patientFile in listOfPatientFiles:
-		patientFileInArray = patientFile.split("\\") # change on Windows / Linux
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
 			
