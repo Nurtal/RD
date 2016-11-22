@@ -21,8 +21,10 @@ listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 
 for panel in listOfPanel:
 	for disease in listOfDisease:
-		saveName = str(panel)+"_"+str(disease)+"_PROPORTION.pkl"
-		use_SupportVectorMachine(panel, "PROPORTION", "disease", disease, saveName)
+		saveName = str(panel)+"_"+str(disease)+"_ABSOLUTE.pkl"
+		use_SupportVectorMachine(panel, "ABSOLUTE", "disease", disease, saveName, "linear")
+		use_SupportVectorMachine(panel, "ABSOLUTE", "disease", disease, saveName, "poly")
+		use_SupportVectorMachine(panel, "ABSOLUTE", "disease", disease, saveName, "rbf")
 		
 
 

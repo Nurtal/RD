@@ -86,7 +86,7 @@ def OverviewOnPanel(panel, dataType, target):
 
 
 
-def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName):
+def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName, kernel):
 	"""
 	IN PROGRESS
 
@@ -98,5 +98,5 @@ def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName):
 	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
 	X = PCA(n_components=2).fit_transform(X)
 	y = get_targetAgainstTheRest(targetType, target, "DATA/PATIENT")
-	scores = svmClassification(X, y, "poly", saveFileName, 0, 1, 0)	
+	scores = svmClassification(X, y, kernel, saveFileName, 0, 1, 0)	
 

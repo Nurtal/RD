@@ -49,6 +49,7 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 	   contain only 2 class
 	-> returnValidation is a boolean, seems to have
 	   trouble when low number of class
+
 	"""
 
 	X = preprocessing.scale(data)
@@ -135,10 +136,11 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 		plt.yticks(())
 		fignum = fignum + 1
 
-		#plt.show()
+		
 		figsaveName = modelSaveFile.split(".")
-		figsaveName = "IMAGES/"+figsaveName[0]+".jpg"
+		figsaveName = "IMAGES/SVM/"+str(kernel)+"/"+figsaveName[0]+".jpg" # change name according to algo
 		plt.savefig(figsaveName)
+		#plt.show()
 		plt.close()
 
 	return validation
@@ -349,6 +351,7 @@ y = [0] * 8 + [1] * 8
 #X = iris.data
 #X = PCA(n_components=2).fit_transform(iris.data)
 #y = [0] * 100 + [1] * 50
+#scores = svmClassification(X, y, "rbf", "filename.pkl", 0, 1, 0)
 
 """
 checkAndFormat("DATA/PANEL_3", "DATA/PATIENT")
