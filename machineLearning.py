@@ -49,7 +49,6 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 	   contain only 2 class
 	-> returnValidation is a boolean, seems to have
 	   trouble when low number of class
-
 	"""
 
 	X = preprocessing.scale(data)
@@ -136,11 +135,10 @@ def svmClassification(data, label, kernel, modelSaveFile, exploreCParameter, dis
 		plt.yticks(())
 		fignum = fignum + 1
 
-		
-		figsaveName = modelSaveFile.split(".")
-		figsaveName = "IMAGES/SVM/"+str(kernel)+"/"+figsaveName[0]+".jpg" # change name according to algo
-		plt.savefig(figsaveName)
 		#plt.show()
+		figsaveName = modelSaveFile.split(".")
+		figsaveName = "IMAGES/"+figsaveName[0]+".jpg"
+		plt.savefig(figsaveName)
 		plt.close()
 
 	return validation
@@ -259,11 +257,15 @@ def show_outlierDetection(X, X_outliers):
 	-> X_outliers is the data to test
 
 	=> seems to have problem when X is small
+	TODO:
+		- check Maximum Likelihood calculation for inlier in SubPLot
+		- check Minimum Covariance calculation for inlier in SubPLot 
 	"""
 
 	n_outliers = len(X_outliers)
 	n_samples = len(X)
-	X[-n_outliers:] = X_outliers
+	#X[-n_outliers:] = X_outliers
+
 
 	# fit a Minimum Covariance Determinant (MCD) robust estimator to data
 	# compare estimators learnt from the full data set with true parameters
@@ -297,7 +299,7 @@ def show_outlierDetection(X, X_outliers):
 	emp_mahal = emp_cov.mahalanobis(X - np.mean(X, 0)) ** (0.33)
 	subfig2 = plt.subplot(2, 2, 3)
 	subfig2.boxplot([emp_mahal[:-n_outliers], emp_mahal[-n_outliers:]], widths=.25)
-	subfig2.plot(1.26 * np.ones(n_samples - n_outliers), emp_mahal[:-n_outliers], '+k', markeredgewidth=1)
+	subfig2.plot(1.26 * np.ones(n_samples), emp_mahal[-n_samples:], '+k', markeredgewidth=1)
 	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal[-n_outliers:], '+k', markeredgewidth=1)
 	subfig2.axes.set_xticklabels(('inliers', 'test data'), size=15)
 	subfig2.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
@@ -308,7 +310,7 @@ def show_outlierDetection(X, X_outliers):
 	robust_mahal = robust_cov.mahalanobis(X - robust_cov.location_) ** (0.33)
 	subfig3 = plt.subplot(2, 2, 4)
 	subfig3.boxplot([robust_mahal[:-n_outliers], robust_mahal[-n_outliers:]], widths=.25)
-	subfig3.plot(1.26 * np.ones(n_samples - n_outliers), robust_mahal[:-n_outliers], '+k', markeredgewidth=1)
+	subfig3.plot(1.26 * np.ones(n_samples), robust_mahal[-n_samples:], '+k', markeredgewidth=1)
 	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal[-n_outliers:], '+k', markeredgewidth=1)
 	subfig3.axes.set_xticklabels(('inliers', 'test data'), size=15)
 	subfig3.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
@@ -351,7 +353,6 @@ y = [0] * 8 + [1] * 8
 #X = iris.data
 #X = PCA(n_components=2).fit_transform(iris.data)
 #y = [0] * 100 + [1] * 50
-#scores = svmClassification(X, y, "rbf", "filename.pkl", 0, 1, 0)
 
 """
 checkAndFormat("DATA/PANEL_3", "DATA/PATIENT")

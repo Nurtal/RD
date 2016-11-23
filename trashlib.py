@@ -387,13 +387,13 @@ def quickPCA(data, y, target_name, projection, saveName, details):
 
 		plt.figure()
 		plt.plot(pca.explained_variance_ratio_)
-		#plt.show()
+		plt.show()
 		plt.savefig(subSaveName1)
 		plt.close()
 
 		plt.figure()
 		plt.boxplot(C[:,0:20])
-		#plt.show()
+		plt.show()
 		plt.savefig(subSaveName2)
 		plt.close()
 

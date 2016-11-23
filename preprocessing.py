@@ -15,6 +15,7 @@ from scipy.stats import kstest
 from scipy.stats import anderson
 import scipy.stats as stats
 
+from sklearn import preprocessing
 
 import numpy.random as random
 from sklearn import datasets
@@ -124,23 +125,69 @@ def describe_distribution(x):
 	return summary
 
 
+def scale_Data(x):
+	"""
+	IN PROGRESS
+
+	TODO:
+		- write doc
+	"""
+
+	x_scaled = preprocessing.scale(x)
+
+	return x_scaled
+
 
 """TEST SPACE"""
+
+
+
+
+#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
+
 
 
 """
 iris = datasets.load_iris()
 x = iris.data[:, :1]  # we only take the first two features.
+X_scaled = preprocessing.scale(x)
+#show_distribution(X_scaled)
+
+
+result = describe_distribution(X_scaled)
+
+
 #x = np.loadtxt("DataFileNormalityTest.txt", unpack=True)
+
+
 x = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,8,8,8,8,9,9,9]
 
+"""
+
+"""
 listOfParams = get_listOfParameters2("DATA/PATIENT", "PROPORTION")
 for param in listOfParams:
-	x = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
-	#show_distribution(x)
-	machin = describe_distribution(x)
-	print machin
+	X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
+	
+	machin = describe_distribution(X)
+	truc = describe_distribution(X_scaled)
+	status = "undef"
+	if(machin["p"] - truc["p"] < 0 ):
+		status = "amelioration"
+
+		show_distribution(X)
+		show_distribution(X_scaled)
+
+	else:
+		status = "decreasing quality"
+
+	print str(machin["p"]) + " || " + str(truc["p"]) + " => "+status
+
 """
+
+
+
+
 
 
 

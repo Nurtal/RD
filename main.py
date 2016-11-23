@@ -10,7 +10,7 @@ listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 #use_SupportVectorMachine("PANEL_1", "PROPORTION", "disease", "RA", "Test.pkl")
 
 #checkAndFormat("DATA/PANEL_1", "DATA/PATIENT")
-#show_PCA("DATA/PATIENT", "disease", "2d", "test4.png", "PROPORTION")
+#show_PCA("DATA/PATIENT", "disease", "2d", "test4.png", "PROPORTION", 1)
 #show_cluster("DATA/PATIENT", 2, "testCluster.png")
 
 #checkAndFormat("DATA/PANEL_6", "DATA/PATIENT")
@@ -32,8 +32,36 @@ for panel in listOfPanel:
 #for panel in listOfPanel : 
 #	OverviewOnPanel(panel, "PROPORTION", "disease")
 
-
-
-checkAndFormat("DATA/PANEL_5", "DATA/PATIENT")
+"""
+listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
+"""
+
+for disease in listOfDisease:
+	checkAndFormat("DATA/PANEL_1", "DATA/PATIENT")
+	check_patient()
+	save_data()
+	outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
+
+
+
+"""
+# training set
+restore_Data()
+check_patient()
+apply_filter("disease", "Control")
+X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X = scale_Data(X)
+X = PCA(n_components=2).fit_transform(X)
+#print X
+
+# new observation
+restore_Data()
+apply_filter("disease", "SLE")
+X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X_test = PCA(n_components=2).fit_transform(X_test)
+"""

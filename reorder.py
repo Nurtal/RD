@@ -45,7 +45,7 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 		dataInPatientFile.close()
 		newPatientFile.close()
 
-		print "=> "+patientFileName+" Done"
+		#print "=> "+patientFileName+" Done"
 
 
 
@@ -77,13 +77,13 @@ def apply_filter(targetType, target):
 				
 		if(targetType == "center" and patient_center != target):	
 			os.remove(patientFile)
-			print patientFile + " => Deleted"
+			#print patientFile + " => Deleted"
 		elif(targetType == "date" and patient_date != target):
 			os.remove(patientFile)
-			print patientFile + " => Deleted"
+			#print patientFile + " => Deleted"
 		elif(targetType == "disease" and patient_disease != target):
 			os.remove(patientFile)
-			print patientFile + " => Deleted"
+			#print patientFile + " => Deleted"
 
 
 
@@ -109,11 +109,14 @@ def fusion_panel(listOfPanels):
 	"""
 	IN PROGRESS
 
+	-> not functionnal for now
+
 	-> concat patient files, use all panel present in listOfPanels
 	-> listOfPanels is a list of string
 
 	TODO:
 		-> test on real data
+
 	"""
 
 
@@ -126,9 +129,12 @@ def fusion_panel(listOfPanels):
 			patientFileInArray = patientFile.split("\\")
 		
 		patientFileName = patientFileInArray[-1]
-		newPatientFileName = "DATA/PATIENT/"+str(patientFileName)
+		patientFileNameInArray = patientFileName.split("_")
+		patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+patientFileNameInArray[2]+"_"+patientFileNameInArray[3]+".csv"
+		newPatientFileName = "DATA/FUSION/"+str(patientFileName)
 		newFile = open(newPatientFileName, "w")
 		newFile.close()
+
 
 	# remplir le fichier
 	for panel in listOfPanels:
@@ -138,18 +144,22 @@ def fusion_panel(listOfPanels):
 				patientFileInArray = patientFile.split("/")
 			elif(platform.system() == "Windows"):
 				patientFileInArray = patientFile.split("\\")
-		patientFileName = patientFileInArray[-1]
-		newPatientFileName = "DATA/PATIENT/"+str(patientFileName)
-		sourceFile = open("DATA/"+str(panel)+"/"+patientFileName, "r")
-		dataToCopy = []
-		for line in sourceFile:
-			dataToCopy.append(line)
-		sourceFile.close()
+			patientFileName = patientFileInArray[-1]
 
-		destinationFile = open(newPatientFileName, "a")
-		for line in dataToCopy:
-			destinationFile.write(line)
-		destinationFile.close()
+			patientFileNameInArray = patientFileName.split("_")
+			patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+patientFileNameInArray[2]+"_"+patientFileNameInArray[3]+".csv"
+			newPatientFileName = "DATA/FUSION/"+str(patientFileName)
+
+			sourceFile = open(patientFile, "r")
+			dataToCopy = []
+			for line in sourceFile:
+				dataToCopy.append(line)
+			sourceFile.close()
+
+			destinationFile = open(newPatientFileName, "a")
+			for line in dataToCopy:
+				destinationFile.write(line)
+			destinationFile.close()
 
 
 
@@ -171,5 +181,37 @@ def save_data():
 
 
 
+def check_patient():
+	"""
+	IN PROGRESS
+	"""
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patient in listOfPatientFiles:
+		rejected = 0
+		patientData = open(patient, "r")
+		line_cmpt = 0
+		patient_id = "undef"
+		for line in patientData:
+			line_cmpt = line_cmpt + 1
+			lineInArray = line.split(";")
+			if(line_cmpt == 1):
+				patient_id = lineInArray[0]
+			else:
+				dataType = lineInArray[2]
+				parameterValue = lineInArray[4]
+				parameterValue = parameterValue[:-1]
+				if("N" in str(parameterValue)):
+					rejected = 1
 
+		if(rejected):
+			print patient_id + " rejected"
+			shutil.copy(patient, "DATA/REJECTED/")
+			os.remove(patient)
+
+			
+				
+
+
+
+		patientData.close()
 

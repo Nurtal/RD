@@ -25,7 +25,7 @@ def get_listOfParameters2(inputFolder, typeOfParameter):
 	for patientFile in listOfPatientFiles:
 		dataInPatientFile = open(patientFile, "r")
 
-		print "=> " +str(patientFile)
+		#print "=> " +str(patientFile)
 
 		for line in dataInPatientFile:
 			lineInArray = line.split(";")
@@ -127,7 +127,7 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 		-MFI
 		-ALL
 	=> Warning about Ratio: sometimes just 1 mesure / patient, not enough
-	dor 2d or 3d visualisation.
+	for 2d or 3d visualisation.
 	"""
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
 	listOfVectorFiles = []
@@ -137,9 +137,9 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
 		if(platform.system() == "Linux"):
-			patientFileInArray = patientFile.split("/")
+			patientFilesInArray = patientFile.split("/")
 		elif(platform.system() == "Windows"):
-			patientFileInArray = patientFile.split("\\")
+			patientFilesInArray = patientFile.split("\\")
 		patientFilesInArray = patientFilesInArray[-1]
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector2(patientFile, vectorFileName, typeOfParameter)

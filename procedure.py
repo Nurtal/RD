@@ -7,6 +7,7 @@ from trashlib import *
 from trashlib2 import *
 from machineLearning import *
 from reorder import *
+from preprocessing import *
 
 
 
@@ -128,13 +129,17 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType):
 	restore_Data()
 	apply_filter(targetType1, target1)
 	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = scale_Data(X)
 	X = PCA(n_components=2).fit_transform(X)
+	print len(X)
 
 	# new observation
 	restore_Data()
 	apply_filter(targetType2, target2)
 	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X_test = scale_Data(X_test)
 	X_test = PCA(n_components=2).fit_transform(X_test)
+	print len(X_test)
 
 	show_outlierDetection(X, X_test)
 
@@ -167,12 +172,14 @@ def inlierDetection(targetType1, target1, targetType2, target2, dataType, saveFi
 	restore_Data()
 	apply_filter(targetType1, target1)
 	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = scale_Data(X)
 	X = PCA(n_components=2).fit_transform(X)
 
 	# new observation
 	restore_Data()
 	apply_filter(targetType2, target2)
 	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X_test = scale_Data(X_test)
 	X_test = PCA(n_components=2).fit_transform(X_test)
 
 	show_inlierDetection(saveFileName, X, X_test)
