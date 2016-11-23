@@ -110,6 +110,7 @@ def fusion_panel(listOfPanels):
 	IN PROGRESS
 
 	-> not functionnal for now
+		- write multiple header in FUSION file (TO TEST with new solution)
 
 	-> concat patient files, use all panel present in listOfPanels
 	-> listOfPanels is a list of string
@@ -158,8 +159,38 @@ def fusion_panel(listOfPanels):
 
 			destinationFile = open(newPatientFileName, "a")
 			for line in dataToCopy:
+
 				destinationFile.write(line)
 			destinationFile.close()
+
+	# Nettoyer les fichiers
+	listOfPatientFiles = glob.glob("DATA/FUSION/*.csv")
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		shutil.copy(patientSaved, "DATA/FUSION/"+str(patientFile_save))
+
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		
+		dataToInspect = open(patientFile_save, "r")
+		dataToCorrect = open(patientFile, "w")
+		cmpt = 0
+		correctedData = []
+		for line in dataToInspect:
+			cmpt = cmpt +1
+			lineInArray = line.split("\t")
+			if(cmpt == 1):
+				correctedData.append(line)
+			else:
+				if(lineInArray[1] != "POPULATION")
+					correctedData.append(line)
+
+		dataToCorrect.write(correctedData)
+
+		dataToCorrect.close()
+		dataToInspect.close()
+		
+
 
 
 
@@ -207,11 +238,6 @@ def check_patient():
 			print patient_id + " rejected"
 			shutil.copy(patient, "DATA/REJECTED/")
 			os.remove(patient)
-
-			
-				
-
-
 
 		patientData.close()
 
