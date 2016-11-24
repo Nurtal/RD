@@ -11,7 +11,7 @@ from preprocessing import *
 
 
 
-def show_PCA(inputFolder, target, projection, saveFile, dataType, details):
+def show_PCA(inputFolder, target, projection, saveFile, dataType, details, show):
 	"""
 	Perform and display PCA
 	-> inputFolder is a string, indicate the folder where are patients files
@@ -22,7 +22,7 @@ def show_PCA(inputFolder, target, projection, saveFile, dataType, details):
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	y = get_targetedY(target, inputFolder)
 	target_name = get_targetNames(target, inputFolder)
-	quickPCA(data, y, target_name, projection, saveFile, details)
+	quickPCA(data, y, target_name, projection, saveFile, details, show)
 
 
 def show_cluster(inputFolder, numberOfCluster, saveFile):
@@ -36,13 +36,13 @@ def show_cluster(inputFolder, numberOfCluster, saveFile):
 	quickClustering(data, numberOfCluster, saveFile)
 
 
-def show_correlationMatrix(inputFolder, saveName, dataType):
+def show_correlationMatrix(inputFolder, saveName, dataType, show):
 	"""
 	IN ROGRESS
 	"""
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	listOfParametres = get_listOfParameters2(inputFolder, dataType)
-	display_correlationMatrix(data.transpose(), listOfParametres, saveName)
+	display_correlationMatrix(data.transpose(), listOfParametres, saveName, show)
 
 
 def checkAndFormat(inputFolder, outputFolder):
@@ -86,7 +86,7 @@ def OverviewOnPanel(panel, dataType, target):
 	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)
 
 
-def OverviewOnDisease(disease, dataType, target):
+def OverviewOnDisease(disease, dataType, target, show):
 	"""
 	IN PROGRESS
 	"""
@@ -94,9 +94,9 @@ def OverviewOnDisease(disease, dataType, target):
 	saveName1 = "IMAGES/"+str(disease)+"_matrixCorrelation.jpg"
 	saveName2 = "IMAGES/"+str(disease)+"_PCA2D.jpg"
 	saveName3 = "IMAGES/"+str(disease)+"_PCA3D.jpg"
-	show_correlationMatrix("DATA/PATIENT", saveName1, dataType)
-	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0)
-	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)
+	show_correlationMatrix("DATA/PATIENT", saveName1, dataType, show)
+	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0, show)
+	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1, show)
 
 
 

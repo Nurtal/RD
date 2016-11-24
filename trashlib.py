@@ -356,7 +356,7 @@ def get_targetedY(target, inputFolder):
 		return target_disease
 
 
-def quickPCA(data, y, target_name, projection, saveName, details):
+def quickPCA(data, y, target_name, projection, saveName, details, show):
 	"""
 	-> perform and display pca
 	-> data is a numpy.array object
@@ -367,6 +367,7 @@ def quickPCA(data, y, target_name, projection, saveName, details):
 	-> saveName is a string, name of the file where fig is saved
 	-> details is a boolean, should be 0 for normal pca, should be 1
 	   for Additional Graphics
+	 -> show is a boolean, 1 for display graphe 
 	"""
 
 	pca = PCA()
@@ -387,13 +388,15 @@ def quickPCA(data, y, target_name, projection, saveName, details):
 
 		plt.figure()
 		plt.plot(pca.explained_variance_ratio_)
-		plt.show()
+		if(show):
+			plt.show()
 		plt.savefig(subSaveName1)
 		plt.close()
 
 		plt.figure()
 		plt.boxplot(C[:,0:20])
-		plt.show()
+		if(show):
+			plt.show()
 		plt.savefig(subSaveName2)
 		plt.close()
 
@@ -404,7 +407,8 @@ def quickPCA(data, y, target_name, projection, saveName, details):
 		plt.legend()
 		plt.title("ACP")
 		plt.savefig(saveName)
-		plt.show()
+		if(show):
+			plt.show()
 		plt.close()
 	elif(projection =="3d"):
 		fig = plt.figure(1, figsize=(8, 6))
@@ -418,17 +422,19 @@ def quickPCA(data, y, target_name, projection, saveName, details):
 		ax.set_zlabel("Comp3")
 		ax.w_zaxis.set_ticklabels([])
 		plt.savefig(saveName)
-		plt.show()
+		if(show):
+			plt.show()
 		plt.close()
 
 
-def display_correlationMatrix(data, listOfParameters, saveName):
+def display_correlationMatrix(data, listOfParameters, saveName, show):
 	"""
 	display a graphe representation of the correlation matrix of
 	data.
 	-> data is numpy.Array object
 	-> listOfParameters is the list of parameters in data.
 	-> may have to transpose data (data.transpose())
+	-> show is a boolean, if 1: display graphe
 	"""
 	matrixCorr = numpy.corrcoef(data)
 	listOfIndex = range(0, len(listOfParameters))
@@ -437,7 +443,8 @@ def display_correlationMatrix(data, listOfParameters, saveName):
 	plt.xticks(listOfIndex, listOfParameters, rotation=90)
 	plt.yticks(listOfIndex, listOfParameters)
 	plt.savefig(saveName)
-	plt.show()
+	if(show):
+		plt.show()
 	plt.close()
 
 

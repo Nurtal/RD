@@ -47,6 +47,7 @@ outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 
 listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 for disease in listOfDisease:
+	print "=> Control VS "+disease
 	clean_folders("ALL")
 	fusion_panel(listOfPanelToConcat)
 	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
@@ -54,16 +55,8 @@ for disease in listOfDisease:
 	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
 	check_patient()
 	save_data()
-
-
-
-	#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", "mDC1_IN_leukocytes")
-	#show_distribution(X)
-
-	OverviewOnDisease(disease, "PROPORTION", "disease")
+	OverviewOnDisease(disease, "PROPORTION", "disease", 0)
 	
-	#outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
-	#noveltyDetection("disease", "Control", "disease", disease, "PROPORTION")
 
 
 
