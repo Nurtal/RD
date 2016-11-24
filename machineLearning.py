@@ -323,6 +323,96 @@ def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
 
 """Test Space"""
 
+
+
+
+
+def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier):
+	"""
+	IN PROGRESS
+
+	-> Novelty Detection using one class SVM
+
+	TODO:
+		- deal with legend
+		- write doc
+	"""
+
+
+	# definir limites de la figure
+	min_Xt = np.amin(X_train)
+	min_Xo = np.amin(X_outliers)
+	max_Xt = np.amax(X_train)
+	max_Xo = np.amax(X_outliers)
+	if(min_Xt < min_Xo):
+		min_value = min_Xt
+	else:
+		min_value = min_Xo
+	if(max_Xt > max_Xo):
+		max_value = max_Xt
+	else:
+		max_value = max_Xo
+
+
+	xx, yy = np.meshgrid(np.linspace(min_value, max_value, 500), np.linspace(min_value, max_value, 500))
+
+	# fit the model
+	clf = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+	clf.fit(X_train)
+	y_pred_train = clf.predict(X_train)
+	#y_pred_test = clf.predict(X_test)
+	y_pred_outliers = clf.predict(X_outliers)
+	n_error_train = y_pred_train[y_pred_train == -1].size
+	#n_error_test = y_pred_test[y_pred_test == -1].size
+	n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
+
+	# plot the line, the points, and the nearest vectors to the plane
+	Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+	Z = Z.reshape(xx.shape)
+
+	plt.title("Novelty Detection")
+	plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+	a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='darkred')
+	plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='palevioletred')
+
+	s = 40
+	b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c='white', s=s)
+	#b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c='blueviolet', s=s)
+	c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c='gold', s=s)
+	plt.axis('tight')
+	plt.xlim((min_value, max_value))
+	plt.ylim((min_value, max_value))
+	plt.legend([a.collections[0], b1, c],
+	           ["learned frontier", label_inlier,
+	            label_outlier, "new abnormal observations"],
+	           loc="upper left",
+	           prop=matplotlib.font_manager.FontProperties(size=11))
+	
+	#plt.xlabel(
+	#   "error train: %d/%d ; errors novel regular: ; "
+	#    "errors novel abnormal: %d/%d"
+	#    % (n_error_train, len(X_train), n_error_outliers, len(X_outliers)))
+	plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 X = np.c_[(.4, -.7),
           (-1.5, -1),

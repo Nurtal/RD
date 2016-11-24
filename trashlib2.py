@@ -137,10 +137,11 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 		patientFilesInArray = patientFile.split(".")
 		patientFilesInArray = patientFilesInArray[0]
 		if(platform.system() == "Linux"):
-			patientFilesInArray = patientFile.split("/")
+			patientFilesInArray = patientFilesInArray.split("/")
 		elif(platform.system() == "Windows"):
-			patientFilesInArray = patientFile.split("\\")
+			patientFilesInArray = patientFilesInArray.split("\\")
 		patientFilesInArray = patientFilesInArray[-1]
+
 		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
 		convertPatientToVector2(patientFile, vectorFileName, typeOfParameter)
 		listOfVectorFiles.append(vectorFileName)

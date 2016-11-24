@@ -32,8 +32,10 @@ for panel in listOfPanel:
 #for panel in listOfPanel : 
 #	OverviewOnPanel(panel, "PROPORTION", "disease")
 
+
 """
 listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 check_patient()
@@ -41,11 +43,28 @@ save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
 
+
+
+listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 for disease in listOfDisease:
-	checkAndFormat("DATA/PANEL_1", "DATA/PATIENT")
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", ["Control", disease])
+	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
 	check_patient()
 	save_data()
-	outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
+
+
+
+	#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", "mDC1_IN_leukocytes")
+	#show_distribution(X)
+
+	OverviewOnDisease(disease, "PROPORTION", "disease")
+	
+	#outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
+	#noveltyDetection("disease", "Control", "disease", disease, "PROPORTION")
+
 
 
 
@@ -63,5 +82,7 @@ X = PCA(n_components=2).fit_transform(X)
 restore_Data()
 apply_filter("disease", "SLE")
 X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X_test = scale_Data(X_test)
 X_test = PCA(n_components=2).fit_transform(X_test)
+oneClassSvm(X, X_test, "control", "sle")
 """

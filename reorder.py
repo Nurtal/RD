@@ -74,16 +74,27 @@ def apply_filter(targetType, target):
 		patient_id = patientFileInArray[1]
 		patient_center = patientFileInArray[2]
 		patient_date = patientFileInArray[3]
-				
-		if(targetType == "center" and patient_center != target):	
-			os.remove(patientFile)
-			#print patientFile + " => Deleted"
-		elif(targetType == "date" and patient_date != target):
-			os.remove(patientFile)
-			#print patientFile + " => Deleted"
-		elif(targetType == "disease" and patient_disease != target):
-			os.remove(patientFile)
-			#print patientFile + " => Deleted"
+
+		if(list(target)):
+			if(targetType == "center" and patient_center not in target):	
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
+			elif(targetType == "date" and patient_date not in target):
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
+			elif(targetType == "disease" and patient_disease not in target):
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
+		else:
+			if(targetType == "center" and patient_center != target):	
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
+			elif(targetType == "date" and patient_date != target):
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
+			elif(targetType == "disease" and patient_disease != target):
+				os.remove(patientFile)
+				#print patientFile + " => Deleted"
 
 
 
@@ -308,4 +319,73 @@ def clean_folders(folder):
 		for patientFile in listOfPatientFiles:
 			os.remove(patientFile)
 
-	
+
+
+def remove_parameter(typeOfParameter, parameter):
+	"""
+	-> Remove a specific parameter from files in PATIENT folder
+	-> typeOfParameter is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-RATIO
+		-MFI
+		-ALL (not tested yet)
+	-> parameter is a string, the specific parameter
+	   to remove (e.g : mDC1_IN_leukocytes)
+	"""
+
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		shutil.copy(patientFile, str(patientFile_save))
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		dataToInspect = open(patientFile_save, "r")
+		dataToCorrect = open(patientFile, "w")
+		correctedData = []
+		for line in dataToInspect:
+			lineInArray = line.split(";")
+			parameterName = ""
+			if(lineInArray[2] == typeOfParameter):
+				if(typeOfParameter == "PROPORTION"):
+					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+				elif(typeOfParameter == "MFI"):
+					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+				else:
+					parameterName = lineInArray[1]
+				
+			elif(typeOfParameter == "ALL" and lineInArray[1] != "Population"):
+				if(lineInArray[2] == "PROPORTION"):
+					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+				elif(lineInArray[2] == "MFI"):
+					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+				else:
+					parameterName = lineInArray[1]
+
+			if(parameterName != parameter):
+				correctedData.append(line)
+		
+		for line in correctedData:
+			dataToCorrect.write(line)
+
+		dataToCorrect.close()
+		dataToInspect.close()
+		os.remove(patientFile_save)
+
+
+
+def count_line():
+	"""
+	-> return the number of line in the programm
+	assuming all source file are in the current directory (not good !!! )
+	"""
+	line_cmpt = 0
+	listOfPythonFiles = glob.glob("*.py")
+	for pythonFile in listOfPythonFiles:
+		code = open(pythonFile, "r")
+		for line in code:
+			line_cmpt = line_cmpt + 1
+
+	return line_cmpt
+
+
