@@ -251,15 +251,12 @@ def show_inlierDetection(modelFileName, trainingData, testData):
 
 
 
-def show_outlierDetection(X, X_outliers):
+def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
 	"""
 	-> X is a numpy array containing tje training data
 	-> X_outliers is the data to test
 
 	=> seems to have problem when X is small
-	TODO:
-		- check Maximum Likelihood calculation for inlier in SubPLot
-		- check Minimum Covariance calculation for inlier in SubPLot 
 	"""
 
 	n_outliers = len(X_outliers)
@@ -277,8 +274,8 @@ def show_outlierDetection(X, X_outliers):
 
 	# Show data set
 	subfig1 = plt.subplot(3, 1, 1)
-	inlier_plot = subfig1.scatter(X[:, 0], X[:, 1], color='black', label='inliers')
-	outlier_plot = subfig1.scatter(X_outliers[:, 0], X_outliers[:, 1], color='red', label='outliers')
+	inlier_plot = subfig1.scatter(X[:, 0], X[:, 1], color='black', label=label_inlier)
+	outlier_plot = subfig1.scatter(X_outliers[:, 0], X_outliers[:, 1], color='red', label=label_outlier)
 	subfig1.set_xlim(subfig1.get_xlim()[0], 11.)
 	subfig1.set_title("Mahalanobis distances")
 
@@ -291,28 +288,30 @@ def show_outlierDetection(X, X_outliers):
 	mahal_robust_cov = robust_cov.mahalanobis(zz)
 	mahal_robust_cov = mahal_robust_cov.reshape(xx.shape)
 	robust_contour = subfig1.contour(xx, yy, np.sqrt(mahal_robust_cov), cmap=plt.cm.YlOrBr_r, linestyles='dotted')
-	subfig1.legend([emp_cov_contour.collections[1], robust_contour.collections[1], inlier_plot, outlier_plot], ['MLE dist', 'robust dist', 'inliers', 'test data'], loc="upper right", borderaxespad=0)
+	subfig1.legend([emp_cov_contour.collections[1], robust_contour.collections[1], inlier_plot, outlier_plot], ['MLE dist', 'robust dist', label_inlier, label_outlier], loc="upper right", borderaxespad=0)
 	plt.xticks(())
 	plt.yticks(())
 
 	# SubPLot 1
 	emp_mahal = emp_cov.mahalanobis(X - np.mean(X, 0)) ** (0.33)
+	emp_mahal_out = emp_cov.mahalanobis(X_outliers - np.mean(X, 0)) ** (0.33) # test
 	subfig2 = plt.subplot(2, 2, 3)
-	subfig2.boxplot([emp_mahal[:-n_outliers], emp_mahal[-n_outliers:]], widths=.25)
-	subfig2.plot(1.26 * np.ones(n_samples), emp_mahal[-n_samples:], '+k', markeredgewidth=1)
-	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal[-n_outliers:], '+k', markeredgewidth=1)
-	subfig2.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig2.boxplot([emp_mahal, emp_mahal_out], widths=.25)
+	subfig2.plot(1.26 * np.ones(n_samples), emp_mahal, '+k', markeredgewidth=1)
+	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal_out, '+k', markeredgewidth=1)
+	subfig2.axes.set_xticklabels((label_inlier, label_outlier), size=15)
 	subfig2.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
 	subfig2.set_title("1. from non-robust estimates\n(Maximum Likelihood)")
 	plt.yticks(())
 
 	# SubPLot 2
 	robust_mahal = robust_cov.mahalanobis(X - robust_cov.location_) ** (0.33)
+	robust_mahal_out = robust_cov.mahalanobis(X_outliers - robust_cov.location_) ** (0.33) # test
 	subfig3 = plt.subplot(2, 2, 4)
-	subfig3.boxplot([robust_mahal[:-n_outliers], robust_mahal[-n_outliers:]], widths=.25)
-	subfig3.plot(1.26 * np.ones(n_samples), robust_mahal[-n_samples:], '+k', markeredgewidth=1)
-	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal[-n_outliers:], '+k', markeredgewidth=1)
-	subfig3.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig3.boxplot([robust_mahal, robust_mahal_out], widths=.25)
+	subfig3.plot(1.26 * np.ones(n_samples), robust_mahal, '+k', markeredgewidth=1)
+	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal_out, '+k', markeredgewidth=1)
+	subfig3.axes.set_xticklabels((label_inlier, label_outlier), size=15)
 	subfig3.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
 	subfig3.set_title("2. from robust estimates\n(Minimum Covariance Determinant)")
 	plt.yticks(())
