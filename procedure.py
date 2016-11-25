@@ -2,9 +2,9 @@
 A few procedures
 ready to use
 """
+
 import os
 from analysis import *
-#from trashlib2 import *
 from machineLearning import *
 from reorder import *
 from preprocessing import *

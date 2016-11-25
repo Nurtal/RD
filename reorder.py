@@ -3,13 +3,12 @@ convert, save, filter
 operation on data files
 """
 
-from trashlib import *
-from trashlib2 import *
+#from trashlib import *
 
 import glob
 import shutil
 import os
-
+import platform
 
 def convert_tabSepratedFile(inputFolder, outputFolder):
 	"""

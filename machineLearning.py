@@ -4,7 +4,6 @@ for RD project.
 """
 
 from trashlib import *
-from trashlib2 import *
 #from procedure import *
 
 from sklearn import svm

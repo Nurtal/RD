@@ -22,7 +22,6 @@ from sklearn import datasets
 
 import glob
 import platform
-from trashlib2 import *
 
 
 

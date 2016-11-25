@@ -2,10 +2,65 @@
 main for RD project
 """
 
+
 from procedure import *
 
+
+# a few structure
 listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
 listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+
+
+
+"""MAIN"""
+
+for disease in listOfDisease:
+	print "=> Control VS "+disease
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", ["Control", disease])
+	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
+	check_patient()
+	save_data()
+	print "Perform Outlier Detection"
+	outlierDetection("disease", "Control", "disease", disease, "PROPORTION", 0)
+	print " => Done"
+	print "Perform Novelty Detection"
+	noveltyDetection("disease", "Control", "disease", disease, "PROPORTION", 0)
+	print " => Done"
+	print "Perform Overview on "+str(disease)
+	OverviewOnDisease(disease, "PROPORTION", "disease", 0)
+	print " => Done"
+	print "###################"
+	
+
+
+
+
+
+"""TEST SPACE"""
+
+"""
+# training set
+restore_Data()
+check_patient()
+apply_filter("disease", "Control")
+X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X = scale_Data(X)
+X = PCA(n_components=2).fit_transform(X)
+#print X
+
+# new observation
+restore_Data()
+apply_filter("disease", "SLE")
+X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
+X_test = scale_Data(X_test)
+X_test = PCA(n_components=2).fit_transform(X_test)
+oneClassSvm(X, X_test, "control", "sle")
+"""
 
 #use_SupportVectorMachine("PANEL_1", "PROPORTION", "disease", "RA", "Test.pkl")
 
@@ -18,6 +73,8 @@ listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 #show_cluster("DATA/PATIENT", 30, "testCluster.png")
 #show_correlationMatrix("DATA/PATIENT", "correlationMatrix_Pan0el1.jpg")
 #RunOnFullData()
+
+
 
 """
 for panel in listOfPanel:
@@ -43,43 +100,4 @@ checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
-"""
-
-
-
-listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
-for disease in listOfDisease:
-	print "=> Control VS "+disease
-	clean_folders("ALL")
-	fusion_panel(listOfPanelToConcat)
-	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
-	apply_filter("disease", ["Control", disease])
-	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
-	check_patient()
-	save_data()
-	#outlierDetection("disease", "Control", "disease", disease, "ALL", 0)
-	noveltyDetection("disease", "Control", "disease", disease, "ABSOLUTE", 1)
-	#OverviewOnDisease(disease, "PROPORTION", "disease", 0)
-	
-
-
-
-
-"""
-# training set
-restore_Data()
-check_patient()
-apply_filter("disease", "Control")
-X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
-X = scale_Data(X)
-X = PCA(n_components=2).fit_transform(X)
-#print X
-
-# new observation
-restore_Data()
-apply_filter("disease", "SLE")
-X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", "PROPORTION")
-X_test = scale_Data(X_test)
-X_test = PCA(n_components=2).fit_transform(X_test)
-oneClassSvm(X, X_test, "control", "sle")
 """
