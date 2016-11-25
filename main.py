@@ -57,8 +57,9 @@ for disease in listOfDisease:
 	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
 	check_patient()
 	save_data()
-	outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
-	OverviewOnDisease(disease, "PROPORTION", "disease", 0)
+	#outlierDetection("disease", "Control", "disease", disease, "ALL", 0)
+	noveltyDetection("disease", "Control", "disease", disease, "ABSOLUTE", 1)
+	#OverviewOnDisease(disease, "PROPORTION", "disease", 0)
 	
 
 

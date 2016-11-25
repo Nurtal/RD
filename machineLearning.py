@@ -251,7 +251,7 @@ def show_inlierDetection(modelFileName, trainingData, testData):
 
 
 
-def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
+def show_outlierDetection(X, X_outliers, label_inlier, label_outlier, saveFileName, show):
 	"""
 	-> X is a numpy array containing tje training data
 	-> X_outliers is the data to test
@@ -316,7 +316,10 @@ def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
 	subfig3.set_title("2. from robust estimates\n(Minimum Covariance Determinant)")
 	plt.yticks(())
 
-	plt.show()
+	plt.savefig(saveFileName)
+	
+	if(show):
+		plt.show()
 
 
 
@@ -327,7 +330,7 @@ def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
 
 
 
-def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier):
+def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier, saveFileName, show):
 	"""
 	IN PROGRESS
 
@@ -388,11 +391,14 @@ def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier):
 	           loc="upper left",
 	           prop=matplotlib.font_manager.FontProperties(size=11))
 	
-	#plt.xlabel(
-	#   "error train: %d/%d ; errors novel regular: ; "
-	#    "errors novel abnormal: %d/%d"
-	#    % (n_error_train, len(X_train), n_error_outliers, len(X_outliers)))
-	plt.show()
+	plt.xlabel(
+	   "error (outlier) : %d/%d "
+	    % (n_error_outliers, len(X_outliers)))
+
+	plt.savefig(saveFileName)
+
+	if(show):
+		plt.show()
 
 
 

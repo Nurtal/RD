@@ -3,8 +3,8 @@ A few procedures
 ready to use
 """
 import os
-from trashlib import *
-from trashlib2 import *
+from analysis import *
+#from trashlib2 import *
 from machineLearning import *
 from reorder import *
 from preprocessing import *
@@ -116,10 +116,8 @@ def use_SupportVectorMachine(panel, dataType, targetType, target, saveFileName, 
 
 
 
-def outlierDetection(targetType1, target1, targetType2, target2, dataType):
+def outlierDetection(targetType1, target1, targetType2, target2, dataType, show):
 	"""
-	IN PROGRESS
-
 	-> targetType (1 & 2) is a string, could be:
 		- center
 		- date
@@ -132,10 +130,10 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType):
 		-RATIO
 		-MFI
 		-ALL
-
-	TODO:
-		-> implement panel gestion
+	-> show is a boolean, if 1: display graphe
 	"""
+
+	saveFileName = "IMAGES/"+target1+"_vs_"+target2+"_outlierDetection.jpg"
 
 	# training set
 	restore_Data()
@@ -151,7 +149,7 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType):
 	X_test = scale_Data(X_test)
 	X_test = PCA(n_components=2).fit_transform(X_test)
 
-	show_outlierDetection(X, X_test, target1, target2)
+	show_outlierDetection(X, X_test, target1, target2, saveFileName, show)
 
 
 
@@ -196,7 +194,7 @@ def inlierDetection(targetType1, target1, targetType2, target2, dataType, saveFi
 
 
 
-def noveltyDetection(targetType1, target1, targetType2, target2, dataType):
+def noveltyDetection(targetType1, target1, targetType2, target2, dataType, show):
 	"""
 	IN PROGRESS
 
@@ -212,10 +210,10 @@ def noveltyDetection(targetType1, target1, targetType2, target2, dataType):
 		-RATIO
 		-MFI
 		-ALL
-
-	TODO:
-		-> implement panel gestion
+	-> show is a boolean, if 1: display graphe
 	"""
+
+	saveFileName = "IMAGES/"+target1+"_vs_"+target2+"_noveltyDetection.jpg"
 
 	# training set
 	restore_Data()
@@ -231,4 +229,4 @@ def noveltyDetection(targetType1, target1, targetType2, target2, dataType):
 	X_test = scale_Data(X_test)
 	X_test = PCA(n_components=2).fit_transform(X_test)
 
-	oneClassSvm(X, X_test, target1, target2)
+	oneClassSvm(X, X_test, target1, target2, saveFileName, show)

@@ -209,10 +209,11 @@ def fusion_panel(listOfPanels):
 	for patientFile in listOfPatientFiles:
 		rejected = 0
 		if(platform.system() == "Linux"):
-				patientFileInArray = patientFile.split("/")
+			patientFileInArray = patientFile.split("/")
+			nameInArray = patientFileInArray[2]
 		elif(platform.system() == "Windows"):
 			patientFileInArray = patientFile.split("\\")
-		nameInArray = patientFileInArray[1]
+			nameInArray = patientFileInArray[1]
 		nameInArray = nameInArray.split("_")
 		patient_id = nameInArray[1]
 
@@ -226,14 +227,15 @@ def fusion_panel(listOfPanels):
 						patientFileInArrayInPanel = patientFileInPanel.split("/")
 					elif(platform.system() == "Windows"):
 						patientFileInArrayInPanel = patientFileInPanel.split("\\")
-					nameInArrayInPanel = patientFileInArrayInPanel[1]
+					nameInArrayInPanel = patientFileInArrayInPanel[-1]
 					nameInArrayInPanel = nameInArrayInPanel.split("_")
 					patient_idInPanel = nameInArrayInPanel[1]
 					listOfPatientIdInPanel.append(patient_idInPanel)
 
+
 				if(patient_id not in listOfPatientIdInPanel):
-					#print str(patient_id) + "=> not in panel " +str(panel)
-					print str(patient_id) + " rejected"
+					print str(patient_id) + "=> not in panel " +str(panel)
+					#print str(patient_id) + " rejected"
 					shutil.copy(patientFile, "DATA/REJECTED/")
 					os.remove(patientFile)
 					rejected = 1
