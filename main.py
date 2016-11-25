@@ -32,21 +32,23 @@ for panel in listOfPanel:
 #for panel in listOfPanel : 
 #	OverviewOnPanel(panel, "PROPORTION", "disease")
 
-"""
 listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+"""
+
 check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
 
+"""
 for disease in listOfDisease:
 	checkAndFormat("DATA/PANEL_1", "DATA/PATIENT")
 	check_patient()
 	save_data()
 	outlierDetection("disease", "Control", "disease", disease, "PROPORTION")
-
+"""
 
 
 """
