@@ -143,8 +143,8 @@ def scale_Data(x):
 
 
 
-#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
-
+#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", "mDC1_IN_leukocytes")
+#show_distribution(X)
 
 
 """

@@ -251,15 +251,12 @@ def show_inlierDetection(modelFileName, trainingData, testData):
 
 
 
-def show_outlierDetection(X, X_outliers):
+def show_outlierDetection(X, X_outliers, label_inlier, label_outlier):
 	"""
 	-> X is a numpy array containing tje training data
 	-> X_outliers is the data to test
 
 	=> seems to have problem when X is small
-	TODO:
-		- check Maximum Likelihood calculation for inlier in SubPLot
-		- check Minimum Covariance calculation for inlier in SubPLot 
 	"""
 
 	n_outliers = len(X_outliers)
@@ -277,8 +274,8 @@ def show_outlierDetection(X, X_outliers):
 
 	# Show data set
 	subfig1 = plt.subplot(3, 1, 1)
-	inlier_plot = subfig1.scatter(X[:, 0], X[:, 1], color='black', label='inliers')
-	outlier_plot = subfig1.scatter(X_outliers[:, 0], X_outliers[:, 1], color='red', label='outliers')
+	inlier_plot = subfig1.scatter(X[:, 0], X[:, 1], color='black', label=label_inlier)
+	outlier_plot = subfig1.scatter(X_outliers[:, 0], X_outliers[:, 1], color='red', label=label_outlier)
 	subfig1.set_xlim(subfig1.get_xlim()[0], 11.)
 	subfig1.set_title("Mahalanobis distances")
 
@@ -291,28 +288,30 @@ def show_outlierDetection(X, X_outliers):
 	mahal_robust_cov = robust_cov.mahalanobis(zz)
 	mahal_robust_cov = mahal_robust_cov.reshape(xx.shape)
 	robust_contour = subfig1.contour(xx, yy, np.sqrt(mahal_robust_cov), cmap=plt.cm.YlOrBr_r, linestyles='dotted')
-	subfig1.legend([emp_cov_contour.collections[1], robust_contour.collections[1], inlier_plot, outlier_plot], ['MLE dist', 'robust dist', 'inliers', 'test data'], loc="upper right", borderaxespad=0)
+	subfig1.legend([emp_cov_contour.collections[1], robust_contour.collections[1], inlier_plot, outlier_plot], ['MLE dist', 'robust dist', label_inlier, label_outlier], loc="upper right", borderaxespad=0)
 	plt.xticks(())
 	plt.yticks(())
 
 	# SubPLot 1
 	emp_mahal = emp_cov.mahalanobis(X - np.mean(X, 0)) ** (0.33)
+	emp_mahal_out = emp_cov.mahalanobis(X_outliers - np.mean(X, 0)) ** (0.33) # test
 	subfig2 = plt.subplot(2, 2, 3)
-	subfig2.boxplot([emp_mahal[:-n_outliers], emp_mahal[-n_outliers:]], widths=.25)
-	subfig2.plot(1.26 * np.ones(n_samples), emp_mahal[-n_samples:], '+k', markeredgewidth=1)
-	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal[-n_outliers:], '+k', markeredgewidth=1)
-	subfig2.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig2.boxplot([emp_mahal, emp_mahal_out], widths=.25)
+	subfig2.plot(1.26 * np.ones(n_samples), emp_mahal, '+k', markeredgewidth=1)
+	subfig2.plot(2.26 * np.ones(n_outliers), emp_mahal_out, '+k', markeredgewidth=1)
+	subfig2.axes.set_xticklabels((label_inlier, label_outlier), size=15)
 	subfig2.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
 	subfig2.set_title("1. from non-robust estimates\n(Maximum Likelihood)")
 	plt.yticks(())
 
 	# SubPLot 2
 	robust_mahal = robust_cov.mahalanobis(X - robust_cov.location_) ** (0.33)
+	robust_mahal_out = robust_cov.mahalanobis(X_outliers - robust_cov.location_) ** (0.33) # test
 	subfig3 = plt.subplot(2, 2, 4)
-	subfig3.boxplot([robust_mahal[:-n_outliers], robust_mahal[-n_outliers:]], widths=.25)
-	subfig3.plot(1.26 * np.ones(n_samples), robust_mahal[-n_samples:], '+k', markeredgewidth=1)
-	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal[-n_outliers:], '+k', markeredgewidth=1)
-	subfig3.axes.set_xticklabels(('inliers', 'test data'), size=15)
+	subfig3.boxplot([robust_mahal, robust_mahal_out], widths=.25)
+	subfig3.plot(1.26 * np.ones(n_samples), robust_mahal, '+k', markeredgewidth=1)
+	subfig3.plot(2.26 * np.ones(n_outliers), robust_mahal_out, '+k', markeredgewidth=1)
+	subfig3.axes.set_xticklabels((label_inlier, label_outlier), size=15)
 	subfig3.set_ylabel(r"$\sqrt[3]{\rm{(Mahal. dist.)}}$", size=16)
 	subfig3.set_title("2. from robust estimates\n(Minimum Covariance Determinant)")
 	plt.yticks(())
@@ -323,6 +322,96 @@ def show_outlierDetection(X, X_outliers):
 
 
 """Test Space"""
+
+
+
+
+
+def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier):
+	"""
+	IN PROGRESS
+
+	-> Novelty Detection using one class SVM
+
+	TODO:
+		- deal with legend
+		- write doc
+	"""
+
+
+	# definir limites de la figure
+	min_Xt = np.amin(X_train)
+	min_Xo = np.amin(X_outliers)
+	max_Xt = np.amax(X_train)
+	max_Xo = np.amax(X_outliers)
+	if(min_Xt < min_Xo):
+		min_value = min_Xt
+	else:
+		min_value = min_Xo
+	if(max_Xt > max_Xo):
+		max_value = max_Xt
+	else:
+		max_value = max_Xo
+
+
+	xx, yy = np.meshgrid(np.linspace(min_value, max_value, 500), np.linspace(min_value, max_value, 500))
+
+	# fit the model
+	clf = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+	clf.fit(X_train)
+	y_pred_train = clf.predict(X_train)
+	#y_pred_test = clf.predict(X_test)
+	y_pred_outliers = clf.predict(X_outliers)
+	n_error_train = y_pred_train[y_pred_train == -1].size
+	#n_error_test = y_pred_test[y_pred_test == -1].size
+	n_error_outliers = y_pred_outliers[y_pred_outliers == 1].size
+
+	# plot the line, the points, and the nearest vectors to the plane
+	Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+	Z = Z.reshape(xx.shape)
+
+	plt.title("Novelty Detection")
+	plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+	a = plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='darkred')
+	plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='palevioletred')
+
+	s = 40
+	b1 = plt.scatter(X_train[:, 0], X_train[:, 1], c='white', s=s)
+	#b2 = plt.scatter(X_test[:, 0], X_test[:, 1], c='blueviolet', s=s)
+	c = plt.scatter(X_outliers[:, 0], X_outliers[:, 1], c='gold', s=s)
+	plt.axis('tight')
+	plt.xlim((min_value, max_value))
+	plt.ylim((min_value, max_value))
+	plt.legend([a.collections[0], b1, c],
+	           ["learned frontier", label_inlier,
+	            label_outlier, "new abnormal observations"],
+	           loc="upper left",
+	           prop=matplotlib.font_manager.FontProperties(size=11))
+	
+	#plt.xlabel(
+	#   "error train: %d/%d ; errors novel regular: ; "
+	#    "errors novel abnormal: %d/%d"
+	#    % (n_error_train, len(X_train), n_error_outliers, len(X_outliers)))
+	plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 X = np.c_[(.4, -.7),

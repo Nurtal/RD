@@ -11,7 +11,7 @@ from preprocessing import *
 
 
 
-def show_PCA(inputFolder, target, projection, saveFile, dataType, details):
+def show_PCA(inputFolder, target, projection, saveFile, dataType, details, show):
 	"""
 	Perform and display PCA
 	-> inputFolder is a string, indicate the folder where are patients files
@@ -22,7 +22,7 @@ def show_PCA(inputFolder, target, projection, saveFile, dataType, details):
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	y = get_targetedY(target, inputFolder)
 	target_name = get_targetNames(target, inputFolder)
-	quickPCA(data, y, target_name, projection, saveFile, details)
+	quickPCA(data, y, target_name, projection, saveFile, details, show)
 
 
 def show_cluster(inputFolder, numberOfCluster, saveFile):
@@ -36,13 +36,13 @@ def show_cluster(inputFolder, numberOfCluster, saveFile):
 	quickClustering(data, numberOfCluster, saveFile)
 
 
-def show_correlationMatrix(inputFolder, saveName, dataType):
+def show_correlationMatrix(inputFolder, saveName, dataType, show):
 	"""
 	IN ROGRESS
 	"""
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	listOfParametres = get_listOfParameters2(inputFolder, dataType)
-	display_correlationMatrix(data.transpose(), listOfParametres, saveName)
+	display_correlationMatrix(data.transpose(), listOfParametres, saveName, show)
 
 
 def checkAndFormat(inputFolder, outputFolder):
@@ -67,7 +67,6 @@ def RunOnFullData():
 	for panel in listOfElements:
 		folder = "DATA/"+str(panel)
 		saveName = str(panel)+"_matrixCorrelation.jpg"
-		print folder
 		checkAndFormat(folder, "DATA/PATIENT")
 		show_correlationMatrix("DATA/PATIENT", saveName)
 
@@ -84,7 +83,20 @@ def OverviewOnPanel(panel, dataType, target):
 	checkAndFormat(folder, "DATA/PATIENT")
 	show_correlationMatrix("DATA/PATIENT", saveName1, dataType)
 	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0)
-	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)	
+	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)
+
+
+def OverviewOnDisease(disease, dataType, target, show):
+	"""
+	IN PROGRESS
+	"""
+
+	saveName1 = "IMAGES/"+str(disease)+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+str(disease)+"_PCA2D.jpg"
+	saveName3 = "IMAGES/"+str(disease)+"_PCA3D.jpg"
+	show_correlationMatrix("DATA/PATIENT", saveName1, dataType, show)
+	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0, show)
+	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1, show)
 
 
 
@@ -131,7 +143,6 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType):
 	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
 	X = scale_Data(X)
 	X = PCA(n_components=2).fit_transform(X)
-	print len(X)
 
 	# new observation
 	restore_Data()
@@ -139,9 +150,8 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType):
 	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
 	X_test = scale_Data(X_test)
 	X_test = PCA(n_components=2).fit_transform(X_test)
-	print len(X_test)
 
-	show_outlierDetection(X, X_test)
+	show_outlierDetection(X, X_test, target1, target2)
 
 
 
@@ -183,3 +193,42 @@ def inlierDetection(targetType1, target1, targetType2, target2, dataType, saveFi
 	X_test = PCA(n_components=2).fit_transform(X_test)
 
 	show_inlierDetection(saveFileName, X, X_test)
+
+
+
+def noveltyDetection(targetType1, target1, targetType2, target2, dataType):
+	"""
+	IN PROGRESS
+
+	-> targetType (1 & 2) is a string, could be:
+		- center
+		- date
+		- disease
+	-> target is a string, the actual center, disease, date
+	   you're looking for ( e.g : UBO, RA ... )
+	-> dataType is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-RATIO
+		-MFI
+		-ALL
+
+	TODO:
+		-> implement panel gestion
+	"""
+
+	# training set
+	restore_Data()
+	apply_filter(targetType1, target1)
+	X = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X = scale_Data(X)
+	X = PCA(n_components=2).fit_transform(X)
+
+	# new observation
+	restore_Data()
+	apply_filter(targetType2, target2)
+	X_test = generate_DataMatrixFromPatientFiles2("DATA/PATIENT", dataType)
+	X_test = scale_Data(X_test)
+	X_test = PCA(n_components=2).fit_transform(X_test)
+
+	oneClassSvm(X, X_test, target1, target2)
