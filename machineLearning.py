@@ -319,6 +319,7 @@ def show_outlierDetection(X, X_outliers, label_inlier, label_outlier, saveFileNa
 	
 	if(show):
 		plt.show()
+	plt.close()
 
 
 
@@ -398,6 +399,7 @@ def oneClassSvm(X_train, X_outliers, label_inlier, label_outlier, saveFileName, 
 
 	if(show):
 		plt.show()
+	plt.close()
 
 
 

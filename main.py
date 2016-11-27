@@ -4,11 +4,12 @@ main for RD project
 
 
 from procedure import *
+from report import *
 
 
 # a few structure
 listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
-listOfDisease = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 
 
@@ -16,28 +17,35 @@ listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_
 
 """MAIN"""
 
-for disease in listOfDisease:
-	print "=> Control VS "+disease
-	clean_folders("ALL")
-	fusion_panel(listOfPanelToConcat)
-	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
-	apply_filter("disease", ["Control", disease])
-	remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
-	check_patient()
-	save_data()
-	print "Perform Outlier Detection"
-	outlierDetection("disease", "Control", "disease", disease, "PROPORTION", 0)
-	print " => Done"
-	print "Perform Novelty Detection"
-	noveltyDetection("disease", "Control", "disease", disease, "PROPORTION", 0)
-	print " => Done"
-	print "Perform Overview on "+str(disease)
-	OverviewOnDisease(disease, "PROPORTION", "disease", 0)
-	print " => Done"
-	print "###################"
+listOfVersus = []
+for disease1 in listOfDisease:
+	for disease2 in listOfDisease:
+		if(disease1 != disease2):
+			print "=> "+disease1+" VS "+disease2
+			versus = [disease1, disease2]
+			clean_folders("ALL")
+			fusion_panel(listOfPanelToConcat)
+			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+			apply_filter("disease", [disease1, disease2])
+			remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
+			check_patient()
+			save_data()
+			print "Perform Outlier Detection"
+			outlierDetection("disease", disease1, "disease", disease2, "ALL", 0)
+			print " => Done"
+			print "Perform Novelty Detection"
+			noveltyDetection("disease", disease1, "disease", disease2, "ALL", 0)
+			print " => Done"
+			print "Perform Overview on "+str(disease1)
+			OverviewOnDisease(disease1, "ALL", "disease", 0)
+			print " => Done"
+			listOfVersus.append(versus)
+			write_OverviewReport(disease1, "ALL", "1 to 6", 2016)
+			print "###################"
+
 	
 
-
+write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 
 
 
