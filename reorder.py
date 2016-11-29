@@ -3,12 +3,11 @@ convert, save, filter
 operation on data files
 """
 
-#from trashlib import *
-
 import glob
 import shutil
 import os
 import platform
+import subprocess
 
 def convert_tabSepratedFile(inputFolder, outputFolder):
 	"""
@@ -252,8 +251,8 @@ def save_data():
 		os.remove(patientFile)
 
 	# copy to destination
-	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")	
-	for patientFile in listOfPatientFiles:
+	listOfPatientFiles2 = glob.glob("DATA/PATIENT/*.csv")	
+	for patientFile in listOfPatientFiles2:
 		shutil.copy(patientFile, "DATA/PATIENT_SAVE/")
 
 
@@ -314,6 +313,7 @@ def clean_folders(folder):
 		listOfPatientFiles = glob.glob("DATA/FUSION/*.csv")
 		for patientFile in listOfPatientFiles:
 			os.remove(patientFile)
+
 	else:
 		# clean PATIENT folder
 		listOfPatientFiles = glob.glob("DATA/"+str(folder)+"/*.csv")
@@ -389,4 +389,115 @@ def count_line():
 
 	return line_cmpt
 
+
+def get_allParam(typeOfParameter):
+	"""
+	-> return the list of parameter of type typeOfParameter
+	-> typeOfParameter is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	"""
+	listOfParameters = []
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patientFile in listOfPatientFiles:
+		dataToInspect = open(patientFile, "r")
+		for line in dataToInspect:
+			lineInArray = line.split(";")
+			parameterName = ""
+
+			if(lineInArray[2] == typeOfParameter):
+				if(typeOfParameter == "PROPORTION"):
+					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)
+				elif(typeOfParameter == "MFI"):
+					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)
+				else:
+					parameterName = lineInArray[1]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)
+				
+			elif(typeOfParameter == "ALL" and lineInArray[1] != "Population"):
+				if(lineInArray[2] == "PROPORTION"):
+					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)
+				elif(lineInArray[2] == "MFI"):
+					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)
+				else:
+					parameterName = lineInArray[1]
+					if(parameterName not in listOfParameters):
+						listOfParameters.append(parameterName)		
+
+		dataToInspect.close()
+		return listOfParameters
+
+
+
+"""TEST SPACE"""
+
+def compile_report():
+	"""
+	IN PROGRESS
+	"""
+
+	# remove REPORT/IMAGES
+	shutil.rmtree('REPORT/IMAGES')
+	shutil.copytree("IMAGES", "REPORT/IMAGES")
+
+
+	listOfTexFiles = glob.glob("REPORT/*.tex")
+	for element in listOfTexFiles:
+		if(platform.system() == "Linux"):
+			fileName = element.split("/")
+		elif(platform.system() == "Windows"):
+			fileName = element.split("\\")
+		fileName = fileName[-1]
+		fileName = fileName.split(".")
+		fileName = fileName[0]
+
+		# compile
+		command = "pdflatex -output-directory REPORT " +str(element)
+		os.system(command)
+
+		# copy
+		source = element.split(".")
+		source = source[0] + ".pdf"
+		shutil.copy(source, "RESULTATS/"+fileName+".pdf")
+
+
+def clean_report():
+	"""
+	IN PROGRESS
+	"""
+	listOfTexFiles = glob.glob("REPORT/*.tex")
+	for texFile in listOfTexFiles:
+		os.remove(texFile)
+
+	listOfTexFiles = glob.glob("REPORT/*.aux")
+	for texFile in listOfTexFiles:
+		os.remove(texFile)
+
+	listOfTexFiles = glob.glob("REPORT/*.log")
+	for texFile in listOfTexFiles:
+		os.remove(texFile)
+
+	listOfTexFiles = glob.glob("REPORT/*.pdf")
+	for texFile in listOfTexFiles:
+		os.remove(texFile)
+
+
+def clean_image():
+	"""
+	IN PROGRESS
+	"""
+	listOfImage = glob.glob("IMAGES/*.jpg")
+	for image in listOfImage:
+		os.remove(image)
 

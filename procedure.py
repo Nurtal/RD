@@ -20,6 +20,7 @@ def show_PCA(inputFolder, target, projection, saveFile, dataType, details, show)
 	-> saveFile is a string, filename where graphical output is saved
 	"""
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
+	data = scale_Data(data) # Add for test
 	y = get_targetedY(target, inputFolder)
 	target_name = get_targetNames(target, inputFolder)
 	quickPCA(data, y, target_name, projection, saveFile, details, show)
@@ -86,14 +87,14 @@ def OverviewOnPanel(panel, dataType, target):
 	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1)
 
 
-def OverviewOnDisease(disease, dataType, target, show):
+def OverviewOnDisease(disease, control, dataType, target, show):
 	"""
 	IN PROGRESS
 	"""
 
-	saveName1 = "IMAGES/"+str(disease)+"_matrixCorrelation.jpg"
-	saveName2 = "IMAGES/"+str(disease)+"_PCA2D.jpg"
-	saveName3 = "IMAGES/"+str(disease)+"_PCA3D.jpg"
+	saveName1 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_PCA2D.jpg"
+	saveName3 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_PCA3D.jpg"
 	show_correlationMatrix("DATA/PATIENT", saveName1, dataType, show)
 	show_PCA("DATA/PATIENT", target, "2d", saveName2, dataType, 0, show)
 	show_PCA("DATA/PATIENT", target, "3d", saveName3, dataType, 1, show)
@@ -131,6 +132,8 @@ def outlierDetection(targetType1, target1, targetType2, target2, dataType, show)
 		-MFI
 		-ALL
 	-> show is a boolean, if 1: display graphe
+	-> TODO:
+		- deal with restire_Data() : create bug image for OverviewOnDisease
 	"""
 
 	saveFileName = "IMAGES/"+target1+"_vs_"+target2+"_outlierDetection.jpg"
@@ -211,6 +214,10 @@ def noveltyDetection(targetType1, target1, targetType2, target2, dataType, show)
 		-MFI
 		-ALL
 	-> show is a boolean, if 1: display graphe
+
+	-> TODO:
+		- deal with restire_Data() : create bug image for OverviewOnDisease
+
 	"""
 
 	saveFileName = "IMAGES/"+target1+"_vs_"+target2+"_noveltyDetection.jpg"

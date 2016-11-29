@@ -23,6 +23,7 @@ from sklearn import datasets
 import glob
 import platform
 
+from analysis import *
 
 
 
@@ -47,7 +48,7 @@ def show_distribution(data):
 	plt.show()
 	plt.close()
 
-	norm=random.normal(0,2,len(x))
+	norm=numpy.random.normal(0,2,len(x))
 	norm.sort()
 	plt.figure(figsize=(12,8),facecolor='1.0') 
 	plt.plot(norm,x,"o")
@@ -56,7 +57,6 @@ def show_distribution(data):
 	plt.ylabel("Expreimental quantiles", size=24)
 	plt.show()
 	plt.close()
-
 
 
 
@@ -139,52 +139,8 @@ def scale_Data(x):
 
 """TEST SPACE"""
 
-
-
-
 #X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", "mDC1_IN_leukocytes")
 #show_distribution(X)
-
-
-"""
-iris = datasets.load_iris()
-x = iris.data[:, :1]  # we only take the first two features.
-X_scaled = preprocessing.scale(x)
-#show_distribution(X_scaled)
-
-
-result = describe_distribution(X_scaled)
-
-
-#x = np.loadtxt("DataFileNormalityTest.txt", unpack=True)
-
-
-x = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,8,8,8,8,9,9,9]
-
-"""
-
-"""
-listOfParams = get_listOfParameters2("DATA/PATIENT", "PROPORTION")
-for param in listOfParams:
-	X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
-	
-	machin = describe_distribution(X)
-	truc = describe_distribution(X_scaled)
-	status = "undef"
-	if(machin["p"] - truc["p"] < 0 ):
-		status = "amelioration"
-
-		show_distribution(X)
-		show_distribution(X_scaled)
-
-	else:
-		status = "decreasing quality"
-
-	print str(machin["p"]) + " || " + str(truc["p"]) + " => "+status
-
-"""
-
-
 
 
 
