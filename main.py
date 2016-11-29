@@ -128,18 +128,44 @@ write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 """
 
 
-"""
-# Distribution analyse
+########################
+# Distribution analyse #
+########################
 
-for param in listOfGarbageParameterForRA:
+import scipy.stats as stats
+
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", "Control")
+
+listOfAllParameters = get_allParam("PROPORTION")
+for param in listOfAllParameters:
 	print "=> "+param
+	X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
+	X = scale_Data(X)
+	truc = stats.describe(X)
+	print truc
+
+
+print len(listOfAllParameters)
+
+
+
+
+
+"""
 	X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", param)
 	try:
 		show_distribution(X)
 	except:
 		print "can't show "+param
-
 """
+"""
+
+###############
+# RA Analysis #
+###############
 
 listOfVersus = []
 disease1 = "RA"qq
@@ -176,6 +202,9 @@ for disease2 in listOfDisease:
 	
 write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 compile_report()
+
+
+"""
 
 
 """TEST SPACE"""
