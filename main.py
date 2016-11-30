@@ -291,3 +291,7 @@ check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
+
+
+#machin = count_line()
+#print machin
