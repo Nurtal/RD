@@ -237,3 +237,51 @@ def noveltyDetection(targetType1, target1, targetType2, target2, dataType, show)
 	X_test = PCA(n_components=2).fit_transform(X_test)
 
 	oneClassSvm(X, X_test, target1, target2, saveFileName, show)
+
+
+
+
+	"""GENERAL PROCEDURE"""
+
+def diseaseExplorationProcedure(listOfDisease, listOfPanelToConcat):
+	"""
+	IN PROGRESS
+	"""
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE")
+
+
+	print "----PCA Analysis----"
+	clean_report()
+	clean_image()
+	for disease in listOfDisease:
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		discretization(threshold)
+
+		print "----Pattern Mining----"
+		cohorte = assemble_Cohorte()
+		linearistOfNormalParameters = get_listOfNormalParameters(cohorte, len(cohorte[0])-10)
+
+
+		print "----Perform PCA----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", ["Control", disease])
+		remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
+		#remove_parameter("ABSOLUTE", "Lymphocytes")
+		for parameter in listOfNormalParameters:
+			remove_parameter("ABSOLUTE", parameter)
+		check_patient()
+		save_data()
+		OverviewOnDisease("Control", disease, "ABSOLUTE", "disease", 1)

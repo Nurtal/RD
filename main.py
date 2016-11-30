@@ -5,6 +5,8 @@ main for RD project
 
 from procedure import *
 from report import *
+from preprocessing import *
+from patternMining import *
 
 
 # a few structure
@@ -131,28 +133,51 @@ write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 ########################
 # Distribution analyse #
 ########################
-
-import scipy.stats as stats
-
+print "----Distribution Analysis----"
 clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 apply_filter("disease", "Control")
+threshold = get_ThresholdValue("ABSOLUTE")
 
-listOfAllParameters = get_allParam("PROPORTION")
-for param in listOfAllParameters:
-	print "=> "+param
-	X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", param)
-	X = scale_Data(X)
-	truc = stats.describe(X)
-	print truc
+##################
+# Discretization #
+##################
+
+print "----Discretization----"
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", "RA")
+check_patient()
+discretization(threshold)
+
+##################
+# Pattern Mining #
+##################
+print "----Pattern Mining----"
+cohorte = assemble_Cohorte()
+from fp_growth import find_frequent_itemsets
+#cohorte = alleviate_cohorte(cohorte, 40)
 
 
-print len(listOfAllParameters)
+#####################################
+# Explore optimal value of thresold #
+#####################################
+truc = get_optimalValueOfThreshold(cohorte, 30, 5)
+print truc
 
 
+####################
+# GENERAL Analysis #
+####################
+#diseaseExplorationProcedure(listOfDisease, listOfPanelToConcat)
 
-
+"""
+for itemset in find_frequent_itemsets(cohorte, 30):
+	for element in itemset:
+		print itemset
+"""
 
 """
 	X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", param)
@@ -168,7 +193,7 @@ print len(listOfAllParameters)
 ###############
 
 listOfVersus = []
-disease1 = "RA"qq
+disease1 = "RA"
 clean_report()
 clean_image()
 for disease2 in listOfDisease:
@@ -182,27 +207,26 @@ for disease2 in listOfDisease:
 		remove_parameter("PROPORTION", "mDC1_IN_leukocytes")
 		remove_parameter("ABSOLUTE", "Lymphocytes")
 		
-		for parameter in listOfGarbageParameterForRA:
+		for parameter in listOfNormalParameters:
 			remove_parameter("ABSOLUTE", parameter)
 
 		check_patient()
 		save_data()
 		print "Perform Outlier Detection"
-		outlierDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+		#outlierDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
 		print " => Done"
 		print "Perform Novelty Detection"
-		noveltyDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+		#noveltyDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
 		print " => Done"
 		print "Perform Overview on "+str(disease1)
-		OverviewOnDisease(disease1, disease2, "ABSOLUTE", "disease", 0)
+		OverviewOnDisease(disease1, disease2, "ABSOLUTE", "disease", 1)
 		print " => Done"
 		listOfVersus.append(versus)
-		write_OverviewReport(disease1, disease2, "ABSOLUTE", "1 to 6", 2016)
+		#write_OverviewReport(disease1, disease2, "ABSOLUTE", "1 to 6", 2016)
 		print "###################"
 	
-write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
+#write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 compile_report()
-
 
 """
 

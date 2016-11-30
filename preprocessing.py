@@ -24,6 +24,7 @@ import glob
 import platform
 
 from analysis import *
+from reorder import *
 
 
 
@@ -135,6 +136,101 @@ def scale_Data(x):
 	x_scaled = preprocessing.scale(x)
 
 	return x_scaled
+
+
+
+def get_ThresholdValue(typeOfParameter):
+	"""
+	-> Return a dictionnary  param : min, max
+	-> typeOfParameter is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	
+	-> TODO:
+		implement new threshold detection
+
+	"""
+	parameterToTreshold = {}
+	listOfAllParameters = get_allParam(typeOfParameter)
+	for param in listOfAllParameters:
+		X = get_OneDimensionnalData("DATA/PATIENT", typeOfParameter, param)
+		
+		############################################################
+		# Si les data sont scale ici, les donnes a tester doivent  #
+		# aussi etre "scale", lasser brut pour le moment		   #
+		############################################################
+		# X = scale_Data(X)
+		
+		description = stats.describe(X)
+		minmax = description[1]
+		minimum = minmax[0]
+		maximum = minmax[1]
+		parameterToTreshold[param] = {"min":float(minimum), "max":float(maximum)}
+
+	return parameterToTreshold
+
+
+
+def discretization(thresholds):
+	"""
+	-> convert numerical value in patient file into
+	   discrete qualtitative value, according do threshold in thresholds.
+	-> thresholds is a dictionnary structure, create from the get_ThresholdValue
+	   function 
+	-> currently qualtitative values are:
+		-low
+		-high
+		-normal
+	-> For now work only on non-scaled data
+
+	-> TODO:
+		- implement new discretization methods (quantiles ...)
+		- increase discretization resolution (more than 3 values)
+		- implement discretization on scaled data.
+	"""
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patientFile in listOfPatientFiles:
+		if(platform.system() == "Linux"):
+			patientFileInArray = patientFile.split("/")
+		elif(platform.system() == "Windows"):
+			patientFileInArray = patientFile.split("\\")
+		patientFileName = patientFileInArray[-1]
+		newPatientFileName = "DATA/PATIENT/"+str(patientFileName)+".tmp"
+		shutil.copy(patientFile, newPatientFileName)
+
+		sourceData = open(newPatientFileName, "r")
+		destinationFile = open(patientFile, "w")
+		for line in sourceData:
+			lineInArray = line.split(";")
+			typeOfParameter = lineInArray[2]
+			parameterValue = lineInArray[4]
+			parameterValue = parameterValue[:-1]
+			parameterName = "undef"
+			if(typeOfParameter == "PROPORTION"):
+				parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+			elif(typeOfParameter == "MFI"):
+				parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+			else:
+				parameterName = lineInArray[1]
+			for parameter in thresholds.keys():
+				if(parameterName == parameter):
+					thresholdValues = thresholds[parameter]
+					if(float(parameterValue) < thresholdValues["min"]):
+						newParameterValue = "low"
+					elif(float(parameterValue) > thresholdValues["max"]):
+						newParameterValue = "high"
+					else:
+						newParameterValue = "normal"
+
+					newLine = lineInArray[0]+";"+lineInArray[1]+";"+lineInArray[2]+";"+lineInArray[3]+";"+newParameterValue+"\n"
+					destinationFile.write(newLine)
+
+		destinationFile.close()
+		sourceData.close()
+		os.remove(newPatientFileName)
+
 
 
 """TEST SPACE"""
