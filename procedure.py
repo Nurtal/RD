@@ -13,11 +13,18 @@ from preprocessing import *
 
 def show_PCA(inputFolder, target, projection, saveFile, dataType, details, show):
 	"""
-	Perform and display PCA
+	-> Perform and display PCA
 	-> inputFolder is a string, indicate the folder where are patients files
 	-> target is a string, currently only "center" and "date" are availabe
 	-> projection can be set to "3d" or "2d"
-	-> saveFile is a string, filename where graphical output is saved
+	-> saveFile is a string, used to save graphical
+	-> dataType is a string, ndicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	-> details is a boolean, 1 to have details, else 0
+	-> show is a boolean, 1 to display graphe, else 0
 	"""
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	data = scale_Data(data) # Add for test
@@ -39,7 +46,15 @@ def show_cluster(inputFolder, numberOfCluster, saveFile):
 
 def show_correlationMatrix(inputFolder, saveName, dataType, show):
 	"""
-	IN ROGRESS
+	-> Compute the correlation matrix for data present in the inputFolder
+	-> inputFolder is a string, name of the folder containing data
+	-> saveName is a string, used to save graphical
+	->  dataType is a string, ndicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	-> show is a boolean, 1 to display graphe, else 0
 	"""
 	data = generate_DataMatrixFromPatientFiles2(inputFolder, dataType)
 	listOfParametres = get_listOfParameters2(inputFolder, dataType)
@@ -48,7 +63,11 @@ def show_correlationMatrix(inputFolder, saveName, dataType, show):
 
 def checkAndFormat(inputFolder, outputFolder):
 	"""
-	IN PROGRESS
+	-> clean outputFolder, clean VECTOR folder, convert
+	   tab separated files present in inputFolder to semi-column
+	   separated diles in outputFolder.
+	-> inputFolder is a string
+	-> outputFolder is a string
 	"""
 	
 	listOfFilesToDelete = glob.glob(outputFolder+"/*.csv")
@@ -60,22 +79,21 @@ def checkAndFormat(inputFolder, outputFolder):
 	convert_tabSepratedFile(inputFolder, outputFolder)
 
 
-def RunOnFullData():
-	"""
-	IN PROGRESS
-	"""
-	listOfElements = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
-	for panel in listOfElements:
-		folder = "DATA/"+str(panel)
-		saveName = str(panel)+"_matrixCorrelation.jpg"
-		checkAndFormat(folder, "DATA/PATIENT")
-		show_correlationMatrix("DATA/PATIENT", saveName)
-
-
 
 def OverviewOnPanel(panel, dataType, target):
 	"""
-	IN PROGRESS
+	-> Peform a few analysis on panel, datatype, focus on
+	   target.
+	-> panel is a string, folder name
+	->  dataType is a string, ndicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	-> targetType is a string, could be:
+		- center
+		- date
+		- disease
 	"""
 	folder = "DATA/"+str(panel)
 	saveName1 = "IMAGES/"+str(panel)+"_matrixCorrelation.jpg"
@@ -89,9 +107,21 @@ def OverviewOnPanel(panel, dataType, target):
 
 def OverviewOnDisease(disease, control, dataType, target, show):
 	"""
-	IN PROGRESS
+	-> Perform a few PCA analysis on a specific disease, compare to a specific
+	   control, focus on specific dataType.
+	-> disease is a string, specific disease to investigate.
+	-> control is a string, specific disease to compare
+	->  dataType is a string, ndicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	-> target is a string, could be:
+		- center
+		- date
+		- disease
+	-> show is a boolean, 1 to display graphe, else 0
 	"""
-
 	saveName1 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_matrixCorrelation.jpg"
 	saveName2 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_PCA2D.jpg"
 	saveName3 = "IMAGES/"+str(disease)+"_vs_"+str(control)+"_PCA3D.jpg"
@@ -285,3 +315,15 @@ def diseaseExplorationProcedure(listOfDisease, listOfPanelToConcat):
 		check_patient()
 		save_data()
 		OverviewOnDisease("Control", disease, "ABSOLUTE", "disease", 1)
+
+
+def RunOnFullData():
+	"""
+	IN PROGRESS
+	"""
+	listOfElements = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
+	for panel in listOfElements:
+		folder = "DATA/"+str(panel)
+		saveName = str(panel)+"_matrixCorrelation.jpg"
+		checkAndFormat(folder, "DATA/PATIENT")
+		show_correlationMatrix("DATA/PATIENT", saveName)
