@@ -157,16 +157,40 @@ discretization(threshold)
 ##################
 print "----Pattern Mining----"
 cohorte = assemble_Cohorte()
-from fp_growth import find_frequent_itemsets
+
 #cohorte = alleviate_cohorte(cohorte, 40)
 
 
 #####################################
 # Explore optimal value of thresold #
+# for alleviate function            #
 #####################################
-truc = get_optimalValueOfThreshold(cohorte, 30, 5)
-print truc
+import time
 
+minNumberOfParamToRemove = 5
+maxTry = 60
+machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+
+print "=> Before: " +str(len(cohorte[0]))
+cohorte = alleviate_cohorte(cohorte, machin)
+print "=> After: " +str(len(cohorte[0]))
+
+from fp_growth import find_frequent_itemsets
+
+
+
+"""
+for itemset in find_frequent_itemsets(cohorte, 10):
+	displayItem = 0
+	for variable in itemset:
+		variableInArray = variable.split("_")
+		if(variableInArray[1] != "normal"):
+			displayItem = 1
+	if(displayItem):
+		print itemset
+end = time.time()
+print "=> Performed in: " + str(end - start)
+"""
 
 ####################
 # GENERAL Analysis #

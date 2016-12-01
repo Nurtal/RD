@@ -8,6 +8,7 @@ from analysis import *
 from machineLearning import *
 from reorder import *
 from preprocessing import *
+from patternMining import *
 
 
 
@@ -300,7 +301,8 @@ def diseaseExplorationProcedure(listOfDisease, listOfPanelToConcat):
 
 		print "----Pattern Mining----"
 		cohorte = assemble_Cohorte()
-		linearistOfNormalParameters = get_listOfNormalParameters(cohorte, len(cohorte[0])-10)
+		optimalThreshold = get_controledValueOfThreshold(cohorte, 60, 5, 3)
+		listOfNormalParameters = get_listOfNormalParameters(cohorte, optimalThreshold)
 
 
 		print "----Perform PCA----"
