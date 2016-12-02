@@ -477,7 +477,7 @@ def patternMining_run3():
 
 		print "----Pattern Mining----"
 		cohorte = assemble_Cohorte()
-		patternSaveFile = disease+"_ABSOLUTE_discretisationAlArrache.csv"
+		patternSaveFile = disease+"_ABSOLUTE_MeanGeneratedThreshold.csv"
 		minNumberOfParamToRemove = 10
 		maxTry = 60
 		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
