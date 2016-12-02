@@ -262,7 +262,8 @@ def get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, min
 			else:	
 				minNumberOfParamToRemove = minNumberOfParamToRemove - 1
 		else:
-			print "=> Good enough"
+			print "=> Found a good threshold :"+str(threshold)
+			print "=> "+str(minNumberOfParamToRemove) + " parameters removed"
 			break
 
 	return threshold
@@ -316,7 +317,7 @@ def searchForPattern(cohorte, maxTry, patternSaveFileName):
 		######################################################
 		if(len(listOffrequentItemset) > 0):
 			listOfItemSize = []
-			print "Find "+str(len(listOffrequentItemset))+" frequent itemsets with minsup = "+str(minsup)
+			print "Found "+str(len(listOffrequentItemset))+" frequent itemsets with minsup = "+str(minsup)
 			
 
 			##############################################################
@@ -371,7 +372,7 @@ def searchForPattern(cohorte, maxTry, patternSaveFileName):
 					# essayer d augmenter la taille attendue des pattern #
 					# on arrete la recherche ici                         #
 					######################################################
-					print "find a good pattern"
+					print "found a good pattern"
 					break
 		else:
 			minsup = minsup -1
@@ -395,4 +396,4 @@ cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
 
 
 
-searchForPattern(cohorte, 30, "DATA/PATTERN/test2.csv")
+#searchForPattern(cohorte, 30, "DATA/PATTERN/test2.csv")

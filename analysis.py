@@ -379,6 +379,9 @@ def convertPatientToVector2(patientFile, patientInVectorFile, typeOfParameter):
 		-RATIO
 		-MFI
 		-ALL
+	TODO:
+		- marche mal pour "ALL", doublons dans les noms de 
+		parametres
 	"""
 	vectorFile = open(patientInVectorFile, "w")
 	patientData = open(patientFile, "r")
@@ -479,3 +482,6 @@ def generate_DataMatrixFromPatientFiles2(inputFolder, typeOfParameter):
 
 	data = numpy.array(tuple(listOfVector))
 	return data
+
+
+

@@ -22,6 +22,7 @@ from sklearn import datasets
 
 import glob
 import platform
+from math import sqrt
 
 from analysis import *
 from reorder import *
@@ -139,7 +140,7 @@ def scale_Data(x):
 
 
 
-def get_ThresholdValue(typeOfParameter):
+def get_ThresholdValue(typeOfParameter, scaleValue, GenerationMethod):
 	"""
 	-> Return a dictionnary  param : min, max
 	-> typeOfParameter is a string, indicate the type of parameter
@@ -148,9 +149,13 @@ def get_ThresholdValue(typeOfParameter):
 		-MFI
 		-ALL
 	
+	-> scaleValue is a boolean, 1 to scale control value, else 0
+	-> GenerationMethod is a string, could be:
+		-Classic
+		-Mean
+	
 	-> TODO:
 		implement new threshold detection
-
 	"""
 	parameterToTreshold = {}
 	listOfAllParameters = get_allParam(typeOfParameter)
@@ -161,12 +166,26 @@ def get_ThresholdValue(typeOfParameter):
 		# Si les data sont scale ici, les donnes a tester doivent  #
 		# aussi etre "scale", lasser brut pour le moment		   #
 		############################################################
-		# X = scale_Data(X)
+		if(scaleValue):
+			X = scale_Data(X)
 		
+
 		description = stats.describe(X)
-		minmax = description[1]
-		minimum = minmax[0]
-		maximum = minmax[1]
+
+		# Classic Threshold
+		if(GenerationMethod == "Classic"):
+			minmax = description[1]
+			minimum = minmax[0]
+			maximum = minmax[1]
+
+		# Mean Threshold
+		elif(GenerationMethod == "Mean"):
+			mean = description[2]
+			variance = description[3]
+			ecartType = sqrt(variance)
+			minimum = mean - ecartType
+			maximum = mean + ecartType
+
 		parameterToTreshold[param] = {"min":float(minimum), "max":float(maximum)}
 
 	return parameterToTreshold
@@ -233,9 +252,87 @@ def discretization(thresholds):
 
 
 
+
+
+def scaleDataInPatientFolder(dataType):
+	"""
+	IN PROGRESS
+
+	TODO:
+		-write doc
+	"""
+
+	#############################################
+	# Create Matrix from data in PATIENT folder #
+	#############################################
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	listOfVectorFiles = []
+	for patientFile in listOfPatientFiles:
+		patientFilesInArray = patientFile.split(".")
+		patientFilesInArray = patientFilesInArray[0]
+		if(platform.system() == "Linux"):
+			patientFilesInArray = patientFilesInArray.split("/")
+		elif(platform.system() == "Windows"):
+			patientFilesInArray = patientFilesInArray.split("\\")
+		patientFilesInArray = patientFilesInArray[-1]
+		vectorFileName = "DATA/VECTOR/"+str(patientFilesInArray)+"_VECTOR.csv"
+		convertPatientToVector2(patientFile, vectorFileName, dataType)
+		listOfVectorFiles.append(vectorFileName)
+	listOfVector = []
+	for vectorFile in listOfVectorFiles:
+		vectorData = open(vectorFile, "r")
+		listOfvalue = []
+		for line in vectorData:
+			lineInArray = line.split(";")
+			if(lineInArray[0]!="id"):
+				parameterValue = lineInArray[1]
+				parameterValue = float(parameterValue[:-1])
+				listOfvalue.append(parameterValue)
+		vectorData.close()
+		listOfVector.append(listOfvalue)
+
+	# scale data
+	data = numpy.array(tuple(listOfVector))
+	data = scale_Data(data)
+
+	# get list of parameters 
+	listOfParameters = []
+	patientData = open(listOfPatientFiles[0], "r")
+	for line in patientData:
+		lineInArray = line.split(";")
+		if(lineInArray[1] != "POPULATION"):
+			if(lineInArray[2] == dataType or dataType == "ALL"):
+				lineInArray = lineInArray[:-1]
+				newLine = ""
+				for element in lineInArray:
+					newLine = newLine + element + ";"
+				listOfParameters.append(newLine)
+	patientData.close()
+
+
+	# Overwrite patient file
+	for x in xrange (0, len(listOfPatientFiles)):
+		patientFile = listOfPatientFiles[x]
+		patientFilesInArray = patientFile.split(".")
+		patientFilesInArray = patientFilesInArray[0]
+		if(platform.system() == "Linux"):
+			patientFilesInArray = patientFilesInArray.split("/")
+		elif(platform.system() == "Windows"):
+			patientFilesInArray = patientFilesInArray.split("\\")
+		patientFilesInArray = patientFilesInArray[-1]
+		newPatientFileName = "DATA/PATIENT/"+str(patientFilesInArray)+".csv"
+		dataToOverWrite = open(newPatientFileName, "w")
+		for y in xrange(0, len(listOfParameters)):
+			lineToWrite = listOfParameters[y]+str(data[x][y])+"\n"
+			dataToOverWrite.write(lineToWrite)
+		dataToOverWrite.close()
+
+
 """TEST SPACE"""
 
-#X = get_OneDimensionnalData("DATA/PATIENT", "PROPORTION", "mDC1_IN_leukocytes")
+#X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD25pos_activated_CD4pos_Tcells")
+#description = stats.describe(X)
+#print description
 #show_distribution(X)
 
 

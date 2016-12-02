@@ -408,33 +408,35 @@ def get_allParam(typeOfParameter):
 			lineInArray = line.split(";")
 			parameterName = ""
 
-			if(lineInArray[2] == typeOfParameter):
-				if(typeOfParameter == "PROPORTION"):
-					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)
-				elif(typeOfParameter == "MFI"):
-					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)
-				else:
-					parameterName = lineInArray[1]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)
-				
-			elif(typeOfParameter == "ALL" and lineInArray[1] != "Population"):
-				if(lineInArray[2] == "PROPORTION"):
-					parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)
-				elif(lineInArray[2] == "MFI"):
-					parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)
-				else:
-					parameterName = lineInArray[1]
-					if(parameterName not in listOfParameters):
-						listOfParameters.append(parameterName)		
+			if(lineInArray[1] != "POPULATION"):
+
+				if(lineInArray[2] == typeOfParameter):
+					if(typeOfParameter == "PROPORTION"):
+						parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)
+					elif(typeOfParameter == "MFI"):
+						parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)
+					else:
+						parameterName = lineInArray[1]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)
+					
+				elif(typeOfParameter == "ALL" and lineInArray[1] != "Population"):
+					if(lineInArray[2] == "PROPORTION"):
+						parameterName = lineInArray[1]+"_IN_"+lineInArray[3]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)
+					elif(lineInArray[2] == "MFI"):
+						parameterName = lineInArray[1]+"_MFI_"+lineInArray[3]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)
+					else:
+						parameterName = lineInArray[1]
+						if(parameterName not in listOfParameters):
+							listOfParameters.append(parameterName)		
 
 		dataToInspect.close()
 		return listOfParameters

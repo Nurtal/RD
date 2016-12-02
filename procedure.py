@@ -329,3 +329,157 @@ def RunOnFullData():
 		saveName = str(panel)+"_matrixCorrelation.jpg"
 		checkAndFormat(folder, "DATA/PATIENT")
 		show_correlationMatrix("DATA/PATIENT", saveName)
+
+
+def patternMining_run1():
+	"""
+	- ABSOLUTE data
+	- poor discretisation
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE", 0, "Classic")
+
+
+	for disease in listOfDisease:
+
+		print "----Pattern Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		discretization(threshold)
+
+		print "----Pattern Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_ABSOLUTE_discretisationAlArrache.csv"
+		minNumberOfParamToRemove = 5
+		maxTry = 60
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+
+
+def patternMining_run2():
+	"""
+	- ABSOLUTE data
+	- discretisation on scaled data
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE", 1, "Classic")
+
+
+	for disease in listOfDisease:
+
+		print "----Pattern Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		scaleDataInPatientFolder("ABSOLUTE")
+		discretization(threshold)
+
+		print "----Pattern Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_ABSOLUTE_scaledData.csv"
+		minNumberOfParamToRemove = 5
+		maxTry = 60
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+
+
+def patternMining_run2Reverse():
+	"""
+	- ABSOLUTE data
+	- discretisation on scaled data
+	"""
+	listOfDisease = ["UCTD", "SSc", "SLE", "SjS", "PAPs", "MCTD", "RA"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE", 1, "Classic")
+
+
+	for disease in listOfDisease:
+
+		print "----Pattern Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		scaleDataInPatientFolder("ABSOLUTE")
+		discretization(threshold)
+
+		print "----Pattern Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_ABSOLUTE_scaledData_reverseOrder.csv"
+		minNumberOfParamToRemove = 5
+		maxTry = 60
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+
+
+def patternMining_run3():
+	"""
+	- ABSOLUTE data
+	- discretisation using mean Generated threshold
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE", 0, "Mean")
+
+
+	for disease in listOfDisease:
+
+		print "----Pattern Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		discretization(threshold)
+
+		print "----Pattern Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_ABSOLUTE_discretisationAlArrache.csv"
+		minNumberOfParamToRemove = 10
+		maxTry = 60
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)

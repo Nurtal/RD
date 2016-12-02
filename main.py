@@ -130,6 +130,28 @@ write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 """
 
 
+
+################################
+# Convert matrix to data files #
+################################
+"""
+clean_folders("ALL")
+checkAndFormat("DATA/PANEL_1", "DATA/PATIENT")
+apply_filter("disease", "Control")
+X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "Monocytes")
+description = stats.describe(X)
+mean = description[2]
+variance = description[3]
+ecartType = sqrt(variance)
+print ecartType
+"""
+
+#scaleDataInPatientFolder("ALL")
+
+
+
+
+"""
 ########################
 # Distribution analyse #
 ########################
@@ -170,13 +192,9 @@ import time
 minNumberOfParamToRemove = 5
 maxTry = 60
 machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
-
-print "=> Before: " +str(len(cohorte[0]))
 cohorte = alleviate_cohorte(cohorte, machin)
-print "=> After: " +str(len(cohorte[0]))
-
-from fp_growth import find_frequent_itemsets
-
+#searchForPattern(cohorte, maxTry, "DATA/PATTERN/test.csv")
+"""
 
 
 """
@@ -196,6 +214,18 @@ print "=> Performed in: " + str(end - start)
 # GENERAL Analysis #
 ####################
 #diseaseExplorationProcedure(listOfDisease, listOfPanelToConcat)
+
+
+
+#########################
+# GLOBAL PATTERN MINING #
+#########################
+
+#patternMining_run1()
+#patternMining_run2()
+#patternMining_run2Reverse()
+#patternMining_run3()
+
 
 """
 for itemset in find_frequent_itemsets(cohorte, 30):
