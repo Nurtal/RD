@@ -336,10 +336,64 @@ def scaleDataInPatientFolder(dataType):
 #show_distribution(X)
 
 
+def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMethod, delta):
+	"""
+	-> Return a dictionnary  param : min, max
+	-> typeOfParameter is a string, indicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION
+		-MFI
+		-ALL
+	
+	-> scaleValue is a boolean, 1 to scale control value, else 0
+	-> GenerationMethod is a string, could be:
+		-Classic
+		-Mean
+
+	-> delta is an int, add to min thresold and substract from max threshold
+	   i.e used to get a smaller "normal zone" 
+	
+	TODO:
+		-reorder function
+		- test diffenrent generation method
+		- reorder doc
+	
+	"""
+	parameterToTreshold = {}
+	listOfAllParameters = get_allParam(typeOfParameter)
+	for param in listOfAllParameters:
+		X = get_OneDimensionnalData("DATA/PATIENT", typeOfParameter, param)
+		
+		############################################################
+		# Si les data sont scale ici, les donnes a tester doivent  #
+		# aussi etre "scale", lasser brut pour le moment		   #
+		############################################################
+		if(scaleValue):
+			X = scale_Data(X)
+		
+
+		description = stats.describe(X)
+
+		# Classic Threshold using delta correcton
+		if(GenerationMethod == "Classic"):
+			minmax = description[1]
+			minimum = minmax[0] + delta
+			maximum = minmax[1] - delta
+
+		# Mean Threshold using delta correcton
+		elif(GenerationMethod == "Mean"):
+			mean = description[2]
+			variance = description[3]
+			ecartType = sqrt(variance)
+			minimum = mean - ecartType + delta
+			maximum = mean + ecartType - delta
+
+		parameterToTreshold[param] = {"min":float(minimum), "max":float(maximum)}
+
+	return parameterToTreshold
 
 
 
 
-
-
-
+machin = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", 0)
+print machin

@@ -151,7 +151,7 @@ print ecartType
 
 
 
-"""
+
 ########################
 # Distribution analyse #
 ########################
@@ -160,8 +160,13 @@ clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 apply_filter("disease", "Control")
-threshold = get_ThresholdValue("ABSOLUTE")
+#threshold = get_ThresholdValue("ABSOLUTE")
+machin = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", 0)
+print machin
 
+
+
+"""
 ##################
 # Discretization #
 ##################
@@ -174,6 +179,10 @@ apply_filter("disease", "RA")
 check_patient()
 discretization(threshold)
 
+
+"""
+
+"""
 ##################
 # Pattern Mining #
 ##################
@@ -182,7 +191,9 @@ cohorte = assemble_Cohorte()
 
 #cohorte = alleviate_cohorte(cohorte, 40)
 
+"""
 
+"""
 #####################################
 # Explore optimal value of thresold #
 # for alleviate function            #
@@ -209,6 +220,10 @@ for itemset in find_frequent_itemsets(cohorte, 10):
 end = time.time()
 print "=> Performed in: " + str(end - start)
 """
+
+
+
+
 
 ####################
 # GENERAL Analysis #

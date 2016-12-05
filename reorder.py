@@ -439,7 +439,7 @@ def get_allParam(typeOfParameter):
 							listOfParameters.append(parameterName)		
 
 		dataToInspect.close()
-		return listOfParameters
+	return listOfParameters
 
 
 
