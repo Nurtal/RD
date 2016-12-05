@@ -150,7 +150,7 @@ print ecartType
 
 
 
-
+"""
 
 ########################
 # Distribution analyse #
@@ -160,10 +160,9 @@ clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 apply_filter("disease", "Control")
-#threshold = get_ThresholdValue("ABSOLUTE")
-machin = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", 0)
-print machin
+threshold = get_ThresholdValue("ABSOLUTE")
 
+"""
 
 
 """
@@ -240,6 +239,7 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run2()
 #patternMining_run2Reverse()
 #patternMining_run3()
+patternMining_run4()
 
 
 """

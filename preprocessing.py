@@ -327,15 +327,6 @@ def scaleDataInPatientFolder(dataType):
 			dataToOverWrite.write(lineToWrite)
 		dataToOverWrite.close()
 
-
-"""TEST SPACE"""
-
-#X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD25pos_activated_CD4pos_Tcells")
-#description = stats.describe(X)
-#print description
-#show_distribution(X)
-
-
 def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMethod, delta):
 	"""
 	-> Return a dictionnary  param : min, max
@@ -354,7 +345,7 @@ def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMetho
 	   i.e used to get a smaller "normal zone" 
 	
 	TODO:
-		-reorder function
+		- reorder function
 		- test diffenrent generation method
 		- reorder doc
 	
@@ -385,8 +376,8 @@ def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMetho
 			mean = description[2]
 			variance = description[3]
 			ecartType = sqrt(variance)
-			minimum = mean - ecartType + delta
-			maximum = mean + ecartType - delta
+			minimum = mean - ecartType + delta*ecartType
+			maximum = mean + ecartType - delta*ecartType
 
 		parameterToTreshold[param] = {"min":float(minimum), "max":float(maximum)}
 
@@ -394,6 +385,14 @@ def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMetho
 
 
 
+"""TEST SPACE"""
 
-machin = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", 0)
-print machin
+#X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD25pos_activated_CD4pos_Tcells")
+#description = stats.describe(X)
+#print description
+#show_distribution(X)
+
+
+
+
+
