@@ -379,6 +379,57 @@ def searchForPattern(cohorte, maxTry, patternSaveFileName):
 		numberOfTry += 1
 
 
+
+def filter_Pattern(fileName):
+	"""
+	IN PROGRESS
+
+	TODO:
+		-write doc
+	"""
+
+	filterDataName = fileName.split(".")
+	heavyFilterName = filterDataName[0] + "_HeavyFilter.csv"
+	lowFilterName = filterDataName[0] + "_LowFilter.csv"
+
+
+	dataToClean = open(fileName, "r")
+	dataHeavyFiltered = open(heavyFilterName, "w")
+	dataLowFiltered = open(lowFilterName, "w")
+
+	for line in dataToClean:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0]
+		lineInArray = lineInArray.split(";")
+		support = lineInArray[-1]
+		lineInArray = lineInArray[:-1]
+
+		listOfDiscreteValue = []
+
+		for element in lineInArray:
+			element = element.split("_")
+			parameter = element[0]
+			discreteValue = element[1]
+			listOfDiscreteValue.append(discreteValue)
+
+		# control the line
+		if("normal" not in listOfDiscreteValue):
+			dataHeavyFiltered.write(line)		
+
+		# control the line
+		saveTheLine = 0
+		for value in listOfDiscreteValue:
+			if(value != "normal"):
+				saveTheLine = 1
+		if(saveTheLine):
+			dataLowFiltered.write(line)
+
+	dataToClean.close()
+	dataHeavyFiltered.close()
+	dataLowFiltered.close()
+
+
+
 """TEST SPACE"""
 
 
@@ -396,4 +447,9 @@ cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
 
 
 
-#searchForPattern(cohorte, 30, "DATA/PATTERN/test2.csv")
+searchForPattern(cohorte, 30, "DATA/PATTERN/test2.csv")
+fileName = "DATA/PATTERN/test2.csv"
+
+
+
+
