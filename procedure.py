@@ -540,6 +540,8 @@ def patternMining_run4():
 
 		if(cmpt < 0):
 			goodDiscretization = 0
+		else:
+			goodDiscretization = 1
 
 
 		while(not goodDiscretization):
