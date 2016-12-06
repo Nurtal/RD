@@ -239,7 +239,82 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run2()
 #patternMining_run2Reverse()
 #patternMining_run3()
-patternMining_run4()
+#patternMining_run4()
+
+#filter_Pattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache.csv")
+
+
+#fileName = "DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache_HeavyFilter_converted.csv"
+#parametersOfInterest = extract_parametersFromPattern(fileName, 20)
+#listOfAllParameters = get_allParam("ABSOLUTE")
+#convert_PatternFile("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache_LowFilter.csv")
+#remove_parameter("ABSOLUTE", "CD27pos CD43pos Bcells")
+#remove_parameter("ABSOLUTE", "CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryTcells")
+
+
+
+
+
+"""
+
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", "RA")
+check_patient()
+
+filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD27pos CD43pos Bcells")
+show_distribution(X)
+
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", ["RA", "Control"])
+check_patient()
+parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache_HeavyFilter_converted.csv", 15)
+listOfAllParameters = get_allParam("ABSOLUTE")
+
+listOfAllParameters = get_allParam("ABSOLUTE")
+for parameter in listOfAllParameters:
+	if(parameter not in parametersOfInterest):
+		remove_parameter("ABSOLUTE", parameter)
+
+filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+check_patient()
+save_data()
+
+saveName1 = "IMAGES/"+"RA"+"_vs_"+"Control"+"_matrixCorrelation.jpg"
+saveName2 = "IMAGES/"+"RA"+"_vs_"+"Control"+"_PCA2D.jpg"
+show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
+show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
+
+"""
+
+
+
+
+
+
+
+#print "Perform Outlier Detection"
+#outlierDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+#print " => Done"
+#print "Perform Novelty Detection"
+#noveltyDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+#print " => Done"
+#print "Perform Overview on "+str(disease1)
+#OverviewOnDisease(disease1, disease2, "ABSOLUTE", "disease", 1)
+#print " => Done"
+#listOfVersus.append(versus)
+#write_OverviewReport(disease1, disease2, "ABSOLUTE", "1 to 6", 2016)
+#print "###################"
+	
+#write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
+#compile_report()
+
+
+
 
 
 """

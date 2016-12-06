@@ -491,6 +491,9 @@ def patternMining_run4():
 	- discretisation using mean Generated threshold
 	- dynamic generation threshold
 	- delta is a used as a %
+	- maxNumberOfPattern limitation is set to 100, i.e
+	  when start to generate more than 1000 pattern, stop
+	  the mining. (trying to avoid memory issues)
 	"""
 	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
@@ -521,9 +524,10 @@ def patternMining_run4():
 		patternSaveFile = disease+"_ABSOLUTE_MeanGeneratedThreshold.csv"
 		minNumberOfParamToRemove = 10
 		maxTry = 60
+		maxNumberOfPattern = 1000
 		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 		cohorte = alleviate_cohorte(cohorte, machin)
-		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+		searchForPattern(cohorte, maxTry, maxNumberOfPattern, "DATA/PATTERN/"+patternSaveFile)
 
 		# control number of pattern after filter
 		fileName = "DATA/PATTERN/"+patternSaveFile
@@ -569,9 +573,10 @@ def patternMining_run4():
 			patternSaveFile = disease+"_ABSOLUTE_MeanGeneratedThreshold.csv"
 			minNumberOfParamToRemove = 10
 			maxTry = 60
+			maxNumberOfPattern = 1000
 			machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 			cohorte = alleviate_cohorte(cohorte, machin)
-			searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+			searchForPattern(cohorte, maxTry, maxNumberOfPattern, "DATA/PATTERN/"+patternSaveFile)
 
 			# control number of pattern after filter
 			fileName = "DATA/PATTERN/"+patternSaveFile

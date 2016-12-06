@@ -3,14 +3,21 @@ convert, save, filter
 operation on data files
 """
 
+#-------------------------------#
+# Importation					#
+#-------------------------------#
+import glob						#
+import shutil					#
+import os 						#
+import platform 				#
+import subprocess          		#
+#-------------------------------#
 
-import glob
-import shutil
-import os
-import platform
-import subprocess
+
+
 
 def convert_tabSepratedFile(inputFolder, outputFolder):
+	
 	"""
 	convert all tab separated files present in
 	inputfolder to ";" separated file in outputFolder
@@ -20,7 +27,6 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 	"""
 
 	listOfPatientFiles = glob.glob(str(inputFolder)+"/*.csv")
-		
 	for patientFile in listOfPatientFiles:
 		if(platform.system() == "Linux"):
 			patientFileInArray = patientFile.split("/")
@@ -28,7 +34,6 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 			patientFileInArray = patientFile.split("\\")
 		patientFileName = patientFileInArray[-1]
 		newPatientFileName = outputFolder+"/"+str(patientFileName)
-
 		dataInPatientFile = open(patientFile, "r")
 		newPatientFile = open(newPatientFileName, "w")
 		for originalLine in dataInPatientFile:
@@ -44,11 +49,12 @@ def convert_tabSepratedFile(inputFolder, outputFolder):
 		dataInPatientFile.close()
 		newPatientFile.close()
 
-		#print "=> "+patientFileName+" Done"
+
 
 
 
 def apply_filter(targetType, target):
+	
 	"""
 	-> Delete all files in DATA/PATIENT not passing the apply_filter
 	   (i.e all files with a targetType not matching target)
@@ -68,7 +74,6 @@ def apply_filter(targetType, target):
 			patientFileInArray = patientFile.split("\\")
 		patientFileInArray = patientFileInArray[-1]
 		patientFileInArray = patientFileInArray.split("_")
-			
 		patient_disease = patientFileInArray[0]
 		patient_id = patientFileInArray[1]
 		patient_center = patientFileInArray[2]
@@ -77,41 +82,46 @@ def apply_filter(targetType, target):
 		if(list(target)):
 			if(targetType == "center" and patient_center not in target):	
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
 			elif(targetType == "date" and patient_date not in target):
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
 			elif(targetType == "disease" and patient_disease not in target):
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
 		else:
 			if(targetType == "center" and patient_center != target):	
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
 			elif(targetType == "date" and patient_date != target):
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
 			elif(targetType == "disease" and patient_disease != target):
 				os.remove(patientFile)
-				#print patientFile + " => Deleted"
+
+
 
 
 
 def restore_Data():
+	
 	"""
 	-> Delete all files in DATA/PATIENT
 	-> Copy all files from DATA/PATIENT_SAVE to DATA/PATIENT
 	"""
-	
-	# clean destination
+
+	#---------------------------------#
+	# -> Clean destination directory  #
+	# (i.e DATA/PATIENT directory) 	  #
+	#---------------------------------#
 	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
 	for patientFile in listOfPatientFiles:
 		os.remove(patientFile)
 
-	# copy from backup to destination
+	#------------------------------------------------#
+	# -> Copy from backup folder (DATA/PATIENT_SAVE) #
+	# to destination (DATA/PATIENT) 				 #
+	#------------------------------------------------#
 	listOfPatientSaved = glob.glob("DATA/PATIENT_SAVE/*.csv")
 	for patientSaved in listOfPatientSaved:
 		shutil.copy(patientSaved, "DATA/PATIENT/")
+
+
 
 
 
@@ -241,9 +251,14 @@ def fusion_panel(listOfPanels):
 
 
 
+
+
 def save_data():
 	"""
-	IN PROGRESS
+	-> copy all patient file (i.e all csv files in DATA/PATIENT)
+	   in the DATA/PATIENT_SAVE directory (after deleting all files
+	   in DATA/PATIENT_SAVE directory)
+
 	"""
 
 	# clean destination
@@ -258,9 +273,15 @@ def save_data():
 
 
 
+
+
 def check_patient():
 	"""
-	IN PROGRESS
+	-> Perform a few control on patient,
+	   make sure there is no "MISSING" or "NA" value
+	   in data.
+	-> delete all patient files containing undef value (i.e "MISSING",
+		or "NA")
 	"""
 	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
 	for patient in listOfPatientFiles:
@@ -287,15 +308,18 @@ def check_patient():
 			shutil.copy(patient, "DATA/REJECTED/")
 			os.remove(patient)
 
-		
+
+
+
 
 def clean_folders(folder):
 	"""
-	-> remove all .csv file in folder
+	-> remove all (csv or jpg) files in folder
 	-> folder is a string, could be:
 		- PATIENT
 		- VECTOR
 		- FUSION
+		- IMAGES
 		- ALL
 	"""
 
@@ -315,11 +339,37 @@ def clean_folders(folder):
 		for patientFile in listOfPatientFiles:
 			os.remove(patientFile)
 
-	else:
+		# clean IMAGES folder
+		listOfImage = glob.glob("IMAGES/*.jpg")
+		for image in listOfImage:
+			os.remove(image)
+
+	elif(folder != "ALL" and folder != "IMAGES"):
 		# clean PATIENT folder
 		listOfPatientFiles = glob.glob("DATA/"+str(folder)+"/*.csv")
 		for patientFile in listOfPatientFiles:
 			os.remove(patientFile)
+
+	elif(folder == "IMAGES"):
+		listOfImage = glob.glob("IMAGES/*.jpg")
+		for image in listOfImage:
+			os.remove(image)
+
+
+
+
+
+def clean_image():
+	"""
+	Delete all .jpg files in the
+	IMAGES folder
+	*Obsolete*
+	"""
+	listOfImage = glob.glob("IMAGES/*.jpg")
+	for image in listOfImage:
+		os.remove(image)
+
+
 
 
 
@@ -376,6 +426,8 @@ def remove_parameter(typeOfParameter, parameter):
 
 
 
+
+
 def count_line():
 	"""
 	-> return the number of line in the programm
@@ -389,6 +441,9 @@ def count_line():
 			line_cmpt = line_cmpt + 1
 
 	return line_cmpt
+
+
+
 
 
 def get_allParam(typeOfParameter):
@@ -443,11 +498,98 @@ def get_allParam(typeOfParameter):
 
 
 
-"""TEST SPACE"""
+
+
+def convert_PatternFile(fileName):
+	"""
+	-> Convert the parameter present in fileName
+	   (i.e pX parmater where X is an int) into 
+	   real parameters, using PARAMETERS/variable_index.csv file
+
+	-> Used on PATTERN/ files
+	-> Create a new _converted file in PATTERN directory.
+
+	"""
+	convertedFileName = fileName.split(".")
+	convertedFileName = convertedFileName[0]
+	convertedFileName = convertedFileName+"_converted.csv"
+	convertedFile = open(convertedFileName, "w")
+	fileToConvert = open(fileName, "r")
+
+	for line in fileToConvert:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		support = lineInArray[-1]
+		lineInArray = lineInArray[:-1]
+
+		convertedLine = ""
+		for element in lineInArray:
+			elementInArray = element.split("_")
+			elementToConvert = elementInArray[0]
+			elementStatus = elementInArray[1]
+
+			conversionTable = open("PARAMETERS/variable_index.csv", "r")
+			for indexLine in conversionTable:
+				indexLineInArray = indexLine.split("\n")
+				indexLineInArray = indexLineInArray[0]
+				indexLineInArray = indexLineInArray.split(";")
+				indexParameter = indexLineInArray[1]
+
+				if(indexParameter == elementToConvert):
+					convertedParameter = indexLineInArray[0]
+			conversionTable.close()
+
+			convertedLine = convertedLine + str(convertedParameter)+":"+str(elementStatus)+";"
+		convertedLine = convertedLine + str(support)
+		convertedFile.write(convertedLine+"\n")
+
+
+	fileToConvert.close()
+	convertedFile.close()
+
+
+
+
+
+def filter_ArtefactValue(dataType, parameter, threshold):
+	"""
+	-> Scan DATA/PATIENT folder, delete patient file where
+	parameter of type dataType is >= threshold
+	->  dataType is a string, ndicate the type of parameter
+		-ABSOLUTE
+		-PROPORTION (not test yet)
+		-MFI (not test yet)
+	-> parameter is a string
+	-> threshold could be an int or a float
+
+	"""
+
+	listOfPatientToDelete = []
+
+	listOfPatient = glob.glob("DATA/PATIENT/*.csv")
+	for patient in listOfPatient:
+		data = open(patient, "r")
+		for line in data:
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+			value = str(lineInArray[-1])
+			if(lineInArray[1] == parameter and lineInArray[2] == dataType and lineInArray[1] != "POPULATION"):
+				if(float(value) >= threshold):
+					if(patient not in listOfPatientToDelete):
+						listOfPatientToDelete.append(patient)
+		data.close()
+
+	# delete patient file
+	for element in listOfPatientToDelete:
+		os.remove(element)
+
+
+
+
 
 def compile_report():
 	"""
-	IN PROGRESS
+	-> compile .tex report, create a pdf
 	"""
 
 	# remove REPORT/IMAGES
@@ -475,9 +617,13 @@ def compile_report():
 		shutil.copy(source, "RESULTATS/"+fileName+".pdf")
 
 
+
+
+
 def clean_report():
 	"""
-	IN PROGRESS
+	-> delete all .tex, .aux, .log and .pdf files (generated
+	   with the compile_report function)
 	"""
 	listOfTexFiles = glob.glob("REPORT/*.tex")
 	for texFile in listOfTexFiles:
@@ -494,13 +640,3 @@ def clean_report():
 	listOfTexFiles = glob.glob("REPORT/*.pdf")
 	for texFile in listOfTexFiles:
 		os.remove(texFile)
-
-
-def clean_image():
-	"""
-	IN PROGRESS
-	"""
-	listOfImage = glob.glob("IMAGES/*.jpg")
-	for image in listOfImage:
-		os.remove(image)
-

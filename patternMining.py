@@ -4,7 +4,7 @@ RD Project
 
 
 from reorder import *
-
+from fp_growth import find_frequent_itemsets
 import glob
 
 
@@ -270,7 +270,7 @@ def get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, min
 
 
 
-def searchForPattern(cohorte, maxTry, patternSaveFileName):
+def searchForPattern(cohorte, maxTry, maxNumberOfFrequentPattern, patternSaveFileName):
 	"""
 	-> Generate pattern (i.e frequent itemsets) from cohorte, with maxTry.
 	   results are saved in a .csv file (patternSaveFileName).
@@ -278,6 +278,8 @@ def searchForPattern(cohorte, maxTry, patternSaveFileName):
 	-> maxTry is an int
 	-> patternSaveFileName is a string, save file should be located in
 	   DATA/PATTERN folder.
+	-> maxNumberOfFrequentPattern is an int, the max number of frequent pattern to Generate
+	   (setup ti avoid memory problem)
 
 	-> TODO:
 		- re-check the algorithm
@@ -319,6 +321,10 @@ def searchForPattern(cohorte, maxTry, patternSaveFileName):
 			listOfItemSize = []
 			print "Found "+str(len(listOffrequentItemset))+" frequent itemsets with minsup = "+str(minsup)
 			
+			if(len(listOffrequentItemset) > maxNumberOfFrequentPattern):
+				print "max number of patterns reached, cancel mining"
+				break
+
 
 			##############################################################
 			# Ecriture des pattern dans un fichier de sauvegarde         #
@@ -432,7 +438,7 @@ def filter_Pattern(fileName):
 
 """TEST SPACE"""
 
-
+"""
 from fp_growth import find_frequent_itemsets
 cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
  				["p1_high", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
@@ -447,9 +453,33 @@ cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
 
 
 
-searchForPattern(cohorte, 30, "DATA/PATTERN/test2.csv")
+searchForPattern(cohorte, 30, 4, "DATA/PATTERN/test2.csv")
 fileName = "DATA/PATTERN/test2.csv"
+"""
 
 
+def extract_parametersFromPattern(fileName, minSupport):
+	"""
+	IN PROGRESS
 
+	TODO:
+	 - write doc
+	"""
 
+	data = open(fileName, "r")
+	listOfParameters = []
+	
+	for line in data:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		support = lineInArray[-1]
+
+		if(int(support) >= int(minSupport)):
+			lineInArray = lineInArray[:-1]
+			for element in lineInArray:
+				elementInArray = element.split(":")
+				parameter = elementInArray[0]
+				if(parameter not in listOfParameters):
+					listOfParameters.append(parameter)
+	data.close()
+	return listOfParameters
