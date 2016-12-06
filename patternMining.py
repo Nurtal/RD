@@ -321,9 +321,6 @@ def searchForPattern(cohorte, maxTry, maxNumberOfFrequentPattern, patternSaveFil
 			listOfItemSize = []
 			print "Found "+str(len(listOffrequentItemset))+" frequent itemsets with minsup = "+str(minsup)
 			
-			if(len(listOffrequentItemset) > maxNumberOfFrequentPattern):
-				print "max number of patterns reached, cancel mining"
-				break
 
 
 			##############################################################
@@ -342,6 +339,11 @@ def searchForPattern(cohorte, maxTry, maxNumberOfFrequentPattern, patternSaveFil
 				lineToWrite = lineToWrite + str(minsup)
 				pattern_save.write(lineToWrite+"\n")
 			pattern_save.close()
+
+
+			if(len(listOffrequentItemset) > maxNumberOfFrequentPattern):
+				print "max number of patterns reached, cancel mining"
+				break
 
 			######################################################
 			# controle de la taille des pattern, si la taille    #
@@ -380,6 +382,7 @@ def searchForPattern(cohorte, maxTry, maxNumberOfFrequentPattern, patternSaveFil
 					######################################################
 					print "found a good pattern"
 					break
+
 		else:
 			minsup = minsup -1
 		numberOfTry += 1
