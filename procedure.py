@@ -364,9 +364,10 @@ def patternMining_run1():
 		patternSaveFile = disease+"_ABSOLUTE_discretisationAlArrache.csv"
 		minNumberOfParamToRemove = 5
 		maxTry = 60
+		maxNumberOfPattern = 1000
 		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 		cohorte = alleviate_cohorte(cohorte, machin)
-		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+		searchForPattern(cohorte, maxTry, maxNumberOfPattern, "DATA/PATTERN/"+patternSaveFile)
 
 
 def patternMining_run2():
