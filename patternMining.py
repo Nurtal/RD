@@ -441,26 +441,6 @@ def filter_Pattern(fileName):
 
 """TEST SPACE"""
 
-"""
-from fp_growth import find_frequent_itemsets
-cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
- 				["p1_high", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_high"],
- 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_high"],
- 			    ["p1_high", "p2_high","p3_high", "p4_low", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_low", "p5_normal"],
- 			    ["p1_high", "p2_high","p3_high", "p4_high", "p5_normal"]]
-
-
-
-searchForPattern(cohorte, 30, 4, "DATA/PATTERN/test2.csv")
-fileName = "DATA/PATTERN/test2.csv"
-"""
-
-
 def extract_parametersFromPattern(fileName, minSupport):
 	"""
 	IN PROGRESS
@@ -486,3 +466,54 @@ def extract_parametersFromPattern(fileName, minSupport):
 					listOfParameters.append(parameter)
 	data.close()
 	return listOfParameters
+
+
+from fp_growth import find_frequent_itemsets
+cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
+ 				["p1_high", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_high"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_normal", "p5_high"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_low", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_low", "p5_normal"],
+ 			    ["p1_high", "p2_high","p3_high", "p4_high", "p5_normal"]]
+
+
+
+
+
+def search_FrequentItem(cohorte, saveFileName):
+	"""
+	IN PROGRESS
+	"""
+
+	valueToCount = {}
+
+	# initialisation
+	for patient in cohorte:
+		for value in patient:
+			valueToCount[value] = 0
+	# count
+	for patient in cohorte:
+		for value in patient:
+			for key in valueToCount.keys():
+				if(value == key):
+					valueToCount[value] = valueToCount[value] + 1
+
+	# write
+	dataToWrite = open("DATA/PATTERN/"+str(saveFileName), "w")
+	for key in valueToCount.keys():
+		dataToWrite.write(key+";"+str(valueToCount[key])+"\n")
+	dataToWrite.close()
+
+
+search_FrequentItem(cohorte, "test5.csv")
+
+
+
+#searchForPattern(cohorte, 30, 4, "DATA/PATTERN/test2.csv")
+#fileName = "DATA/PATTERN/test2.csv"
+
+

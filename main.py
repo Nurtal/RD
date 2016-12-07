@@ -240,6 +240,8 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run2Reverse()
 #patternMining_run3()
 #patternMining_run4()
+#FrequentItemMining()
+FrequentItemMining2()
 
 #filter_Pattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache.csv")
 
@@ -267,12 +269,21 @@ filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
 X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD27pos CD43pos Bcells")
 show_distribution(X)
 
+"""
+
+"""
+
+disease = "RA"
+
 clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
-apply_filter("disease", ["RA", "Control"])
+apply_filter("disease", [disease, "Control"])
 check_patient()
-parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache_HeavyFilter_converted.csv", 15)
+
+filter_Pattern("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache.csv")
+convert_PatternFile("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache_HeavyFilter.csv")
+parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache_HeavyFilter_converted.csv", 15)
 listOfAllParameters = get_allParam("ABSOLUTE")
 
 listOfAllParameters = get_allParam("ABSOLUTE")
@@ -284,17 +295,48 @@ filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
 check_patient()
 save_data()
 
-saveName1 = "IMAGES/"+"RA"+"_vs_"+"Control"+"_matrixCorrelation.jpg"
-saveName2 = "IMAGES/"+"RA"+"_vs_"+"Control"+"_PCA2D.jpg"
+saveName1 = "IMAGES/"+disease+"_vs_"+"Control"+"_matrixCorrelation.jpg"
+saveName2 = "IMAGES/"+disease+"_vs_"+"Control"+"_PCA2D.jpg"
 show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
 show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
 
+
 """
 
+disease = "RA"
+
+def visualisation(disease):
+	"""
+	IN PROGRESS
+	"""
+
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", [disease, "Control"])
+	check_patient()
+
+	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData.csv")
+	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData_HeavyFilter.csv")
+	parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData_HeavyFilter_converted.csv", 15)
+	listOfAllParameters = get_allParam("ABSOLUTE")
+
+	listOfAllParameters = get_allParam("ABSOLUTE")
+	for parameter in listOfAllParameters:
+		if(parameter not in parametersOfInterest):
+			remove_parameter("ABSOLUTE", parameter)
+
+	filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	check_patient()
+	save_data()
+
+	saveName1 = "IMAGES/"+disease+"_vs_"+"Control"+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+disease+"_vs_"+"Control"+"_PCA2D.jpg"
+	show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
+	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
 
 
-
-
+#visualisation("UCTD")
 
 
 #print "Perform Outlier Detection"

@@ -336,7 +336,8 @@ def patternMining_run1():
 	- ABSOLUTE data
 	- poor discretisation
 	"""
-	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfDisease = ["SjS", "SLE", "SSc", "UCTD"]
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 
 	print "----Distribution Analysis----"
@@ -375,7 +376,8 @@ def patternMining_run2():
 	- ABSOLUTE data
 	- discretisation on scaled data
 	"""
-	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 
 	print "----Distribution Analysis----"
@@ -401,12 +403,13 @@ def patternMining_run2():
 
 		print "----Pattern Mining----"
 		cohorte = assemble_Cohorte()
-		patternSaveFile = disease+"_ABSOLUTE_scaledData.csv"
+		patternSaveFile = disease+"_ABSOLUTE_poorDiscretization_scaledData.csv"
 		minNumberOfParamToRemove = 5
 		maxTry = 60
+		maxNumberOfPattern = 1000
 		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 		cohorte = alleviate_cohorte(cohorte, machin)
-		searchForPattern(cohorte, maxTry, "DATA/PATTERN/"+patternSaveFile)
+		searchForPattern(cohorte, maxTry, maxNumberOfPattern, "DATA/PATTERN/"+patternSaveFile)
 
 
 def patternMining_run2Reverse():
@@ -592,7 +595,163 @@ def patternMining_run4():
 				cmpt = cmpt + 1
 			dataToInspect.close()
 
-			if(cmpt < 0):
+			if(cmpt == 0):
+				goodDiscretization = 0
+			else:
+				goodDiscretization = 1
+
+			if(delta == 1):
+				break
+
+
+
+def FrequentItemMining():
+	"""
+	- ABSOLUTE data
+	- discretisation on scaled data
+	- frequent item retrieval, no pattern mining
+	"""
+	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	print "----Distribution Analysis----"
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", "Control")
+	threshold = get_ThresholdValue("ABSOLUTE", 1, "Classic")
+
+
+	for disease in listOfDisease:
+
+		print "----Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		scaleDataInPatientFolder("ABSOLUTE")
+		discretization(threshold)
+
+		print "----Frequent Item Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData.csv"
+		minNumberOfParamToRemove = 5
+		maxTry = 60
+		maxNumberOfPattern = 1000
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		search_FrequentItem(cohorte, patternSaveFile)
+
+
+def FrequentItemMining2():
+	"""
+	- ABSOLUTE data
+	- discretisation using mean Generated threshold
+	- dynamic generation threshold
+	- delta is a used as a %
+	- frequent item retrieval, no pattern mining
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+	
+
+	for disease in listOfDisease:
+
+		delta = 0
+		print "----Distribution Analysis----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", "Control")
+		threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+
+		print "----Pattern Mining on "+str(disease)+"----"
+
+		print "----Discretization----"
+		clean_folders("ALL")
+		fusion_panel(listOfPanelToConcat)
+		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+		apply_filter("disease", disease)
+		check_patient()
+		discretization(threshold)
+
+		print "----Mining----"
+		cohorte = assemble_Cohorte()
+		patternSaveFile = disease+"_FrequentItem_ABSOLUTE_MeanGeneratedThreshold.csv"
+		minNumberOfParamToRemove = 10
+		maxTry = 60
+		maxNumberOfPattern = 1000
+		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+		cohorte = alleviate_cohorte(cohorte, machin)
+		search_FrequentItem(cohorte, patternSaveFile)
+
+		# control number of pattern after filter
+		fileName = "DATA/PATTERN/"+patternSaveFile
+		filter_Pattern("DATA/PATTERN/"+patternSaveFile)
+		filterDataName = fileName.split(".")
+		heavyFilterName = filterDataName[0] + "_HeavyFilter.csv"
+		lowFilterName = filterDataName[0] + "_LowFilter.csv"
+
+		cmpt = 0
+		dataToInspect = open(lowFilterName, "r")
+		for line in dataToInspect:
+			cmpt = cmpt + 1
+		dataToInspect.close()
+
+		if(cmpt < 0):
+			goodDiscretization = 0
+		else:
+			goodDiscretization = 1
+
+
+		while(not goodDiscretization):
+
+			print "----Distribution Analysis (delta exploration)----"
+			clean_folders("ALL")
+			fusion_panel(listOfPanelToConcat)
+			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+			apply_filter("disease", "Control")
+			delta = delta + 0.05
+			threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+
+			print "----Mining on "+str(disease)+" (delta exploration)----"
+
+			print "----Discretization (delta exploration)----"
+			clean_folders("ALL")
+			fusion_panel(listOfPanelToConcat)
+			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+			apply_filter("disease", disease)
+			check_patient()
+			discretization(threshold)
+
+			print "----Mining (delta exploration)----"
+			cohorte = assemble_Cohorte()
+			patternSaveFile = disease+"_FrequentItem_ABSOLUTE_MeanGeneratedThreshold.csv"
+			minNumberOfParamToRemove = 10
+			maxTry = 60
+			maxNumberOfPattern = 1000
+			machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
+			cohorte = alleviate_cohorte(cohorte, machin)
+			search_FrequentItem(cohorte, patternSaveFile)
+
+			# control number of pattern after filter
+			fileName = "DATA/PATTERN/"+patternSaveFile
+			filter_Pattern("DATA/PATTERN/"+patternSaveFile)
+			filterDataName = fileName.split(".")
+			heavyFilterName = filterDataName[0] + "_HeavyFilter.csv"
+			lowFilterName = filterDataName[0] + "_LowFilter.csv"
+
+			cmpt = 0
+			dataToInspect = open(lowFilterName, "r")
+			for line in dataToInspect:
+				cmpt = cmpt + 1
+			dataToInspect.close()
+
+			if(cmpt == 0):
 				goodDiscretization = 0
 			else:
 				goodDiscretization = 1
