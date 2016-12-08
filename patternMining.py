@@ -484,7 +484,7 @@ cohorte = [["p1_low", "p2_normal", "p3_normal", "p4_normal", "p5_normal"],
 
 
 
-def search_FrequentItem(cohorte, saveFileName):
+def search_FrequentItem(cohorte, saveFileName, minSupport):
 	"""
 	IN PROGRESS
 	"""
@@ -505,11 +505,13 @@ def search_FrequentItem(cohorte, saveFileName):
 	# write
 	dataToWrite = open("DATA/PATTERN/"+str(saveFileName), "w")
 	for key in valueToCount.keys():
-		dataToWrite.write(key+";"+str(valueToCount[key])+"\n")
+		support = (float(valueToCount[key])/len(cohorte))*100
+		if(support >= minSupport):
+			dataToWrite.write(key+";"+str(valueToCount[key])+"\n")
 	dataToWrite.close()
 
 
-search_FrequentItem(cohorte, "test5.csv")
+#search_FrequentItem(cohorte, "test5.csv", 80)
 
 
 

@@ -247,10 +247,8 @@ def quickPCA(data, y, target_name, projection, saveName, details, show):
 
 	pca = PCA()
 	C = pca.fit(data).transform(data)
-
 	covar = numpy.cov(data.transpose())
 	
-
 	# Additional Graphics
 	# -> Decroissance de la variance explique
 	# ->Diagramme des premieres composante principales

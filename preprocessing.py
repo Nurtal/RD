@@ -239,6 +239,9 @@ def discretization(thresholds):
 					if(float(parameterValue) < thresholdValues["min"]):
 						newParameterValue = "low"
 					elif(float(parameterValue) > thresholdValues["max"]):
+
+						#print str(parameterValue) + "||" + str(thresholdValues["max"])
+						
 						newParameterValue = "high"
 					else:
 						newParameterValue = "normal"
@@ -380,6 +383,8 @@ def get_ThresholdValue_DynamicDelta(typeOfParameter, scaleValue, GenerationMetho
 			maximum = mean + ecartType - delta*ecartType
 
 		parameterToTreshold[param] = {"min":float(minimum), "max":float(maximum)}
+
+		#print "["+param+"] "+str(minimum) + " || " +str(maximum)
 
 	return parameterToTreshold
 

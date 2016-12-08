@@ -581,6 +581,7 @@ def filter_ArtefactValue(dataType, parameter, threshold):
 
 	# delete patient file
 	for element in listOfPatientToDelete:
+		print "outlier "+element
 		os.remove(element)
 
 

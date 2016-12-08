@@ -337,7 +337,7 @@ def patternMining_run1():
 	- poor discretisation
 	"""
 	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
-	listOfDisease = ["SjS", "SLE", "SSc", "UCTD"]
+	listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 
 	print "----Distribution Analysis----"
@@ -647,15 +647,18 @@ def FrequentItemMining():
 		search_FrequentItem(cohorte, patternSaveFile)
 
 
-def FrequentItemMining2():
+def FrequentItemMining2(minSupport):
 	"""
 	- ABSOLUTE data
 	- discretisation using mean Generated threshold
 	- dynamic generation threshold
 	- delta is a used as a %
 	- frequent item retrieval, no pattern mining
+	- minSupport is a float, % of patient in cohorte that must
+	  suppport the item
 	"""
-	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+	listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 	
 
@@ -677,6 +680,7 @@ def FrequentItemMining2():
 		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 		apply_filter("disease", disease)
 		check_patient()
+		scaleDataInPatientFolder("ABSOLUTE")
 		discretization(threshold)
 
 		print "----Mining----"
@@ -687,7 +691,7 @@ def FrequentItemMining2():
 		maxNumberOfPattern = 1000
 		machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 		cohorte = alleviate_cohorte(cohorte, machin)
-		search_FrequentItem(cohorte, patternSaveFile)
+		search_FrequentItem(cohorte, patternSaveFile, minSupport)
 
 		# control number of pattern after filter
 		fileName = "DATA/PATTERN/"+patternSaveFile
@@ -726,6 +730,7 @@ def FrequentItemMining2():
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", disease)
 			check_patient()
+			scaleDataInPatientFolder("ABSOLUTE")
 			discretization(threshold)
 
 			print "----Mining (delta exploration)----"
@@ -736,7 +741,7 @@ def FrequentItemMining2():
 			maxNumberOfPattern = 1000
 			machin = get_controledValueOfThreshold(cohorte, maxTry, minNumberOfParamToRemove, 3)
 			cohorte = alleviate_cohorte(cohorte, machin)
-			search_FrequentItem(cohorte, patternSaveFile)
+			search_FrequentItem(cohorte, patternSaveFile, minSupport)
 
 			# control number of pattern after filter
 			fileName = "DATA/PATTERN/"+patternSaveFile

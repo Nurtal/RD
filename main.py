@@ -241,7 +241,17 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
-FrequentItemMining2()
+FrequentItemMining2(75)
+
+
+
+listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
+for disease in listOfDisease:
+	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
+	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
+	parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
+	print disease + " => " + str(len(parametersOfInterest))
+
 
 #filter_Pattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache.csv")
 
@@ -258,21 +268,41 @@ FrequentItemMining2()
 
 
 """
-
 clean_folders("ALL")
 fusion_panel(listOfPanelToConcat)
 checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 apply_filter("disease", "RA")
 check_patient()
 
+filter_Pattern("DATA/PATTERN/"+"RA"+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
+convert_PatternFile("DATA/PATTERN/"+"RA"+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
+parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+"RA"+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
+
 filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
-X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD27pos CD43pos Bcells")
-show_distribution(X)
+filter_ArtefactValue("ABSOLUTE", "Monocytes", 1200)
+filter_ArtefactValue("ABSOLUTE", "CD14highCD16neg_classicalMonocytes", 1000)
+filter_ArtefactValue("ABSOLUTE", "CD15highCD16neg_Eosinophils", 800)
+filter_ArtefactValue("ABSOLUTE", "CD15lowCD16high_Neutrophils", 1100)
+filter_ArtefactValue("ABSOLUTE", "CD69pos_activated_CD4pos_Tcells", 600)
+filter_ArtefactValue("ABSOLUTE", "CD8pos_CD57pos_Cytotoxic_Tcells", 500)
+filter_ArtefactValue("ABSOLUTE", "CD14pos_monocytes", 1200)
 
+
+for parameter in parametersOfInterest:
+	print "=> Checking parameter "+str(parameter)
+
+	#filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "CD8pos_CD38pos_Activated_Tcells", 1000000)
+	#filter_ArtefactValue("ABSOLUTE", "IgDnegCD27pos", 60000)
+	#filter_ArtefactValue("ABSOLUTE", "CD45RAnegCD62LhighCD27posCD4pos_Central_MemoryTcells", 1500000)
+	#filter_ArtefactValue("ABSOLUTE", "CD45RAposCD62LhighCD27posCD4pos_Naive_Tcells", 1400000)
+	#filter_ArtefactValue("ABSOLUTE", "CD27posIgDpos_Non-switched_memory_Bcells", 15000)
+
+	X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", parameter)
+	show_distribution(X)
 """
 
 """
-
 disease = "RA"
 
 clean_folders("ALL")
@@ -299,11 +329,8 @@ saveName1 = "IMAGES/"+disease+"_vs_"+"Control"+"_matrixCorrelation.jpg"
 saveName2 = "IMAGES/"+disease+"_vs_"+"Control"+"_PCA2D.jpg"
 show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
 show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
-
-
 """
 
-disease = "RA"
 
 def visualisation(disease):
 	"""
@@ -316,9 +343,9 @@ def visualisation(disease):
 	apply_filter("disease", [disease, "Control"])
 	check_patient()
 
-	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData.csv")
-	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData_HeavyFilter.csv")
-	parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_poorDiscretization_scaledData_HeavyFilter_converted.csv", 15)
+	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
+	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
+	parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
 	listOfAllParameters = get_allParam("ABSOLUTE")
 
 	listOfAllParameters = get_allParam("ABSOLUTE")
@@ -327,6 +354,16 @@ def visualisation(disease):
 			remove_parameter("ABSOLUTE", parameter)
 
 	filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+
+	#filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "Monocytes", 1200)
+	#filter_ArtefactValue("ABSOLUTE", "CD14highCD16neg_classicalMonocytes", 1000)
+	#filter_ArtefactValue("ABSOLUTE", "CD15highCD16neg_Eosinophils", 800)
+	#filter_ArtefactValue("ABSOLUTE", "CD15lowCD16high_Neutrophils", 1100)
+	#filter_ArtefactValue("ABSOLUTE", "CD69pos_activated_CD4pos_Tcells", 600)
+	#filter_ArtefactValue("ABSOLUTE", "CD8pos_CD57pos_Cytotoxic_Tcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "CD14pos_monocytes", 1200)
+
 	check_patient()
 	save_data()
 
@@ -336,7 +373,69 @@ def visualisation(disease):
 	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
 
 
-#visualisation("UCTD")
+
+#X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD15lowCD16high_Neutrophils")
+#show_distribution(X)
+
+
+#visualisation("RA")
+"""
+listOfDisease2 = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
+for disease in listOfDisease2:
+	visualisation(disease)
+"""
+"""
+import itertools
+
+disease = 'RA'
+
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", [disease, "Control"])
+check_patient()
+
+filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
+convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
+parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 15)
+
+
+for subset in itertools.combinations(parametersOfInterest, 3):
+	testParameters = []
+	for item in subset:
+		testParameters.append(item)
+
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", [disease, "Control"])
+	check_patient()
+	
+	listOfAllParameters = get_allParam("ABSOLUTE")
+	for parameter in listOfAllParameters:
+		if(parameter not in testParameters):
+			remove_parameter("ABSOLUTE", parameter)
+
+	filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+
+	filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	filter_ArtefactValue("ABSOLUTE", "Monocytes", 1200)
+	filter_ArtefactValue("ABSOLUTE", "CD14highCD16neg_classicalMonocytes", 1000)
+	filter_ArtefactValue("ABSOLUTE", "CD15highCD16neg_Eosinophils", 800)
+	#filter_ArtefactValue("ABSOLUTE", "CD15lowCD16high_Neutrophils", 1100)
+	filter_ArtefactValue("ABSOLUTE", "CD69pos_activated_CD4pos_Tcells", 600)
+	#filter_ArtefactValue("ABSOLUTE", "CD8pos_CD57pos_Cytotoxic_Tcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "CD14pos_monocytes", 1200)
+
+	check_patient()
+	save_data()
+
+	saveName1 = "IMAGES/"+disease+"_vs_"+"Control"+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+disease+"_vs_"+"Control"+"_PCA2D.jpg"
+	show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
+	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
+"""
+
 
 
 #print "Perform Outlier Detection"
