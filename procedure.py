@@ -662,6 +662,10 @@ def FrequentItemMining2(minSupport):
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
 	
 
+	# Initilaise log file
+	logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+".log", "w")
+	logFile.close()
+
 	for disease in listOfDisease:
 
 		delta = 0
@@ -685,7 +689,7 @@ def FrequentItemMining2(minSupport):
 
 		print "----Mining----"
 		cohorte = assemble_Cohorte()
-		patternSaveFile = disease+"_FrequentItem_ABSOLUTE_MeanGeneratedThreshold.csv"
+		patternSaveFile = disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv"
 		minNumberOfParamToRemove = 10
 		maxTry = 60
 		maxNumberOfPattern = 1000
@@ -706,7 +710,7 @@ def FrequentItemMining2(minSupport):
 			cmpt = cmpt + 1
 		dataToInspect.close()
 
-		if(cmpt < 0):
+		if(cmpt == 0):
 			goodDiscretization = 0
 		else:
 			goodDiscretization = 1
@@ -735,7 +739,7 @@ def FrequentItemMining2(minSupport):
 
 			print "----Mining (delta exploration)----"
 			cohorte = assemble_Cohorte()
-			patternSaveFile = disease+"_FrequentItem_ABSOLUTE_MeanGeneratedThreshold.csv"
+			patternSaveFile = disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv"
 			minNumberOfParamToRemove = 10
 			maxTry = 60
 			maxNumberOfPattern = 1000
@@ -763,3 +767,13 @@ def FrequentItemMining2(minSupport):
 
 			if(delta == 1):
 				break
+
+		# write in log file
+		numberOfItem = 0
+		dataToInspect = open(heavyFilterName, "r")
+		for line in dataToInspect:
+			numberOfItem = numberOfItem + 1
+		dataToInspect.close()
+		logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+".log", "a")
+		logFile.write(disease+";"+str(numberOfItem)+";"+str(minSupport)+";"+str(delta)+"\n")
+		logFile.close()

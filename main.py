@@ -224,6 +224,7 @@ print "=> Performed in: " + str(end - start)
 
 
 
+
 ####################
 # GENERAL Analysis #
 ####################
@@ -241,18 +242,76 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
-FrequentItemMining2(75)
+FrequentItemMining2(25)
 
 
+"""
+#############################
+# Generate graphic for report
+# delta exploration 
+#############################
 
+
+RA_value = []
+MCTD_value = []
+SjS_value = []
+SLE_value = []
+SSc_value = []
+UCTD_value = []
+minSupport_value = []
+x = 0
+while(x <= 100):
+	#FrequentItemMining2(x)
+	logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(x)+".log", "r")
+
+	for line in logFile:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+
+		# applatir les valeur de delta a 1
+		if(float(lineInArray[3]) > 1):
+			lineInArray[3] = 1
+
+		if(lineInArray[0] == "RA"):
+			RA_value.append(lineInArray[3])
+		elif(lineInArray[0] == "MCTD"):
+			MCTD_value.append(lineInArray[3])
+		elif(lineInArray[0] == "SjS"):
+			SjS_value.append(lineInArray[3])
+		elif(lineInArray[0] == "SLE"):
+			SLE_value.append(lineInArray[3])
+		elif(lineInArray[0] == "SSc"):
+			SSc_value.append(lineInArray[3])
+		elif(lineInArray[0] == "UCTD"):
+			UCTD_value.append(lineInArray[3])
+	logFile.close()
+	x = x + 5
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+minSupport_value = np.arange(0, 105, 5)
+fig, ax = plt.subplots()
+ax.plot(minSupport_value, MCTD_value, label="MCTD")
+ax.plot(minSupport_value, RA_value, label="RA")
+ax.plot(minSupport_value, SjS_value, label= "SjS")
+ax.plot(minSupport_value, SLE_value, label= "SLE")
+ax.plot(minSupport_value, SSc_value, label= "SSc")
+ax.plot(minSupport_value, UCTD_value, label="UCTD")
+ax.set_xlabel("Support (%)")
+ax.set_ylabel("Delta")
+legend = ax.legend(loc='upper left', shadow=True)
+plt.show()
+"""
+
+
+"""
 listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 for disease in listOfDisease:
 	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
 	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
 	parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
 	print disease + " => " + str(len(parametersOfInterest))
-
-
 #filter_Pattern("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache.csv")
 
 
@@ -262,7 +321,7 @@ for disease in listOfDisease:
 #convert_PatternFile("DATA/PATTERN/RA_ABSOLUTE_discretisationAlArrache_LowFilter.csv")
 #remove_parameter("ABSOLUTE", "CD27pos CD43pos Bcells")
 #remove_parameter("ABSOLUTE", "CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryTcells")
-
+"""
 
 
 
@@ -302,34 +361,9 @@ for parameter in parametersOfInterest:
 	show_distribution(X)
 """
 
-"""
-disease = "RA"
 
-clean_folders("ALL")
-fusion_panel(listOfPanelToConcat)
-checkAndFormat("DATA/FUSION", "DATA/PATIENT")
-apply_filter("disease", [disease, "Control"])
-check_patient()
 
-filter_Pattern("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache.csv")
-convert_PatternFile("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache_HeavyFilter.csv")
-parametersOfInterest = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_ABSOLUTE_discretisationAlArrache_HeavyFilter_converted.csv", 15)
-listOfAllParameters = get_allParam("ABSOLUTE")
 
-listOfAllParameters = get_allParam("ABSOLUTE")
-for parameter in listOfAllParameters:
-	if(parameter not in parametersOfInterest):
-		remove_parameter("ABSOLUTE", parameter)
-
-filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
-check_patient()
-save_data()
-
-saveName1 = "IMAGES/"+disease+"_vs_"+"Control"+"_matrixCorrelation.jpg"
-saveName2 = "IMAGES/"+disease+"_vs_"+"Control"+"_PCA2D.jpg"
-show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
-show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
-"""
 
 
 def visualisation(disease):
@@ -378,7 +412,7 @@ def visualisation(disease):
 #show_distribution(X)
 
 
-#visualisation("RA")
+#visualisation("UCTD")
 """
 listOfDisease2 = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 for disease in listOfDisease2:
