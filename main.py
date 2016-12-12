@@ -237,20 +237,17 @@ print "=> Performed in: " + str(end - start)
 #########################
 
 #patternMining_run1()
+
 #patternMining_run2()
+
+
 #patternMining_run2Reverse()
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
 
-
-listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
-for disease in listOfDisease:
-	x = 0
-	while(x < 101):
-		FrequentItemMining3(x, disease)
-		x = x +5 
-
+FrequentItemMining2(15)
+visualisation2("RA", "Control", "PROPORTION", 15)
 
 
 
@@ -420,7 +417,7 @@ def visualisation(disease):
 
 
 
-#visualisation("RA")
+#visualisation("MCTD")
 #visualisation2("SLE", "MCTD")
 
 

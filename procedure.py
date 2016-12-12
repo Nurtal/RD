@@ -649,6 +649,7 @@ def FrequentItemMining():
 
 def FrequentItemMining2(minSupport):
 	"""
+	IN PROGRESS (adapt to PROPORTION data)
 	- ABSOLUTE data
 	- discretisation using mean Generated threshold
 	- dynamic generation threshold
@@ -674,7 +675,7 @@ def FrequentItemMining2(minSupport):
 		fusion_panel(listOfPanelToConcat)
 		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 		apply_filter("disease", "Control")
-		threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+		threshold = get_ThresholdValue_DynamicDelta("PROPORTION", 1, "Mean", delta)
 
 		print "----Pattern Mining on "+str(disease)+"----"
 
@@ -684,12 +685,12 @@ def FrequentItemMining2(minSupport):
 		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 		apply_filter("disease", disease)
 		check_patient()
-		scaleDataInPatientFolder("ABSOLUTE")
+		scaleDataInPatientFolder("PROPORTION")
 		discretization(threshold)
 
 		print "----Mining----"
 		cohorte = assemble_Cohorte()
-		patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_ABSOLUTE_meanGeneratedThreshold.csv"
+		patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_PROPORTION_meanGeneratedThreshold.csv"
 		minNumberOfParamToRemove = 10
 		maxTry = 60
 		maxNumberOfPattern = 1000
@@ -739,7 +740,7 @@ def FrequentItemMining2(minSupport):
 
 			print "----Mining (delta exploration)----"
 			cohorte = assemble_Cohorte()
-			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_ABSOLUTE_meanGeneratedThreshold.csv"
+			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_PROPORTION_meanGeneratedThreshold.csv"
 			minNumberOfParamToRemove = 10
 			maxTry = 60
 			maxNumberOfPattern = 1000
@@ -798,7 +799,7 @@ def FrequentItemMining3(minSupport, controlDisease):
 	
 
 	# Initilaise log file
-	logFile = open("DATA/PATTERN/FrequentItemMining3_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "w")
+	logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "w")
 	logFile.close()
 
 	for disease in listOfDisease:
@@ -809,6 +810,7 @@ def FrequentItemMining3(minSupport, controlDisease):
 			fusion_panel(listOfPanelToConcat)
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", controlDisease)
+			check_patient()
 			threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
 
 			print "----Pattern Mining on "+str(disease)+"----"
@@ -909,13 +911,13 @@ def FrequentItemMining3(minSupport, controlDisease):
 			for line in dataToInspect:
 				numberOfItem = numberOfItem + 1
 			dataToInspect.close()
-			logFile = open("DATA/PATTERN/FrequentItemMining3_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "a")
+			logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "a")
 			logFile.write(disease+";"+str(numberOfItem)+";"+str(minSupport)+";"+str(delta)+"\n")
 			logFile.close()
 
 
 
-def visualisation2(disease, control):
+def visualisation3(disease, control):
 	"""
 	IN PROGRESS
 	"""
@@ -931,10 +933,11 @@ def visualisation2(disease, control):
 	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold.csv")
 	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter.csv")
 	parametersOfInterest_disease = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
-	parametersOfInterest_control = extract_parametersFromPattern("DATA/PATTERN/"+control+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
+	parametersOfInterest_control = []
+	if(control != "Control"):
+		parametersOfInterest_control = extract_parametersFromPattern("DATA/PATTERN/"+control+"_FrequentItem_ABSOLUTE_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
+	
 	parametersOfInterest = parametersOfInterest_control + parametersOfInterest_disease
-	listOfAllParameters = get_allParam("ABSOLUTE")
-
 	listOfAllParameters = get_allParam("ABSOLUTE")
 	for parameter in listOfAllParameters:
 		if(parameter not in parametersOfInterest):
@@ -960,3 +963,53 @@ def visualisation2(disease, control):
 	saveName2 = "IMAGES/"+disease+"_vs_"+control+"_PCA2D.jpg"
 	show_correlationMatrix("DATA/PATIENT", saveName1, "ABSOLUTE", 1)
 	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
+
+
+def visualisation2(disease, control, dataType, minSupport):
+	"""
+	IN PROGRESS
+	"""
+
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+
+	clean_folders("ALL")
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	apply_filter("disease", [disease, control])
+	check_patient()
+
+	filter_Pattern("DATA/PATTERN/"+disease+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold.csv")
+	convert_PatternFile("DATA/PATTERN/"+disease+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold_HeavyFilter.csv")
+	parametersOfInterest_disease = extract_parametersFromPattern("DATA/PATTERN/"+disease+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)	
+	parametersOfInterest_control = []
+	if(control != "Control"):
+		parametersOfInterest_control = extract_parametersFromPattern("DATA/PATTERN/"+control+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold_HeavyFilter_converted.csv", 0)
+
+	parametersOfInterest = parametersOfInterest_control + parametersOfInterest_disease
+	listOfAllParameters = get_allParam(dataType)
+
+	listOfAllParameters = get_allParam(dataType)
+	for parameter in listOfAllParameters:
+		if(parameter not in parametersOfInterest):
+			remove_parameter(dataType, parameter)
+
+	filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	filter_ArtefactValue("ABSOLUTE", "CD45RAposCD62LhighCD27posCD4pos_Naive_Tcells", 1000000)
+	filter_ArtefactValue("ABSOLUTE", "gdpos_Tcells", 20000)
+
+	#filter_ArtefactValue("ABSOLUTE", "CD27pos CD43pos Bcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "Monocytes", 1200)
+	#filter_ArtefactValue("ABSOLUTE", "CD14highCD16neg_classicalMonocytes", 1000)
+	#filter_ArtefactValue("ABSOLUTE", "CD15highCD16neg_Eosinophils", 800)
+	#filter_ArtefactValue("ABSOLUTE", "CD15lowCD16high_Neutrophils", 1100)
+	#filter_ArtefactValue("ABSOLUTE", "CD69pos_activated_CD4pos_Tcells", 600)
+	#filter_ArtefactValue("ABSOLUTE", "CD8pos_CD57pos_Cytotoxic_Tcells", 500)
+	#filter_ArtefactValue("ABSOLUTE", "CD14pos_monocytes", 1200)
+
+	check_patient()
+	save_data()
+
+	saveName1 = "IMAGES/"+disease+"_vs_"+control+"_"+dataType+"_matrixCorrelation.jpg"
+	saveName2 = "IMAGES/"+disease+"_vs_"+control+"_"+dataType+"_PCA2D.jpg"
+	show_correlationMatrix("DATA/PATIENT", saveName1, dataType, 1)
+	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, dataType, 1, 1)
