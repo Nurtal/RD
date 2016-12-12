@@ -242,7 +242,16 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
-FrequentItemMining2(25)
+
+
+listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
+for disease in listOfDisease:
+	x = 0
+	while(x < 101):
+		FrequentItemMining3(x, disease)
+		x = x +5 
+
+
 
 
 """
@@ -322,8 +331,6 @@ for disease in listOfDisease:
 #remove_parameter("ABSOLUTE", "CD27pos CD43pos Bcells")
 #remove_parameter("ABSOLUTE", "CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryTcells")
 """
-
-
 
 
 """
@@ -412,7 +419,14 @@ def visualisation(disease):
 #show_distribution(X)
 
 
-#visualisation("UCTD")
+
+#visualisation("RA")
+#visualisation2("SLE", "MCTD")
+
+
+
+
+
 """
 listOfDisease2 = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 for disease in listOfDisease2:
