@@ -9,7 +9,6 @@ from sklearn.preprocessing import Imputer
 from sklearn import preprocessing
 from analysis import *
 
-
 from preprocessing import *
 
 import scipy.stats as stats
@@ -306,26 +305,31 @@ def filter_outlier(data):
 	return data
 
 
+def plot_explainedVariance(cohorte):
+	"""
+	IN PROGRESS
+	"""
+	#Explained variance
+	pca = PCA().fit(cohorte)
+	plt.plot(np.cumsum(pca.explained_variance_ratio_))
+	plt.xlabel('number of components')
+	plt.ylabel('cumulative explained variance')
+	plt.show()
+
+
 """TEST SPACE"""
 
 #CreateMatrix()
 #extractBinaryMatrix()
 #extractQuantitativeMatrix()
-
-
-
 data = AssembleMatrixFromFile()
 data = preprocessing.robust_scale(data)
-y = get_discreteLabel()
-
+#y = get_discreteLabel()
 cohorte = filter_outlier(data)
 
-
+plot_explainedVariance(cohorte)
 
 #quickClustering(data, 2, "cytokineTest.png")
-
-
-quickPCA(cohorte, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
-
+#quickPCA(cohorte, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
 
 
