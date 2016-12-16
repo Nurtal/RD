@@ -326,7 +326,7 @@ def plot_explainedVariance(cohorte):
 data = AssembleMatrixFromFile()
 data = preprocessing.robust_scale(data)
 cohorte = filter_outlier(data)
-#y = get_discreteLabel()
+y = get_discreteLabel()
 
 
 matrix_cleaned = open("DATA/CYTOKINES/myTestMatrix.csv", "w")
@@ -351,12 +351,6 @@ for patient in cohorte:
 	matrix_cleaned.write(str(lineToWrite[:-1])+"\n")
 matrix_cleaned.close()
 
-
-
-
-
-"""
-
 # Perform PCA
 pca = PCA()
 pca.fit(cohorte)
@@ -372,12 +366,12 @@ cohorte_reduced = np.array(cohorte_reduced)
 
 quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 #quickPCA(cohorte_reduced, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
+
+
+
+
+
 """
-
-
-
-
-
 import pandas as pd
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
@@ -434,7 +428,7 @@ for i in range(len(xs)):
 plt.show()
 
 
-
+"""
 
 
 
