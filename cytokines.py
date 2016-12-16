@@ -376,7 +376,7 @@ quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 
 
 
-"""
+
 
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -384,7 +384,7 @@ from matplotlib import pyplot as plt
 
 ## import data
 
-my_csv = 'DATA/CYTOKINES/myTestMatrix.csv' ## path to your dataset
+my_csv = 'DATA/CYTOKINES/iris.csv' ## path to your dataset
 
 dat = pd.read_csv(my_csv, index_col=0)
 # if no row or column titles in your csv, pass 'header=None' into read_csv
@@ -434,15 +434,13 @@ for i in range(len(xs)):
 plt.show()
 
 
+
+
+
+
+
+
 """
-
-
-
-
-
-
-
-
 
 import numpy as np
 import pandas as pd
@@ -468,8 +466,6 @@ X.columns = [['sepal_length', 'sepal_width', 'petal_length', 'petal_width']]
 X.head()
  
 # ## Run PCA against feature set dataframe
- 
- 
 n = len(X.columns)-1 # set the number
 pca = PCA(n_components = n)
 X_pca = pca.fit(X).transform(X)
@@ -486,7 +482,6 @@ df_pca.head()
 # In[83]:
  
 import seaborn as sns
- 
  
 # Scatter plot based and assigne color based on 'label - y'
 sns.lmplot('pc1', 'pc2', data=df_pca, fit_reg = False, hue = 'y', size = 15, scatter_kws={"s": 100})
@@ -515,3 +510,5 @@ for i in range(len(xvector)):
 for i in range(len(xs)):
     plt.text(xs[i]*1.08, ys[i]*1.08, list(X.index)[i], color='b') # index number of each observations
 plt.title('PCA Plot of first PCs')
+
+"""
