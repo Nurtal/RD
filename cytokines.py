@@ -372,6 +372,9 @@ quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 
 
 """
+# Biplot stuff, to check & implement on real data
+
+
 import pandas as pd
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
