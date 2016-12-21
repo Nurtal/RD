@@ -188,13 +188,13 @@ def extractQuantitativeMatrix():
 	matrixData.close()
 
 
-def AssembleMatrixFromFile():
+def AssembleMatrixFromFile(fileName):
 	"""
 	IN PROGRESS
 	"""
 
 	# assemble une numpy matrix
-	matrixFile = open("DATA/CYTOKINES/quantitativeMatrix.csv", "r")
+	matrixFile = open(fileName, "r")
 	cohorte = []
 	cmpt = 0
 	LuminexVariableIndex = []
@@ -235,15 +235,13 @@ def AssembleMatrixFromFile():
 	imp = Imputer(missing_values='NaN', strategy='mean', axis=0)
 	X = cohorte
 	imp.fit(X)
-	print(imp.transform(X))
+	#print(imp.transform(X))
 	data = imp.transform(X)
 
 
 	# compute % of na in Luminex
-
-	score = float( float(numberOfNa) / (float(cmpt) * float(len(LuminexVariableIndex)))*100)
-
-	print "=> " +str(score)
+	#score = float( float(numberOfNa) / (float(cmpt) * float(len(LuminexVariableIndex)))*100)
+	#print "=> " +str(score)
 
 
 	return data
@@ -311,8 +309,8 @@ def filter_outlier(data):
 		mean = description[2]
 		variance = description[3]
 		ecartType = sqrt(variance)
-		minimum = mean - 5*ecartType
-		maximum = mean + 5*ecartType
+		minimum = mean - 3*ecartType
+		maximum = mean + 3*ecartType
 		Threshold["max"] = maximum
 		Threshold["min"] = minimum
 		VariableIndexToThresholds[index_variable] = Threshold
@@ -387,18 +385,145 @@ def show_biplot(cohorte, labels=None):
 	plt.show()
 
 
+
+
+
+
+def PlotProcedure_fittingDisease():
+	"""	
+	-> Create a cohorte with the AssembleMatrixFromFile() function
+	-> Create Dict IdToPositionInCohorte from the data . csv file
+	   (in the exemple case: testData.csv)
+	-> Create Dict patient id to diagnostic from index file 
+	   (in the exemple case : patientIndex_test.csv)
+	-> Split the cohorte, i.e create the Dict diagnostic to SubCohorte
+	-> Use the different SubCohorte generated to plot the data
+
+
+	TODO:
+		-Adapt To real Data
+
+	"""
+
+	# Split Cohorte according to Diagnostic
+	listOfDiagnostic = ["sain", "malade", "autre"]
+
+	cohorte = AssembleMatrixFromFile("DATA/CYTOKINES/testData.csv")
+
+	# Get patient id and associated position in cohorte
+	IdToPositionInCohorte = {}
+	dataFile = open("DATA/CYTOKINES/testData.csv", "r")
+	cmptInDataFile = 0
+	indexOfID = "undef"
+	position = 0
+	for line in dataFile:
+		if(cmptInDataFile == 0):
+			indexInHeader = 0 
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+			for param in lineInArray:
+				if(param == "ID"): # ADAPT to REAL DATA
+					indexOfID = indexInHeader
+		elif(indexOfID != "undef"):
+			position += 1
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+
+			IdToPositionInCohorte[lineInArray[indexOfID]] = position
+
+		cmptInDataFile += 1
+	dataFile.close()
+
+	# get patient id to diagnostic from index file
+	IdToDiagnostic = {}
+	indexFile = open("DATA/CYTOKINES/patientIndex_test.csv", "r")
+	for line in indexFile:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		IdToDiagnostic[lineInArray[0]] = lineInArray[1]
+	indexFile.close()
+
+	# Split cohorte
+	DiagnosticToSubCohorte = {}
+	for diagnostic in listOfDiagnostic:
+		SubCohorte = []
+		patientInSubCohorte = []
+		for key in IdToDiagnostic.keys():
+			if(IdToDiagnostic[key] == diagnostic):
+				patientInSubCohorte.append(key)
+		for key in IdToPositionInCohorte.keys():
+			if(key in patientInSubCohorte):
+				SubCohorte.append(cohorte[IdToPositionInCohorte[key]-1])
+		DiagnosticToSubCohorte[diagnostic] = SubCohorte
+
+
+	# Plot data point according to Diagnostic
+	diagnosticToColor = {"sain":"b","malade":"r", "autre":"g"}
+	diagnosticToSymbol = {"sain":"o","malade":"x", "autre":"x"}
+	ax = plt.subplot(111, projection='3d')
+	for diagnostic in DiagnosticToSubCohorte.keys():
+		x = []
+		y = []
+		z = []
+		for patient in DiagnosticToSubCohorte[diagnostic]:
+			x.append(patient[0])
+			y.append(patient[1])
+			z.append(patient[2])
+		ax.plot(x, y, z, diagnosticToSymbol[diagnostic], color=diagnosticToColor[diagnostic], label=diagnostic)
+	plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0))
+	plt.show()
+
+
+
 """TEST SPACE"""
 
+
+def CreateIndexFile():
+	"""
+	-> Create an index file for patient in the
+	   DATA folder.
+	-> All filename present in PANEL folder are scanned,
+
+
+	Write doc
+	"""
+	# Create index File for real Data
+	# a few structure
+	listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
+	listOfPatientFiles = []
+	for panel in listOfPanel:
+		tmpList = glob.glob("DATA/"+panel+"/*.csv")
+		for element in tmpList:
+			if(element not in listOfPatientFiles):
+				listOfPatientFiles.append(element)
+
+
+	indexFile = open("DATA/patientIndex.csv", "w")
+	listOfPatientId = []
+	for patient in listOfPatientFiles:
+		patientInArray = patient.split("/")
+		patientInArray = patientInArray[-1]
+		patientInArray = patientInArray.split("_")
+		patient_id = patientInArray[1]
+		patient_diagnostic = patientInArray[0]
+		if(patient_id not in listOfPatientId):
+			indexFile.write(patient_id+";"+patient_diagnostic+"\n")
+			listOfPatientId.append(patient_id)
+	indexFile.close()
+
+
+
+
+"""
 # Create Data
 #CreateMatrix()
 #extractBinaryMatrix()
 #extractQuantitativeMatrix()
-data = AssembleMatrixFromFile()
+data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
 data = preprocessing.robust_scale(data)
 cohorte = filter_outlier(data)
 
 #y = get_discreteLabel()
-
 
 matrix_cleaned = open("DATA/CYTOKINES/myTestMatrix.csv", "w")
 # write header
@@ -422,10 +547,13 @@ for patient in cohorte:
 matrix_cleaned.close()
 
 # Perform PCA
-pca = PCA()
+pca = PCA(n_components=50)
 pca.fit(cohorte)
 plot_explainedVariance(cohorte)
+print len(cohorte[0])
 cohorteInNewSpace = pca.fit_transform(cohorte)
+plot_explainedVariance(cohorteInNewSpace)
+
 
 # keep only the first 10 parameters
 cohorte_reduced = []
@@ -437,3 +565,125 @@ cohorte_reduced = np.array(cohorte_reduced)
 quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 #quickPCA(cohorte_reduced, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
 show_biplot(cohorte_reduced)
+#show_biplot(cohorte)
+"""
+
+"""
+data = AssembleMatrixFromFile("DATA/CYTOKINES/testData.csv")
+cohorte = preprocessing.robust_scale(data)
+cohorte = filter_outlier(data)
+
+
+pca = PCA()
+pca.fit(cohorte)
+#plot_explainedVariance(cohorte)
+cohorteInNewSpace = pca.fit_transform(cohorte)
+#plot_explainedVariance(cohorteInNewSpace)
+"""
+
+
+#show_biplot(cohorte)
+#show_biplot(cohorteInNewSpace)
+
+#quickClustering(cohorte, 4, "cytokineTest.png")
+
+
+
+
+
+"""
+target_name = ["malade", "sain", "autre"]
+y = [0,0,0,1,1,1,2]
+C = pca.fit(cohorte).transform(cohorte)
+
+plt.figure()
+colors = ["r", "r", "r", "b", "b", "b", "g"]
+plt.scatter(C[:, 0], C[:, 1], cmap=plt.cm.Paired, label=target_name, c=colors)
+#for c, i, target_name in zip("rgb", [0,1,2], target_name):
+#	plt.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
+plt.legend()
+plt.title("ACP")
+plt.show()
+"""
+
+
+
+
+
+"""
+target_name = ["malade", "sain", "autre"]
+y = [0,0,0,1,1,1,2]
+pca = PCA()
+C = pca.fit(cohorte).transform(cohorte)
+est=KMeans(n_clusters=3)
+est.fit(cohorte)
+classe=est.labels_
+
+
+fig = plt.figure(1, figsize=(8, 6))
+ax = Axes3D(fig, elev=-150, azim=110)
+
+#ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=classe, cmap=plt.cm.Paired)
+#for c, i, target_name in zip("rgb", [0,1,2], target_name):
+#	ax.scatter(C[y == i,0], C[y == i,1], C[y == i,2], c=c)
+
+
+ax.set_title("kmean : "+str(3)+" clusters")
+ax.set_xlabel("Comp1")
+ax.w_xaxis.set_ticklabels([])
+ax.set_ylabel("Comp2")
+ax.w_yaxis.set_ticklabels([])
+ax.set_zlabel("Comp3")
+ax.w_zaxis.set_ticklabels([])
+ax.legend()
+plt.show()
+"""
+
+
+
+
+
+"""
+N = len(cohorteInNewSpace)
+data = cohorteInNewSpace
+labels = ["malade", "malade", "malade", "sain", "sain", "sain", "autre"]
+
+colors = ["r", "r", "r", "b", "b", "b", "g"]
+
+plt.subplots_adjust(bottom = 0.1)
+plt.scatter(
+    data[:, 0], data[:, 1], marker = 'o', cmap = plt.get_cmap('Spectral'))
+for label, x, y in zip(labels, data[:, 0], data[:, 1]):
+    plt.annotate(
+        label,
+        xy = (x, y), xytext = (-20, 20),
+        textcoords = 'offset points', ha = 'right', va = 'bottom',
+        bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5),
+        arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3,rad=0'))
+
+plt.show()
+"""
+
+"""
+import numpy as np
+import sklearn.datasets, sklearn.decomposition
+
+#X = sklearn.datasets.load_iris().data
+
+X = cohorte
+mu = np.mean(X, axis=0)
+
+pca = sklearn.decomposition.PCA()
+pca.fit(X)
+
+nComp = 2
+Xhat = np.dot(pca.transform(X)[:,:nComp], pca.components_[:nComp,:])
+Xhat += mu
+print Xhat
+#print(Xhat[0,])
+
+"""
+
+
+
+
