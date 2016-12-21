@@ -245,9 +245,16 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
+listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
+for disease1 in listOfDisease:
+	x = 0
+	while(x < 101):
+		FrequentItemMining3(x, disease1, "PROPORTION")
+		x = x +5
 
-FrequentItemMining2(15)
-visualisation2("RA", "Control", "PROPORTION", 15)
+
+
+#visualisation2("RA", "Control", "PROPORTION", 30)
 
 
 
