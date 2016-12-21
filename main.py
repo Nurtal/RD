@@ -254,7 +254,12 @@ for disease1 in listOfDisease:
 
 
 
+<<<<<<< HEAD
 #visualisation2("RA", "Control", "PROPORTION", 30)
+=======
+#FrequentItemMining2(15)
+#visualisation2("RA", "Control", "PROPORTION", 15)
+>>>>>>> 1285708df1bb72a63edaf40fbd0cdb11e9dc65e8
 
 
 

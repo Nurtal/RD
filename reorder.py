@@ -99,7 +99,6 @@ def apply_filter(targetType, target):
 
 
 def restore_Data():
-	
 	"""
 	-> Delete all files in DATA/PATIENT
 	-> Copy all files from DATA/PATIENT_SAVE to DATA/PATIENT
