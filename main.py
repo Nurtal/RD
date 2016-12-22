@@ -246,7 +246,12 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run4()
 #FrequentItemMining()
 
-#FrequentItemMining2(15)
+#x = 0
+#while(x < 101):
+#	FrequentItemMining2(x)
+#	x = x + 5
+
+
 #visualisation2("RA", "Control", "PROPORTION", 15)
 
 
