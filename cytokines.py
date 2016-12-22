@@ -721,16 +721,12 @@ def PlotProcedure_fittingDisease():
 """TEST SPACE"""
 
 
-
-
-# \Clinical\Sampling\OMICID
-
-
 # Create Data
-#CreateMatrix()
-#format_OMICID()
+CreateIndexFile()
+CreateMatrix()
+format_OMICID()
 #extractBinaryMatrix()
-#extractQuantitativeMatrix()
+extractQuantitativeMatrix()
 PlotProcedure_fittingDisease()
 
 """
@@ -758,7 +754,7 @@ cohorte = filtered[0]
 
 
 
-
+"""
 data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
 data = preprocessing.robust_scale(data)
 filtered = filter_outlier(data, 5)
@@ -808,7 +804,7 @@ quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 #quickPCA(cohorte_reduced, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
 show_biplot(cohorte_reduced)
 #show_biplot(cohorte)
-
+"""
 
 """
 data = AssembleMatrixFromFile("DATA/CYTOKINES/testData.csv")
