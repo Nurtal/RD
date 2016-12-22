@@ -647,7 +647,7 @@ def FrequentItemMining():
 		search_FrequentItem(cohorte, patternSaveFile)
 
 
-def FrequentItemMining2(minSupport):
+def FrequentItemMining2(minSupport, dataType):
 	"""
 	IN PROGRESS (adapt to PROPORTION data)
 	- ABSOLUTE data
@@ -664,7 +664,7 @@ def FrequentItemMining2(minSupport):
 	
 
 	# Initilaise log file
-	logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+".log", "w")
+	logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+"_"+dataType+".log", "w")
 	logFile.close()
 
 	for disease in listOfDisease:
@@ -675,7 +675,7 @@ def FrequentItemMining2(minSupport):
 		fusion_panel(listOfPanelToConcat)
 		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 		apply_filter("disease", "Control")
-		threshold = get_ThresholdValue_DynamicDelta("PROPORTION", 1, "Mean", delta)
+		threshold = get_ThresholdValue_DynamicDelta(dataType, 1, "Mean", delta)
 
 		print "----Pattern Mining on "+str(disease)+"----"
 
@@ -685,12 +685,12 @@ def FrequentItemMining2(minSupport):
 		checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 		apply_filter("disease", disease)
 		check_patient()
-		scaleDataInPatientFolder("PROPORTION")
+		scaleDataInPatientFolder(dataType)
 		discretization(threshold)
 
 		print "----Mining----"
 		cohorte = assemble_Cohorte()
-		patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_PROPORTION_meanGeneratedThreshold.csv"
+		patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold.csv"
 		minNumberOfParamToRemove = 10
 		maxTry = 60
 		maxNumberOfPattern = 1000
@@ -725,7 +725,7 @@ def FrequentItemMining2(minSupport):
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", "Control")
 			delta = delta + 0.05
-			threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+			threshold = get_ThresholdValue_DynamicDelta(dataType, 1, "Mean", delta)
 
 			print "----Mining on "+str(disease)+" (delta exploration)----"
 
@@ -735,12 +735,12 @@ def FrequentItemMining2(minSupport):
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", disease)
 			check_patient()
-			scaleDataInPatientFolder("ABSOLUTE")
+			scaleDataInPatientFolder(dataType)
 			discretization(threshold)
 
 			print "----Mining (delta exploration)----"
 			cohorte = assemble_Cohorte()
-			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_PROPORTION_meanGeneratedThreshold.csv"
+			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_"+dataType+"_meanGeneratedThreshold.csv"
 			minNumberOfParamToRemove = 10
 			maxTry = 60
 			maxNumberOfPattern = 1000
@@ -775,16 +775,18 @@ def FrequentItemMining2(minSupport):
 		for line in dataToInspect:
 			numberOfItem = numberOfItem + 1
 		dataToInspect.close()
-		logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+".log", "a")
+		logFile = open("DATA/PATTERN/FrequentItemMining2_"+str(minSupport)+"_"+dataType+".log", "a")
 		logFile.write(disease+";"+str(numberOfItem)+";"+str(minSupport)+";"+str(delta)+"\n")
 		logFile.close()
 
 
 
 
-def FrequentItemMining3(minSupport, controlDisease):
+
+
+def FrequentItemMining3(minSupport, controlDisease, dataType):
 	"""
-	- ABSOLUTE data
+	IN PROGRESS
 	- discretisation using mean Generated threshold
 	- dynamic generation threshold
 	- delta is a used as a %
@@ -792,6 +794,8 @@ def FrequentItemMining3(minSupport, controlDisease):
 	- minSupport is a float, % of patient in cohorte that must
 	  suppport the item
 	- use controlDisease as a control for discretization process
+	TODO:
+		- test with dataType
 	"""
 	#listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
 	listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
@@ -799,7 +803,7 @@ def FrequentItemMining3(minSupport, controlDisease):
 	
 
 	# Initilaise log file
-	logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "w")
+	logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+"_"+dataType+".log", "w")
 	logFile.close()
 
 	for disease in listOfDisease:
@@ -811,7 +815,7 @@ def FrequentItemMining3(minSupport, controlDisease):
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", controlDisease)
 			check_patient()
-			threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+			threshold = get_ThresholdValue_DynamicDelta(dataType, 1, "Mean", delta)
 
 			print "----Pattern Mining on "+str(disease)+"----"
 
@@ -821,12 +825,12 @@ def FrequentItemMining3(minSupport, controlDisease):
 			checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 			apply_filter("disease", disease)
 			check_patient()
-			scaleDataInPatientFolder("ABSOLUTE")
+			scaleDataInPatientFolder(dataType)
 			discretization(threshold)
 
 			print "----Mining----"
 			cohorte = assemble_Cohorte()
-			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_discretizationWith"+controlDisease+"_ABSOLUTE_meanGeneratedThreshold.csv"
+			patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_discretizationWith"+controlDisease+"_"+dataType+"_meanGeneratedThreshold.csv"
 			minNumberOfParamToRemove = 10
 			maxTry = 60
 			maxNumberOfPattern = 1000
@@ -860,8 +864,9 @@ def FrequentItemMining3(minSupport, controlDisease):
 				fusion_panel(listOfPanelToConcat)
 				checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 				apply_filter("disease", controlDisease)
+				check_patient()
 				delta = delta + 0.05
-				threshold = get_ThresholdValue_DynamicDelta("ABSOLUTE", 1, "Mean", delta)
+				threshold = get_ThresholdValue_DynamicDelta(dataType, 1, "Mean", delta)
 
 				print "----Mining on "+str(disease)+" (delta exploration)----"
 
@@ -871,12 +876,12 @@ def FrequentItemMining3(minSupport, controlDisease):
 				checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 				apply_filter("disease", disease)
 				check_patient()
-				scaleDataInPatientFolder("ABSOLUTE")
+				scaleDataInPatientFolder(dataType)
 				discretization(threshold)
 
 				print "----Mining (delta exploration)----"
 				cohorte = assemble_Cohorte()
-				patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_discretizationWith"+controlDisease+"_ABSOLUTE_meanGeneratedThreshold.csv"
+				patternSaveFile = disease+"_FrequentItem_"+str(minSupport)+"_discretizationWith"+controlDisease+"_"+dataType+"_meanGeneratedThreshold.csv"
 				minNumberOfParamToRemove = 10
 				maxTry = 60
 				maxNumberOfPattern = 1000
@@ -911,7 +916,7 @@ def FrequentItemMining3(minSupport, controlDisease):
 			for line in dataToInspect:
 				numberOfItem = numberOfItem + 1
 			dataToInspect.close()
-			logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+".log", "a")
+			logFile = open("DATA/PATTERN/FrequentItemMining_"+str(minSupport)+"_discretizationWith"+str(controlDisease)+"_"+dataType+".log", "a")
 			logFile.write(disease+";"+str(numberOfItem)+";"+str(minSupport)+";"+str(delta)+"\n")
 			logFile.close()
 

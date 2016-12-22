@@ -251,7 +251,7 @@ def quickPCA(data, y, target_name, projection, saveName, details, show):
 	
 	# Additional Graphics
 	# -> Decroissance de la variance explique
-	# ->Diagramme des premieres composante principales
+	# -> Diagramme des premieres composante principales
 	#-------------------------------------------------
 	if(details):
 
