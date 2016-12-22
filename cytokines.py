@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from preprocessing import *
 
 import scipy.stats as stats
+import platform
 
 def CreateMatrix():
 	"""
@@ -149,6 +150,10 @@ def extractBinaryMatrix():
 def extractQuantitativeMatrix():
 	"""
 	IN PROGRESS
+
+	Drop the column PATIENT ID
+	format and keep the OMIC ID
+
 	"""
 
 
@@ -293,10 +298,11 @@ def get_discreteLabel():
 	return discreteLabel
 
 
-def filter_outlier(data):
+def filter_outlier(data, delta):
 	"""
 	IN PROGRESS
 	"""
+	listOfFilterPatient = []
 	cohorte = np.array(data)
 	firstCount = len(cohorte)
 	cmpt = 0
@@ -309,8 +315,8 @@ def filter_outlier(data):
 		mean = description[2]
 		variance = description[3]
 		ecartType = sqrt(variance)
-		minimum = mean - 3*ecartType
-		maximum = mean + 3*ecartType
+		minimum = mean - delta*ecartType
+		maximum = mean + delta*ecartType
 		Threshold["max"] = maximum
 		Threshold["min"] = minimum
 		VariableIndexToThresholds[index_variable] = Threshold
@@ -318,6 +324,7 @@ def filter_outlier(data):
 
 
 	newCohorte = []
+	patientPositionInCohorte = 0
 	for patient in cohorte:
 		cmpt = 0
 		passCheck = 1
@@ -330,12 +337,15 @@ def filter_outlier(data):
 			cmpt += 1
 		if(passCheck):
 			newCohorte.append(patient)
+		else:
+			listOfFilterPatient.append(patientPositionInCohorte)
 
+		patientPositionInCohorte += 1
 	data = np.array(newCohorte)
 	secondCount =len(data)
 
 	print str(firstCount) + " || " + str(secondCount)
-	return data
+	return (data, listOfFilterPatient)
 
 
 def plot_explainedVariance(cohorte):
@@ -386,10 +396,102 @@ def show_biplot(cohorte, labels=None):
 
 
 
+def CreateIndexFile():
+	"""
+	-> Create an index file for patient in the
+	   DATA folder.
+	-> Format of the index file:
+	   patientId;Diagnostic
+	"""
+	# Create index File for real Data
+	# a few structure
+	listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
+	listOfPatientFiles = []
+	for panel in listOfPanel:
+		tmpList = glob.glob("DATA/"+panel+"/*.csv")
+		for element in tmpList:
+			if(element not in listOfPatientFiles):
+				listOfPatientFiles.append(element)
+
+
+	indexFile = open("DATA/patientIndex.csv", "w")
+	listOfPatientId = []
+	for patient in listOfPatientFiles:
+		if(platform.system() == "Linux"):
+			patientInArray = patient.split("/")
+		elif(platform.system() == "Windows"):
+			patientInArray = patient.split("\\")
+		patientInArray = patientInArray[-1]
+		patientInArray = patientInArray.split("_")
+		patient_id = patientInArray[1]
+		patient_diagnostic = patientInArray[0]
+		if(patient_id not in listOfPatientId):
+			indexFile.write(patient_id+";"+patient_diagnostic+"\n")
+			listOfPatientId.append(patient_id)
+	indexFile.close()
 
 
 
-def PlotProcedure_fittingDisease():
+def format_OMICID():
+	"""
+	-> Format OMIC ID the matrix.csv file, rewrite
+	   the file with a functionnal OMIC ID (i.e remove the "N"
+	   	letter in the ID)
+	-> WARNING: the OMIC ID can now be processed as a quantitave variable
+
+	"""
+
+	# copy the matrix file
+	inputData = open("DATA/CYTOKINES/matrix.csv", "r")
+	tmpData = open("DATA/CYTOKINES/matrix_tmp.csv", "w")
+	for line in inputData:
+		tmpData.write(line)
+	inputData.close()
+	tmpData.close()
+
+	matrixData = open("DATA/CYTOKINES/matrix_tmp.csv", "r")
+	matrixFormated = open("DATA/CYTOKINES/matrix.csv", "w")
+	listOfIndex = []
+	cmpt = 0
+	id_index = "undef"
+	for line in matrixData:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		index = 0
+		if(cmpt == 0):
+			index = 0
+			for element in lineInArray:
+				if("OMIC" in element):
+					id_index = index
+				index = index + 1
+			matrixFormated.write(line)
+
+		elif(id_index != "undef"):
+			lineToWrite = ""
+			indexInData = 0
+			for scalar in lineInArray:
+
+				if(indexInData != id_index):
+					lineToWrite = lineToWrite + scalar + ";"
+				
+				else:
+					OmicId = lineInArray[id_index]
+					newOmicId = OmicId[1:]
+					lineToWrite = lineToWrite + newOmicId + ";"
+
+				indexInData +=1
+			matrixFormated.write(lineToWrite[:-1]+"\n")
+		cmpt +=1
+	matrixFormated.close()
+	matrixData.close()
+
+	# remove tmp file
+	os.remove("DATA/CYTOKINES/matrix_tmp.csv")
+
+
+
+
+def PlotProcedure_fittingDisease_test():
 	"""	
 	-> Create a cohorte with the AssembleMatrixFromFile() function
 	-> Create Dict IdToPositionInCohorte from the data . csv file
@@ -401,7 +503,9 @@ def PlotProcedure_fittingDisease():
 
 
 	TODO:
-		-Adapt To real Data
+		- Adapt To real Data
+		- Preprocessing cohorte
+		- PCA on Cohorte
 
 	"""
 
@@ -424,6 +528,7 @@ def PlotProcedure_fittingDisease():
 			for param in lineInArray:
 				if(param == "ID"): # ADAPT to REAL DATA
 					indexOfID = indexInHeader
+				indexInHeader += 1
 		elif(indexOfID != "undef"):
 			position += 1
 			lineInArray = line.split("\n")
@@ -442,6 +547,28 @@ def PlotProcedure_fittingDisease():
 		lineInArray = lineInArray[0].split(";")
 		IdToDiagnostic[lineInArray[0]] = lineInArray[1]
 	indexFile.close()
+
+	# Remove ID column from matrix
+	new_cohorte = []
+	for patient in cohorte:
+		new_patient = []
+		index = 0
+		for scalar in patient:
+			if(index != indexOfID):
+				new_patient.append(scalar)
+			index += 1
+		new_cohorte.append(new_patient)
+	cohorte = new_cohorte
+
+	# Preprocessing Cohorte
+	cohorte = preprocessing.robust_scale(cohorte)
+	cohorte = filter_outlier(cohorte)
+
+	# Perform PCA
+	pca = PCA()
+	pca.fit(cohorte)
+	plot_explainedVariance(cohorte)
+	cohorte = pca.fit_transform(cohorte)
 
 	# Split cohorte
 	DiagnosticToSubCohorte = {}
@@ -475,53 +602,168 @@ def PlotProcedure_fittingDisease():
 
 
 
+
+
+def PlotProcedure_fittingDisease():
+	"""	
+	-> Create a cohorte with the AssembleMatrixFromFile() function
+	-> Create Dict IdToPositionInCohorte from the data . csv file
+	   (in the exemple case: testData.csv)
+	-> Create Dict patient id to diagnostic from index file 
+	   (in the exemple case : patientIndex_test.csv)
+	-> Split the cohorte, i.e create the Dict diagnostic to SubCohorte
+	-> Use the different SubCohorte generated to plot the data
+
+	"""
+
+	# Split Cohorte according to Diagnostic
+	listOfDiagnostic = ["Control", "MCTD", "PAPs", "RA", "SjS", "SLE", "SSc", "UCTD"]
+
+	cohorte = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
+	
+	# Preprocessing Cohorte
+	cohorte = preprocessing.robust_scale(cohorte)
+	filtered = filter_outlier(cohorte, 6)
+	cohorte = filtered[0]
+	listOfPositionFiltered = filtered[1]
+
+	# Get patient id and associated position in cohorte
+	IdToPositionInCohorte = {}
+	dataFile = open("DATA/CYTOKINES/quantitativeMatrix.csv", "r")
+	cmptInDataFile = 0
+	indexOfID = "undef"
+	position = 0
+	for line in dataFile:
+		if(cmptInDataFile == 0):
+			indexInHeader = 0 
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+			for param in lineInArray:
+				if(param == "\Clinical\Sampling\OMICID"):
+					indexOfID = indexInHeader
+				indexInHeader +=1
+		elif(indexOfID != "undef"):
+			position += 1
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+
+			if(position not in listOfPositionFiltered):
+				truePosition = position
+				numberOfPositionToDelete = 0
+				for pos in listOfPositionFiltered:
+					if(pos < position):
+						numberOfPositionToDelete += 1
+				truePosition = position - numberOfPositionToDelete
+				IdToPositionInCohorte[lineInArray[indexOfID]] = truePosition
+		cmptInDataFile += 1
+	dataFile.close()
+
+
+	# get patient id to diagnostic from index file
+	IdToDiagnostic = {}
+	indexFile = open("DATA/patientIndex.csv", "r")
+	for line in indexFile:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		IdToDiagnostic[lineInArray[0]] = lineInArray[1]
+	indexFile.close()
+
+	# Remove ID column from matrix
+	new_cohorte = []
+	for patient in cohorte:
+		new_patient = []
+		index = 0
+		for scalar in patient:
+			if(index != indexOfID):
+				new_patient.append(scalar)
+			index += 1
+		new_cohorte.append(new_patient)
+	cohorte = new_cohorte
+
+	# Perform PCA
+	pca = PCA()
+	pca.fit(cohorte)
+	plot_explainedVariance(cohorte)
+	cohorte = pca.fit_transform(cohorte)
+
+	# Split cohorte
+	DiagnosticToSubCohorte = {}
+	for diagnostic in listOfDiagnostic:
+		SubCohorte = []
+		patientInSubCohorte = []
+		for key in IdToDiagnostic.keys():
+			if(IdToDiagnostic[key] == diagnostic):
+				patientInSubCohorte.append(key)
+		for key in IdToPositionInCohorte.keys():
+			if(key in patientInSubCohorte):
+				SubCohorte.append(cohorte[IdToPositionInCohorte[key]-1])
+		DiagnosticToSubCohorte[diagnostic] = SubCohorte
+
+
+	# Plot data point according to Diagnostic
+	diagnosticToColor = {"Control":"b", "MCTD":"r", "PAPs":"r", "RA":"y", "SjS":"y", "SLE":"g", "SSc":"g", "UCTD":"c"}
+	diagnosticToSymbol = {"Control":"o", "MCTD":"o", "PAPs":"x", "RA":"o", "SjS":"x", "SLE":"o", "SSc":"x", "UCTD":"o"}
+	ax = plt.subplot(111, projection='3d')
+	for diagnostic in DiagnosticToSubCohorte.keys():
+		x = []
+		y = []
+		z = []
+		for patient in DiagnosticToSubCohorte[diagnostic]:
+			x.append(patient[0])
+			y.append(patient[1])
+			z.append(patient[2])
+
+		ax.plot(x, y, z, diagnosticToSymbol[diagnostic], color=diagnosticToColor[diagnostic], label=diagnostic)
+	plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0))
+	plt.show()
+
+
 """TEST SPACE"""
 
 
-def CreateIndexFile():
-	"""
-	-> Create an index file for patient in the
-	   DATA folder.
-	-> All filename present in PANEL folder are scanned,
 
 
-	Write doc
-	"""
-	# Create index File for real Data
-	# a few structure
-	listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
-	listOfPatientFiles = []
-	for panel in listOfPanel:
-		tmpList = glob.glob("DATA/"+panel+"/*.csv")
-		for element in tmpList:
-			if(element not in listOfPatientFiles):
-				listOfPatientFiles.append(element)
+# \Clinical\Sampling\OMICID
 
 
-	indexFile = open("DATA/patientIndex.csv", "w")
-	listOfPatientId = []
-	for patient in listOfPatientFiles:
-		patientInArray = patient.split("/")
-		patientInArray = patientInArray[-1]
-		patientInArray = patientInArray.split("_")
-		patient_id = patientInArray[1]
-		patient_diagnostic = patientInArray[0]
-		if(patient_id not in listOfPatientId):
-			indexFile.write(patient_id+";"+patient_diagnostic+"\n")
-			listOfPatientId.append(patient_id)
-	indexFile.close()
-
-
-
-
-"""
 # Create Data
 #CreateMatrix()
+#format_OMICID()
 #extractBinaryMatrix()
 #extractQuantitativeMatrix()
+PlotProcedure_fittingDisease()
+
+"""
 data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
 data = preprocessing.robust_scale(data)
-cohorte = filter_outlier(data)
+filtered = filter_outlier(data, 5)
+cohorte = filtered[0]
+"""
+
+#cohorteInNewSpace = pca.fit_transform(cohorte)
+#show_biplot(cohorte)
+#show_biplot(cohorteInNewSpace)
+
+#quickClustering(cohorte, 4, "cytokineTest.png")
+
+
+# Create Index File
+#CreateIndexFile()
+
+
+
+
+
+
+
+
+
+
+data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
+data = preprocessing.robust_scale(data)
+filtered = filter_outlier(data, 5)
+cohorte = filtered[0]
+
 
 #y = get_discreteLabel()
 
@@ -566,7 +808,7 @@ quickClustering(cohorte_reduced, 4, "cytokineTest.png")
 #quickPCA(cohorte_reduced, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
 show_biplot(cohorte_reduced)
 #show_biplot(cohorte)
-"""
+
 
 """
 data = AssembleMatrixFromFile("DATA/CYTOKINES/testData.csv")
@@ -582,10 +824,6 @@ cohorteInNewSpace = pca.fit_transform(cohorte)
 """
 
 
-#show_biplot(cohorte)
-#show_biplot(cohorteInNewSpace)
-
-#quickClustering(cohorte, 4, "cytokineTest.png")
 
 
 
