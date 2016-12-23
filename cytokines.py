@@ -718,37 +718,97 @@ def PlotProcedure_fittingDisease():
 	plt.show()
 
 
+def get_compositionOfEigenVector(dataFileName):
+	"""
+	-> Identification des variables qui composent les
+	   composantes principales
+	-> Creation du tableau correlation variables-facteurs
+	   sous forme dictionnaire {facteur:{variable:correlation}}
+	-> return a dictionnary
+	"""
+
+	# Get Variable Name present in header
+	dataFile = open(dataFileName, "r")
+	cmpt = 0
+	headerInArray = []
+	for line in dataFile:
+		if(cmpt == 0):
+			lineInArray = line.split("\n")
+			lineInArray = lineInArray[0].split(";")
+			headerInArray = lineInArray
+		cmpt +=1
+	dataFile.close()
+
+	# Create eigenvectors (i.e perform PCA)
+	data = AssembleMatrixFromFile(dataFileName)
+	data = preprocessing.robust_scale(data)
+	filtered = filter_outlier(data, 5)
+	cohorte = filtered[0]
+
+	pca = PCA(n_components=3)
+	cohorteInNewSpace = pca.fit_transform(cohorte)
+
+	# Create tableau correlation variables-facteurs
+	correlationFactorToVariable = {}
+	numberOfFactor = 1
+	for factor in pca.components_:
+		factorName = "factor"+str(numberOfFactor)
+		numberOfFactor += 1
+
+		variableToCorrelation = {}
+		variable_index = 0
+		for variable in headerInArray:
+			variableToCorrelation[variable] = factor[variable_index]
+			variable_index += 1
+
+		correlationFactorToVariable[factorName] = variableToCorrelation
+
+	return correlationFactorToVariable
+
+
+def filter_independantVariableFromEigenVector(table):
+	"""
+	-> Scan the correlation variance factor table,
+	   store all independant variable ( i.e correlation = 0)
+	   in a list of variable to delete from the table
+	
+	-> Return a dictionnary 
+	"""
+
+	factorToVariableToDelete = {}
+	vectorNumber = 1
+	for vector in table.values():
+		factorName = "factor"+str(vectorNumber)
+		vectorNumber += 1
+		variableToDelete = []
+		for variable in vector:
+			if(vector[variable] == 0):
+				variableToDelete.append(variable)
+
+		factorToVariableToDelete[factorName] = variableToDelete
+
+	for vectorName in table.keys():
+		for variable in factorToVariableToDelete[factorName]:
+			del table[vectorName][variable]
+
+	return table
+
 """TEST SPACE"""
 
 
 # Create Data
-CreateIndexFile()
-CreateMatrix()
-format_OMICID()
+#CreateIndexFile()
+#CreateMatrix()
+#format_OMICID()
 #extractBinaryMatrix()
-extractQuantitativeMatrix()
-PlotProcedure_fittingDisease()
-
-"""
-data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
-data = preprocessing.robust_scale(data)
-filtered = filter_outlier(data, 5)
-cohorte = filtered[0]
-"""
-
+#extractQuantitativeMatrix()
+#PlotProcedure_fittingDisease()
 #cohorteInNewSpace = pca.fit_transform(cohorte)
 #show_biplot(cohorte)
 #show_biplot(cohorteInNewSpace)
-
 #quickClustering(cohorte, 4, "cytokineTest.png")
-
-
 # Create Index File
 #CreateIndexFile()
-
-
-
-
 
 
 
