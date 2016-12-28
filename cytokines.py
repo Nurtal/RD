@@ -11,6 +11,8 @@ from analysis import *
 
 import matplotlib.pyplot as plt
 
+import operator
+
 from preprocessing import *
 
 import scipy.stats as stats
@@ -714,16 +716,22 @@ def PlotProcedure_fittingDisease():
 			z.append(patient[2])
 
 		ax.plot(x, y, z, diagnosticToSymbol[diagnostic], color=diagnosticToColor[diagnostic], label=diagnostic)
+	ax.set_xlabel("Factor 1")
+	ax.set_ylabel("Factor 2")
+	ax.set_zlabel("Factor 3")
 	plt.legend(loc='upper left', numpoints=1, ncol=3, fontsize=8, bbox_to_anchor=(0, 0))
 	plt.show()
 
 
-def get_compositionOfEigenVector(dataFileName):
+def get_compositionOfEigenVector(dataFileName, numberOfComponent):
 	"""
 	-> Identification des variables qui composent les
 	   composantes principales
 	-> Creation du tableau correlation variables-facteurs
 	   sous forme dictionnaire {facteur:{variable:correlation}}
+	-> dataFileName is the name of the matrix file
+	-> numberOfComponent is the number of components used
+	   for PCA
 	-> return a dictionnary
 	"""
 
@@ -745,7 +753,7 @@ def get_compositionOfEigenVector(dataFileName):
 	filtered = filter_outlier(data, 5)
 	cohorte = filtered[0]
 
-	pca = PCA(n_components=3)
+	pca = PCA(n_components=numberOfComponent)
 	cohorteInNewSpace = pca.fit_transform(cohorte)
 
 	# Create tableau correlation variables-facteurs
@@ -793,6 +801,71 @@ def filter_independantVariableFromEigenVector(table):
 
 	return table
 
+
+def plot_composanteOfEigenVector(matrixFileName, maxNumberOfVariables, numberOfComponent):
+	"""
+	-> Plot the major contribution to the eigenvectors
+	-> matrixFileName is name of the file where the matrix is stored
+	-> maxNumberOfVariables is the number of variables to display in plot
+		- can be set to "all"
+	-> numberOfComponent is the number of comonents used for PCA
+	"""
+
+	# Work on eigenvalue
+	table = get_compositionOfEigenVector(matrixFileName, numberOfComponent)
+	table = filter_independantVariableFromEigenVector(table)
+
+	# Reduction to max and min value
+	for factor in table.keys():
+
+		if(maxNumberOfVariables == "all" or maxNumberOfVariables > len(table[factor])):
+			limit = len(table[factor])
+			reste = limit % 2
+		else:
+			limit = maxNumberOfVariables
+			reste = limit % 2
+
+		x = table[factor]
+		sorted_x = sorted(x.items(), key=operator.itemgetter(1))
+		end = sorted_x[-((limit-reste) / 2):]
+		begin = sorted_x[:((limit-reste) / 2) + reste]
+		reduced_data = begin + end
+
+		# Converstion To Dictionnary
+		structureToPlot = {}
+		for couple in reduced_data:
+			structureToPlot[couple[0]] = couple[1]
+
+		# Graphic representation
+		dictionary = plt.figure()
+		plt.bar(range(len(structureToPlot)), structureToPlot.values(), align='center')
+		plt.xticks(range(len(structureToPlot)), structureToPlot.keys())
+		plt.title(factor)
+		plt.show()
+
+
+
+def extract_variableOfInterest(threshold):
+	"""
+	-> Extract the variables from eigenvectos
+	   if the absolute value of variable is above a
+	   threshold
+	-> threshold is a float, between 0 and 1 
+	-> return a list
+	"""
+	# extract variable of interest
+	table = get_compositionOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 10)
+	filter_independantVariableFromEigenVector(table)
+
+	listOfParamToSave = []
+	for factor in table.keys():
+		vector = table[factor]
+		for param in vector.keys():
+			if(abs(vector[param]) >= threshold and param not in listOfParamToSave):
+				listOfParamToSave.append(param)
+
+	return listOfParamToSave
+
 """TEST SPACE"""
 
 
@@ -809,17 +882,36 @@ def filter_independantVariableFromEigenVector(table):
 #quickClustering(cohorte, 4, "cytokineTest.png")
 # Create Index File
 #CreateIndexFile()
+#plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 """
-data = AssembleMatrixFromFile("DATA/CYTOKINES/quantitativeMatrix.csv")
-data = preprocessing.robust_scale(data)
-filtered = filter_outlier(data, 5)
-cohorte = filtered[0]
+pca1 = PCA()
+C = pca1.fit(cohorte).transform(cohorte)
+#print C
+print pca1.components_
+print "------------------------------"
+from matplotlib.mlab import PCA as mPCA
+pca2 = mPCA(cohorte)
+#print pca2.Y
+print pca2.Wt
+"""
 
+"""
 
 #y = get_discreteLabel()
 
