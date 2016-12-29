@@ -882,8 +882,7 @@ def extract_variableOfInterest(threshold):
 #quickClustering(cohorte, 4, "cytokineTest.png")
 # Create Index File
 #CreateIndexFile()
-#plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
-
+#plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", "all", 5)
 
 
 
