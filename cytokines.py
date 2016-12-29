@@ -897,7 +897,7 @@ def extract_variable(fileName, variableToExtract):
 					extractedValues.append(value)
 				positionInLine += 1
 		cmpt += 1
-	data.Close()
+	data.close()
 	return extractedValues
 
 
@@ -957,6 +957,24 @@ def splitCohorteAccordingToDiagnostic(originalMatrixFile, patientIndexFile):
 	data.close()
 
 
+def Imputation(method, values):
+	"""
+	-> Perform an imputation on values
+	-> method define the imputation process, could be:
+		- basic: replace all NA by 0 (used when NA stand for "below the detection threshold")
+	-> values is a one dimensionnal array containing the values of the variable to Impute
+	-> return a list
+	
+	=>TODO: implement new methods
+	"""
+
+	new_values = []
+
+	if(method == "basic"):
+		new_values = [x if x != "NA" else 0 for x in values]
+
+	return new_values
+
 """TEST SPACE"""
 
 
@@ -977,15 +995,20 @@ def splitCohorteAccordingToDiagnostic(originalMatrixFile, patientIndexFile):
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", "all", 5)
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
 
-machin = extract_variableOfInterest(0.5) 
-print machin
+
+# Imputation
 
 
 
+# Discretisation
+listOfVariableOfInterest = extract_variableOfInterest(0.5) 
+splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/quantitativeMatrix.csv", "DATA/patientIndex.csv")
 
+for variableOfInterest in listOfVariableOfInterest:
+	values = extract_variable("DATA/CYTOKINES/Control_quantitativeMatrix.csv", variableOfInterest)
+	values = Imputation("basic", values)
+	print values
 
-
-#splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/quantitativeMatrix.csv", "DATA/patientIndex.csv")
 
 """
 pca1 = PCA()
