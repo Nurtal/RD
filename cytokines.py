@@ -847,11 +847,11 @@ def plot_composanteOfEigenVector(matrixFileName, maxNumberOfVariables, numberOfC
 
 def extract_variableOfInterest(threshold):
 	"""
-	-> Extract the variables from eigenvectos
+	-> Extract the variables name from eigenvectos
 	   if the absolute value of variable is above a
 	   threshold
 	-> threshold is a float, between 0 and 1 
-	-> return a list
+	-> return a list of variable name
 	"""
 	# extract variable of interest
 	table = get_compositionOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 10)
@@ -865,6 +865,97 @@ def extract_variableOfInterest(threshold):
 				listOfParamToSave.append(param)
 
 	return listOfParamToSave
+
+
+def extract_variable(fileName, variableToExtract):
+	"""
+	-> Extact the values of variable variableToExtract in
+	   the file fileName
+	-> fileName is a string, the name of matrix file
+	-> variableToExtract is a string, the name of the variable
+	   to extract
+	-> return a list containing all values of the variable
+	"""
+
+	positionOfVariable = "undef"
+	extractedValues = []
+	data = open(fileName, "r")
+	cmpt = 0
+	for line in data:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		if(cmpt == 0):
+			positionInHeader = 0
+			for variable in lineInArray:
+				if(variableToExtract == variable):
+					positionOfVariable = positionInHeader
+				positionInHeader += 1
+		elif(positionOfVariable != "undef"):
+			positionInLine = 0
+			for value in lineInArray:
+				if(positionInLine == positionOfVariable):
+					extractedValues.append(value)
+				positionInLine += 1
+		cmpt += 1
+	data.Close()
+	return extractedValues
+
+
+def splitCohorteAccordingToDiagnostic(originalMatrixFile, patientIndexFile):
+	"""
+	-> Split the main main matrixFile into 
+	   a subset of matrix files specific to a diagnostic
+	-> use the patient Index file (DATA/patientIndexFile)
+	-> send a warning message when encounter a patient not in
+	   index file
+	-> originalMatrixFile is a string, name of the matrix file to split
+	-> patientIndexFile is a string, name of the patient index file
+	"""
+
+	# create dictionnary
+	IdToDiagnostic = {}
+	indexFile = open(patientIndexFile, "r")
+	for line in indexFile:
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		IdToDiagnostic[lineInArray[0]] = lineInArray[1]
+	indexFile.close()
+
+	# Get header
+	data = open(originalMatrixFile, "r")
+	cmpt = 0
+	header = "undef"
+	for line in data:
+		if(cmpt == 0):
+			header = line
+		cmpt += 1
+	data.close()
+
+	# Initialise les news matrix files
+	for diagnostic in IdToDiagnostic.values():
+		matrixFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix.csv"
+		matrixFile = open(matrixFileName, "w")
+		matrixFile.write(header)
+		matrixFile.close()
+
+	# Remplir new matrix files
+	data = open(originalMatrixFile, "r")
+	for line in data:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		patientId = lineInArray[52]
+		if(patientId != "\Clinical\Sampling\OMICID"):
+			try:
+				diagnostic = IdToDiagnostic[patientId]
+				destinationFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix.csv"
+				destinationFile = open(destinationFileName, "a")
+				destinationFile.write(line[0]+"\n")
+				destinationFile.close()
+			except:
+				print "[WARNINGS] => No Diagnostic found for patient "+str(patientId)
+
+	data.close()
+
 
 """TEST SPACE"""
 
@@ -882,21 +973,19 @@ def extract_variableOfInterest(threshold):
 #quickClustering(cohorte, 4, "cytokineTest.png")
 # Create Index File
 #CreateIndexFile()
+
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", "all", 5)
+#plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
+
+machin = extract_variableOfInterest(0.5) 
+print machin
 
 
 
 
 
 
-
-
-
-
-
-
-
-
+#splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/quantitativeMatrix.csv", "DATA/patientIndex.csv")
 
 """
 pca1 = PCA()
