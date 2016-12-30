@@ -7,6 +7,9 @@ from procedure import *
 from report import *
 from preprocessing import *
 from patternMining import *
+from cytokines import *
+import sys
+
 
 
 # a few structure
@@ -97,6 +100,14 @@ listOfGarbageParameterForRA2 = ["CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryT
 
 
 """MAIN"""
+
+#----------------------#
+# GET SCRIPT ARGUMENTS ################################################################
+#----------------------#
+command = sys.argv[1]
+
+
+
 
 """
 listOfVersus = []
@@ -245,13 +256,14 @@ print "=> Performed in: " + str(end - start)
 #patternMining_run3()
 #patternMining_run4()
 #FrequentItemMining()
+"""
 listOfDisease = ["RA", "MCTD", "SjS", "SLE", "SSc", "UCTD"]
 for disease1 in listOfDisease:
 	x = 0
 	while(x < 101):
 		FrequentItemMining3(x, disease1, "PROPORTION")
 		x = x +5
-
+"""
 
 
 #x = 0
@@ -639,6 +651,23 @@ save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
 
+#-----------------#
+# EXECUTE COMMAND ###########################################################################
+#-----------------#
+if(command == "program_size"):
+	machin = count_line()
+	print "program contain "+str(machin)+" lines."
 
-#machin = count_line()
-#print machin
+if(command == "build_cytokines_data"):
+	CreateIndexFile()
+	CreateMatrix()
+	format_OMICID()
+	extractBinaryMatrix()
+	extractQuantitativeMatrix()
+
+if(command == "show_cytokines_data"):
+	PlotProcedure_fittingDisease()
+
+#-------#
+# TRASH #
+#-------#

@@ -324,7 +324,6 @@ def filter_outlier(data, delta):
 		VariableIndexToThresholds[index_variable] = Threshold
 		index_variable = index_variable + 1
 
-
 	newCohorte = []
 	patientPositionInCohorte = 0
 	for patient in cohorte:
@@ -971,12 +970,124 @@ def Imputation(method, values):
 	new_values = []
 
 	if(method == "basic"):
-		new_values = [x if x != "NA" else 0 for x in values]
+		new_values = [float(x) if x != "NA" else 0 for x in values]
 
 	return new_values
 
-"""TEST SPACE"""
 
+def get_ThresholdValuesForCytokines(listOfVariableOfInterest, controlMatrixFile):
+	"""
+	-> get thresholds values for discretisation of
+	   cytokines variables
+	-> return a dictionnary
+
+	TODO:
+		- implement new way of for threshold calculation
+		- learn the best threshold values
+	"""
+	parameterToTreshold = {}
+	for variableOfInterest in listOfVariableOfInterest:
+		values = extract_variable(controlMatrixFile, variableOfInterest)
+		values = Imputation("basic", values)
+		description = stats.describe(values)
+
+		mean = description[2]
+		variance = description[3]
+		ecartType = sqrt(variance)
+		minimum = mean - ecartType
+		maximum = mean + ecartType
+
+		parameterToTreshold[variableOfInterest] = {"min":float(minimum), "max":float(maximum)}
+
+	return parameterToTreshold
+
+def create_discreteMatrixFile(listOfVariableOfInterest, variableToThreshold):
+	"""
+	-> Write reduced discrete value files from the splitted into diagnostic
+	   matrix files. Only the variables present in listOfVariableOfInterest are
+	   kept, discretisation is performed according to the thresholds defined in
+	   the dict variableToThreshold.
+	-> listOfVariableOfInterest is a list of variable we want to keep
+	-> variableToThreshold is a dictionnary where each variable of interest is assign
+	   to a min and a max value
+
+	 -> TODO:
+	 	- implement new imputation methods
+
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD", "Control"]
+	for disease in listOfDisease:
+		fileName = "DATA/CYTOKINES/"+disease+"_quantitativeMatrix.csv"
+		newFileName = "DATA/CYTOKINES/"+disease+"_quantitativeMatrix_discrete.csv"
+		originalData = open(fileName, "r")
+		cmpt = 0
+		positionToVariable = {}
+		for line in originalData:
+			line = line.split("\n")
+			lineInArray = line[0].split(";")
+				
+			# Write header
+			if(cmpt == 0):
+
+				# Construct new header
+				newHeader = ""
+				index = 0
+				for scalar in lineInArray:
+					if(scalar in listOfVariableOfInterest):
+						newHeader = newHeader + scalar + ";"
+						positionToVariable[index] = scalar
+					index += 1
+
+				# Write new header
+				discreteData = open(newFileName, "w")
+				discreteData.write(newHeader[:-1]+"\n")
+				discreteData.close()
+			
+			else:
+				# Construct new line
+				newLine = ""
+				index = 0 
+				for scalar in lineInArray:
+					if(index in positionToVariable.keys()):
+						
+						# Imputation
+						if(scalar == "NA"):
+							scalar = 0
+
+						# Discretisation
+						minimum = variableToThreshold[positionToVariable[index]]["min"]
+						maximum = variableToThreshold[positionToVariable[index]]["max"]
+						discreteValue = "undef"
+						if(float(scalar) > maximum):
+							discreteValue = "high"
+						elif(float(scalar) < minimum):
+							discreteValue = "low"
+						else:
+							discreteValue = "normal"
+						newLine = newLine + discreteValue + ";"
+					index += 1
+					
+				# Write new line
+				discreteData = open(newFileName, "a")
+				discreteData.write(newLine[:-1]+"\n")
+				discreteData.close()
+			cmpt += 1
+		originalData.close()
+
+
+def discretisation_Procedure():
+	"""
+	-> Create Discrete reduced Matrix File from DATA/CYTOKINES/quantitativeMatrix.csv
+	TODO:
+		- develop doc
+		- pass arguments
+	"""
+	listOfVariableOfInterest = extract_variableOfInterest(0.5) 
+	splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/quantitativeMatrix.csv", "DATA/patientIndex.csv")
+	variableToThreshold = get_ThresholdValuesForCytokines(listOfVariableOfInterest, "DATA/CYTOKINES/Control_quantitativeMatrix.csv")
+	create_discreteMatrixFile(listOfVariableOfInterest, variableToThreshold)
+
+"""TEST SPACE"""
 
 # Create Data
 #CreateIndexFile()
@@ -995,192 +1106,7 @@ def Imputation(method, values):
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", "all", 5)
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
 
+#discretisation_Procedure()
 
-# Imputation
-
-
-
-# Discretisation
-listOfVariableOfInterest = extract_variableOfInterest(0.5) 
-splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/quantitativeMatrix.csv", "DATA/patientIndex.csv")
-
-for variableOfInterest in listOfVariableOfInterest:
-	values = extract_variable("DATA/CYTOKINES/Control_quantitativeMatrix.csv", variableOfInterest)
-	values = Imputation("basic", values)
-	print values
-
-
-"""
-pca1 = PCA()
-C = pca1.fit(cohorte).transform(cohorte)
-#print C
-print pca1.components_
-print "------------------------------"
-from matplotlib.mlab import PCA as mPCA
-pca2 = mPCA(cohorte)
-#print pca2.Y
-print pca2.Wt
-"""
-
-"""
-
-#y = get_discreteLabel()
-
-matrix_cleaned = open("DATA/CYTOKINES/myTestMatrix.csv", "w")
-# write header
-input_matrix = open("DATA/CYTOKINES/quantitativeMatrix.csv", "r")
-cmpt = 0
-for line in input_matrix:
-	if(cmpt == 0):
-		header = ""
-		for param in line:
-			header = str(param) + ","
-		matrix_cleaned.write(header[:-1]+"\n")
-	cmpt += 1
-input_matrix.close()
-
-
-for patient in cohorte:
-	lineToWrite = ""
-	for scalar in patient:
-		lineToWrite = lineToWrite + str(scalar) +","
-	matrix_cleaned.write(str(lineToWrite[:-1])+"\n")
-matrix_cleaned.close()
-
-# Perform PCA
-pca = PCA(n_components=50)
-pca.fit(cohorte)
-plot_explainedVariance(cohorte)
-print len(cohorte[0])
-cohorteInNewSpace = pca.fit_transform(cohorte)
-plot_explainedVariance(cohorteInNewSpace)
-
-
-# keep only the first 10 parameters
-cohorte_reduced = []
-for patient in cohorteInNewSpace:
-	newPatient = patient[:10]
-	cohorte_reduced.append(newPatient)
-cohorte_reduced = np.array(cohorte_reduced)
-
-quickClustering(cohorte_reduced, 4, "cytokineTest.png")
-#quickPCA(cohorte_reduced, y, ["Male","Female"], "2d", "cytokinesPcaTest.png", 1, 1)
-show_biplot(cohorte_reduced)
-#show_biplot(cohorte)
-"""
-
-"""
-data = AssembleMatrixFromFile("DATA/CYTOKINES/testData.csv")
-cohorte = preprocessing.robust_scale(data)
-cohorte = filter_outlier(data)
-
-
-pca = PCA()
-pca.fit(cohorte)
-#plot_explainedVariance(cohorte)
-cohorteInNewSpace = pca.fit_transform(cohorte)
-#plot_explainedVariance(cohorteInNewSpace)
-"""
-
-
-
-
-
-
-
-"""
-target_name = ["malade", "sain", "autre"]
-y = [0,0,0,1,1,1,2]
-C = pca.fit(cohorte).transform(cohorte)
-
-plt.figure()
-colors = ["r", "r", "r", "b", "b", "b", "g"]
-plt.scatter(C[:, 0], C[:, 1], cmap=plt.cm.Paired, label=target_name, c=colors)
-#for c, i, target_name in zip("rgb", [0,1,2], target_name):
-#	plt.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
-plt.legend()
-plt.title("ACP")
-plt.show()
-"""
-
-
-
-
-
-"""
-target_name = ["malade", "sain", "autre"]
-y = [0,0,0,1,1,1,2]
-pca = PCA()
-C = pca.fit(cohorte).transform(cohorte)
-est=KMeans(n_clusters=3)
-est.fit(cohorte)
-classe=est.labels_
-
-
-fig = plt.figure(1, figsize=(8, 6))
-ax = Axes3D(fig, elev=-150, azim=110)
-
-#ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=classe, cmap=plt.cm.Paired)
-#for c, i, target_name in zip("rgb", [0,1,2], target_name):
-#	ax.scatter(C[y == i,0], C[y == i,1], C[y == i,2], c=c)
-
-
-ax.set_title("kmean : "+str(3)+" clusters")
-ax.set_xlabel("Comp1")
-ax.w_xaxis.set_ticklabels([])
-ax.set_ylabel("Comp2")
-ax.w_yaxis.set_ticklabels([])
-ax.set_zlabel("Comp3")
-ax.w_zaxis.set_ticklabels([])
-ax.legend()
-plt.show()
-"""
-
-
-
-
-
-"""
-N = len(cohorteInNewSpace)
-data = cohorteInNewSpace
-labels = ["malade", "malade", "malade", "sain", "sain", "sain", "autre"]
-
-colors = ["r", "r", "r", "b", "b", "b", "g"]
-
-plt.subplots_adjust(bottom = 0.1)
-plt.scatter(
-    data[:, 0], data[:, 1], marker = 'o', cmap = plt.get_cmap('Spectral'))
-for label, x, y in zip(labels, data[:, 0], data[:, 1]):
-    plt.annotate(
-        label,
-        xy = (x, y), xytext = (-20, 20),
-        textcoords = 'offset points', ha = 'right', va = 'bottom',
-        bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5),
-        arrowprops = dict(arrowstyle = '->', connectionstyle = 'arc3,rad=0'))
-
-plt.show()
-"""
-
-"""
-import numpy as np
-import sklearn.datasets, sklearn.decomposition
-
-#X = sklearn.datasets.load_iris().data
-
-X = cohorte
-mu = np.mean(X, axis=0)
-
-pca = sklearn.decomposition.PCA()
-pca.fit(X)
-
-nComp = 2
-Xhat = np.dot(pca.transform(X)[:,:nComp], pca.components_[:nComp,:])
-Xhat += mu
-print Xhat
-#print(Xhat[0,])
-
-"""
-
-
-
-
+#machin = AssembleMatrixFromFile("DATA/CYTOKINES/SLE_quantitativeMatrix_discrete.csv")
+#print machin

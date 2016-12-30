@@ -511,11 +511,107 @@ def search_FrequentItem(cohorte, saveFileName, minSupport):
 	dataToWrite.close()
 
 
-#search_FrequentItem(cohorte, "test5.csv", 80)
+#search_FrequentItem(cohorte, "test5.csv", 20)
 
 
 
 #searchForPattern(cohorte, 30, 4, "DATA/PATTERN/test2.csv")
 #fileName = "DATA/PATTERN/test2.csv"
 
+
+#--------------------------------------------#
+# FUNCTION BUILD FOR CYTOKINES DATA ANALYSIS #######################################
+#--------------------------------------------#
+
+
+
+
+def assemble_CohorteFromFile(fileName):
+	"""
+	-> Assemble discrete cohorte from cytokine data
+	-> fileName is the name of the dicrete reduce matrix file
+	   (e. g DATA/CYTOKINES/RA_quantitativeMatrix_discrete.csv)
+	-> add diagnostic in vectors
+	-> Write index variable file in PARAMETERS folder
+	-> add "pX" prefix to scalar in vector
+	-> return a cohorte (array of arrays)
+	"""
+	cohorte = []
+	listOfVariable = []
+	data = open(fileName, "r")
+	fileNameInArray = fileName.split("/CYTOKINES/")
+	fileNameInArray = fileNameInArray[1].split("_")
+	diagnostic = fileNameInArray[0]
+	cmpt = 0
+	for line in data:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		vector = []
+		if(cmpt == 0):
+			for variable in lineInArray:
+				listOfVariable.append(variable)
+		else:
+			index = 1
+			for scalar in lineInArray:
+				newScalar = "p"+str(index)+"_"+scalar
+				vector.append(newScalar)
+				index += 1
+			vector.append(diagnostic)
+		cohorte.append(vector)
+		cmpt += 1
+	data.close()
+
+	# Write indexFile
+	indexFile = open("PARAMETERS/"+str(diagnostic)+"_variable_index.csv", "w")
+	cmpt = 1
+	for variable in listOfVariable:
+		indexFile.write("p"+str(cmpt)+";"+variable+"\n")
+		cmpt += 1
+	indexFile.close()
+	return cohorte
+
+
+
+
+def assemble_CohorteFromAllFiles():
+	"""
+	-> Assemble a "meta" cohorte, with all discrete reduce files
+	   in CYTOKINES folder
+	-> return a cohorte
+	-> Designed for pattern mining
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD", "Control"]
+	listOfCohorte = []
+	for diagnostic in listOfDisease:
+		cohorte = assemble_CohorteFromFile("DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix_discrete.csv")
+		listOfCohorte.append(cohorte)
+
+	metaCohorte = []
+	for cohorte in listOfCohorte:
+		for vector in cohorte:
+			if(len(vector) > 0):
+				metaCohorte.append(vector)
+
+	return metaCohorte
+
+
+
+
+def extractPatternFromCohorte(cohorte, minsup):
+	"""
+	-> Store all frequent pattern (i.e set of items present more than minsup in 
+	   cohorte)
+	-> cohorte is an array of array, discrete value (obtain via the assemble_CohorteFromAllFiles
+	   function)
+	-> minsup is an int between 0 and 100
+	"""
+	saveFileName = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
+	patternFile = open(saveFileName, "w")
+	for itemset in find_frequent_itemsets(cohorte, minsup):
+		line = ""
+		for element in itemset:
+			line = line + str(element) + ";"
+		line = line[:-1]
+		patternFile.write(line+"\n")
+	patternFile.close()
 
