@@ -49,6 +49,18 @@ if(command == "describe_cytokines_eigenVectors"):
 	numberOfVariableToDescribe = sys.argv[3]
 	plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", numberOfVariableToDescribe, int(numberOfVector))
 
+if(command == "describe_variableFromCyto"):
+	variableType = sys.argv[2]
+	variable = sys.argv[3]
+	clean_folders("ALL")
+	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6"]
+	fusion_panel(listOfPanelToConcat)
+	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	#apply_filter("disease", "RA")
+	check_patient()
+	X = get_OneDimensionnalData("DATA/PATIENT", str(variableType), str(variable))
+	show_distribution(X)
+
 
 
 #-------#
@@ -475,10 +487,16 @@ def visualisation(disease):
 	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, "ABSOLUTE", 1, 1)
 
 
+"""
+clean_folders("ALL")
+fusion_panel(listOfPanelToConcat)
+checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+apply_filter("disease", "RA")
+check_patient()
 
-#X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD15lowCD16high_Neutrophils")
-#show_distribution(X)
-
+X = get_OneDimensionnalData("DATA/PATIENT", "ABSOLUTE", "CD15lowCD16high_Neutrophils")
+show_distribution(X)
+"""
 
 
 #visualisation("MCTD")
