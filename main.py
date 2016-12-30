@@ -3,6 +3,9 @@ main for RD project
 """
 
 
+#-------------#
+# IMPORTATION #######################################################################
+#-------------#
 from procedure import *
 from report import *
 from preprocessing import *
@@ -10,6 +13,47 @@ from patternMining import *
 from cytokines import *
 import sys
 
+
+
+
+
+#----------------------#
+# GET SCRIPT ARGUMENTS ################################################################
+#----------------------#
+command = sys.argv[1]
+
+
+
+
+
+
+#-----------------#
+# EXECUTE COMMAND ###########################################################################
+#-----------------#
+if(command == "program_size"):
+	machin = count_line()
+	print "program contain "+str(machin)+" lines."
+
+if(command == "build_cytokines_data"):
+	CreateIndexFile()
+	CreateMatrix()
+	format_OMICID()
+	extractBinaryMatrix()
+	extractQuantitativeMatrix()
+
+if(command == "show_cytokines_data"):
+	PlotProcedure_fittingDisease()
+
+if(command == "describe_cytokines_eigenVectors"):
+	numberOfVector = sys.argv[2]
+	numberOfVariableToDescribe = sys.argv[3]
+	plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", numberOfVariableToDescribe, int(numberOfVector))
+
+
+
+#-------#
+# TRASH ###########################################################################
+#-------#
 
 
 # a few structure
@@ -97,15 +141,6 @@ listOfGarbageParameterForRA2 = ["CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryT
 							  "CD3pos CD20low in Tcells",
 							  "CD5pos CD11bneg Bcells",
 							  "CD43posCD69negCD27posCD20pos B1 Bcells"]
-
-
-"""MAIN"""
-
-#----------------------#
-# GET SCRIPT ARGUMENTS ################################################################
-#----------------------#
-command = sys.argv[1]
-
 
 
 
@@ -650,24 +685,3 @@ check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
-
-#-----------------#
-# EXECUTE COMMAND ###########################################################################
-#-----------------#
-if(command == "program_size"):
-	machin = count_line()
-	print "program contain "+str(machin)+" lines."
-
-if(command == "build_cytokines_data"):
-	CreateIndexFile()
-	CreateMatrix()
-	format_OMICID()
-	extractBinaryMatrix()
-	extractQuantitativeMatrix()
-
-if(command == "show_cytokines_data"):
-	PlotProcedure_fittingDisease()
-
-#-------#
-# TRASH #
-#-------#

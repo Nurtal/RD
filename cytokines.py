@@ -817,7 +817,7 @@ def plot_composanteOfEigenVector(matrixFileName, maxNumberOfVariables, numberOfC
 	# Reduction to max and min value
 	for factor in table.keys():
 
-		if(maxNumberOfVariables == "all" or maxNumberOfVariables > len(table[factor])):
+		if(maxNumberOfVariables == "all" or int(maxNumberOfVariables) > len(table[factor])):
 			limit = len(table[factor])
 			reste = limit % 2
 		else:
