@@ -49,6 +49,18 @@ if(command == "describe_cytokines_eigenVectors"):
 	numberOfVariableToDescribe = sys.argv[3]
 	plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", numberOfVariableToDescribe, int(numberOfVector))
 
+if(command == "extract_cytokines_pattern"):
+	minsup = sys.argv[2]
+	if(minsup == "explore"):
+		discretisation_Procedure()
+		cohorte = assemble_CohorteFromAllFiles()
+		for x in xrange(0, 101):
+			extractPatternFromCohorte(cohorte, x)
+	else:
+		discretisation_Procedure()
+		cohorte = assemble_CohorteFromAllFiles()
+		extractPatternFromCohorte(cohorte, minsup)
+
 if(command == "describe_variableFromCyto"):
 	variableType = sys.argv[2]
 	variable = sys.argv[3]
@@ -60,6 +72,8 @@ if(command == "describe_variableFromCyto"):
 	check_patient()
 	X = get_OneDimensionnalData("DATA/PATIENT", str(variableType), str(variable))
 	show_distribution(X)
+
+
 
 
 
