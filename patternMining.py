@@ -6,6 +6,7 @@ RD Project
 from reorder import *
 from fp_growth import find_frequent_itemsets
 import glob
+import itertools
 
 
 def assemble_Cohorte():
@@ -615,3 +616,145 @@ def extractPatternFromCohorte(cohorte, minsup):
 		patternFile.write(line+"\n")
 	patternFile.close()
 
+
+
+
+def get_support(patternToTest, controlFile):
+	"""
+	-> get support (i.e proportion of patient
+	   where patternToTest is present)
+	-> patternToTest is a list of item
+	-> controlFile is the file conatining the cohorte
+	   (designed for discrete cohorte), could be "all"
+	   for use all the "splited into disease" files
+	"""
+	if(controlFile == "all"):
+		cohorte = assemble_CohorteFromAllFiles()
+	else:
+		cohorte = assemble_CohorteFromFile(controlFile)
+	numberOfPatient = len(cohorte)
+	count = 0
+	for vector in cohorte:
+		patternFound = 1
+		for element in patternToTest:
+			if element not in vector:
+				patternFound = 0
+		if(patternFound):
+			count +=1
+	return (float(count)/float(numberOfPatient))*100
+
+
+
+
+def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, display):
+	"""
+	-> generate association rules from a list of pattern
+	-> patternFile is a fileName (file containing pattern)
+	-> rulesFile is the file where pattern are write
+	-> confidenceThreshold is the confidence threshold for
+	   the rules.
+	-> display is a boolean
+	TODO:
+		-> run a few tests
+		-> implement confidence score in results
+	"""
+	
+	listOffrequentItemset = []
+	data = open(patternFile, "r")
+	for line in data:
+		frequentItemSet = []
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		for item in lineInArray:
+			frequentItemSet.append(item)
+		if(len(frequentItemSet) > 1):
+			listOffrequentItemset.append(frequentItemSet)
+	data.close()
+
+	rulesFile = open(rulesFile, "w")
+	for frequentItemSet in listOffrequentItemset:
+		tupleLen = 1
+		while(tupleLen < len(frequentItemSet)):
+			for h in itertools.combinations(frequentItemSet, tupleLen):
+				h = list(h)
+				complementList = []
+				for element in frequentItemSet:
+					if(element not in h and element not in complementList):
+						complementList.append(element)
+
+				rule_confidence = (get_support(frequentItemSet, "all") / get_support(complementList, "all") * 100)
+
+				if(rule_confidence > confidenceThreshold):
+					if(display):
+						print"-----------------"
+						print h
+						print complementList
+						print frequentItemSet
+					rule = ""
+					for item in complementList:
+					 	rule = rule + item + ";"
+					rule = rule[:-1] + " -> "
+					for item in h:
+						rule = rule + item + ";"
+					rule = rule[:-1]
+					rulesFile.write(rule+"\n")
+					if(display):
+						print "----------------"
+
+			tupleLen += 1
+	rulesFile.close()
+
+#generate_AssociationRulesFromPatternFile("DATA/PATTERN/cytokines_pattern_80.csv", "DATA/RULES/test.csv", 60, 1)
+
+
+"""
+for frequentItemSet in listOffrequentItemset:
+	m = 1
+	while(m < len(frequentItemSet)):
+		for item in frequentItemSet:
+
+			ensemble = frequentItemSet
+			
+			index = 0
+			cuttingIndex = 0
+			for elt in ensemble:
+				if(elt == item):
+					cuttingIndex = index
+				index+=1
+			
+			#print cuttingIndex
+			#ensemble.pop(cuttingIndex)
+			
+			#print rule_confidence
+			#print cuttingIndex
+			#print "-----------------------"
+			#print frequentItemSet
+			#print ensemble
+			#print "-----------------------"
+			#print str(len(frequentItemSet)) +"||"+ str(len(ensemble))
+
+
+		m +=1
+"""
+
+
+
+"""
+import itertools
+for ensemble in listOffrequentItemset:
+		if len(ensemble) >= 2:
+			m = 1
+			tupleLen = 1
+			HList = []
+			while tupleLen < len(ensemble):
+				for h in itertools.combinations(ensemble, tupleLen):
+					h = list(h)
+					HList.append(h)	
+				tupleLen+=1
+			while m <= len(ensemble):
+				for h in HList:
+					print h
+					#rule_confidence = 
+	
+				m+=1
+"""

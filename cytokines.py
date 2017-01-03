@@ -1016,6 +1016,8 @@ def create_discreteMatrixFile(listOfVariableOfInterest, variableToThreshold):
 
 	"""
 	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD", "Control"]
+
+	# Create one file per Disease
 	for disease in listOfDisease:
 		fileName = "DATA/CYTOKINES/"+disease+"_quantitativeMatrix.csv"
 		newFileName = "DATA/CYTOKINES/"+disease+"_quantitativeMatrix_discrete.csv"
@@ -1073,6 +1075,7 @@ def create_discreteMatrixFile(listOfVariableOfInterest, variableToThreshold):
 				discreteData.close()
 			cmpt += 1
 		originalData.close()
+	
 
 
 def discretisation_Procedure():
@@ -1106,7 +1109,7 @@ def discretisation_Procedure():
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", "all", 5)
 #plot_composanteOfEigenVector("DATA/CYTOKINES/quantitativeMatrix.csv", 3, 5)
 
+#from patternMining import *
 #discretisation_Procedure()
-
-#machin = AssembleMatrixFromFile("DATA/CYTOKINES/SLE_quantitativeMatrix_discrete.csv")
-#print machin
+#cohorte = assemble_CohorteFromAllFiles()
+#extractPatternFromCohorte(cohorte, 30)
