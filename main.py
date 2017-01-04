@@ -33,7 +33,7 @@ command = sys.argv[1]
 if(command == "program_size"):
 	machin = count_line()
 	print "program contain "+str(machin)+" lines."
-
+                                                                                                                                                                                                                                                                                                                                        
 if(command == "build_cytokines_data"):
 	CreateIndexFile()
 	CreateMatrix()
@@ -60,6 +60,20 @@ if(command == "extract_cytokines_pattern"):
 		discretisation_Procedure()
 		cohorte = assemble_CohorteFromAllFiles()
 		extractPatternFromCohorte(cohorte, minsup)
+
+if(command == "generate_cytokines_associationRules"):
+	minsup = sys.argv[2]
+	confidenceThreshold = sys.argv[3]
+	if(minsup == "all"):
+		for x in xrange(1, 101):
+			minsup = x
+			patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
+			rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
+			generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1)	
+	else:
+		patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
+		rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
+		generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1)
 
 if(command == "describe_variableFromCyto"):
 	variableType = sys.argv[2]
