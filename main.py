@@ -65,7 +65,7 @@ if(command == "generate_cytokines_associationRules"):
 	minsup = sys.argv[2]
 	confidenceThreshold = sys.argv[3]
 	if(minsup == "all"):
-		for x in xrange(1, 101):
+		for x in xrange(40, 101):
 			minsup = x
 			patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
 			rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
