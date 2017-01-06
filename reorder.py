@@ -640,3 +640,103 @@ def clean_report():
 	listOfTexFiles = glob.glob("REPORT/*.pdf")
 	for texFile in listOfTexFiles:
 		os.remove(texFile)
+
+
+#---------------------#
+# DATABASE GENERATION ################################################################
+#---------------------#
+
+from tinydb import TinyDB, Query
+
+def construct_database(inputFileName, DBFilename):
+	"""
+	IN PROGRESS
+	
+	-> Construct a noSQL database with the tinydb module
+	-> use inputFileName as an input Data file (currently
+	   the function is designed to work with the clinical_i2b2trans
+	   file)
+	-> use DBFilename to write databaseFile (.json file)
+	-> purge existing tables, create new ones
+	-> currently only work with Flow cytometry data.
+	-> Create an index file parameter To position
+	TODO:
+		- remplir les autres tables
+
+	"""
+
+	# Create Table
+	db = TinyDB(DBFilename)
+	db.purge_tables()
+	ListOfFirstIndication = ["Antibody", "Autoantibody", "Flow cytometry", "Luminex", "Clinical", "HLA"]
+	for dataType in ListOfFirstIndication:
+		table = db.table(str(dataType))
+
+	# Create Vector for Flow cytometry
+	cmpt = 0
+	listOfVector = []
+	dataFile = open(inputFileName, "r")
+	positionToParameter = {}
+	for line in dataFile:
+
+		line = line.split("\n")
+		lineInArray = line[0].split("\t")
+		if(cmpt == 0):
+			col = 0
+			for element in lineInArray:
+				elementInArray = element.split("\\")
+				elementInArray = elementInArray[1:]
+				if(len(elementInArray) > 1):
+					if(elementInArray[0] == "Flow cytometry"):
+						param = elementInArray[2].replace(" ", "_")
+						positionToParameter[col] = param
+				col +=1
+
+		omic_id = lineInArray[71]
+		omic_id = omic_id[1:]
+		omic_id = omic_id.replace(" ", "")
+
+		vector = {}
+		col = 0
+		for scalar in lineInArray:
+			scalar = scalar.replace(" ", "")
+			if(col in positionToParameter.keys()):
+				vector[positionToParameter[col]] = scalar
+			col +=1
+		vector["OMIC_ID"] = omic_id
+		cmpt +=1
+
+		listOfVector.append(vector)
+	dataFile.close()
+
+	# Create Index file for db
+	indexFileName = DBFilename.split(".")
+	indexFileName = indexFileName[0]+"_index.csv"
+	indexFile = open(indexFileName, "w")
+	for pos in positionToParameter.keys():
+		lineToWrite = str(positionToParameter[pos])+";"+str(pos)+"\n"
+		indexFile.write(lineToWrite)
+	indexFile.close()
+
+	CytometryTable = db.table('Flow cytometry')
+	for vector in listOfVector:
+		print "=> INSERT Patient "+str(vector["OMIC_ID"])+" INTO TABLE Flow cytometry"
+		CytometryTable.insert(vector)
+
+
+
+
+
+#construct_database("DATA/CYTOKINES/clinical_i2b2trans.txt", "DATA/DATABASES/machin.json")
+#print CytometryTable.all()
+
+"""
+db = TinyDB("DATA/DATABASES/machin.json")
+CytometryTable = db.table('Flow cytometry')
+Patient = Query()
+machin = CytometryTable.search(Patient.OMIC_ID == '32152217')
+
+listOfSelectedParameter = ["CD35POS_IN_PMN", "OMIC_ID"]
+for parameter in listOfSelectedParameter:
+	dataBaseIndex = open("DATA/DATABASES/machin_index.csv")
+"""
