@@ -671,14 +671,19 @@ def construct_database(inputFileName, DBFilename):
 	ListOfFirstIndication = ["Antibody", "Autoantibody", "Flow cytometry", "Luminex", "Clinical", "HLA"]
 	for dataType in ListOfFirstIndication:
 		table = db.table(str(dataType))
-
-	# Create Vector for Flow cytometry
 	cmpt = 0
-	listOfVector = []
-	dataFile = open(inputFileName, "r")
-	positionToParameter = {}
-	for line in dataFile:
 
+	# Create Vectors
+	positionToParameter = {}
+
+	listOfVector_cytometry = []
+	positionToParameter_cytometry = {}
+
+	listOfVector_autoantibody = []
+	positionToParameter_autoantibody = {}
+
+	dataFile = open(inputFileName, "r")
+	for line in dataFile:
 		line = line.split("\n")
 		lineInArray = line[0].split("\t")
 		if(cmpt == 0):
@@ -689,24 +694,44 @@ def construct_database(inputFileName, DBFilename):
 				if(len(elementInArray) > 1):
 					if(elementInArray[0] == "Flow cytometry"):
 						param = elementInArray[2].replace(" ", "_")
+						positionToParameter_cytometry[col] = param
 						positionToParameter[col] = param
+					elif(elementInArray[0] == "Autoantibody"):
+						param = elementInArray[1].replace(" ", "_")
+						positionToParameter_autoantibody[col] = param
+						positionToParameter[col] = param
+				
 				col +=1
 
 		omic_id = lineInArray[71]
 		omic_id = omic_id[1:]
 		omic_id = omic_id.replace(" ", "")
 
-		vector = {}
-		col = 0
-		for scalar in lineInArray:
-			scalar = scalar.replace(" ", "")
-			if(col in positionToParameter.keys()):
-				vector[positionToParameter[col]] = scalar
-			col +=1
-		vector["OMIC_ID"] = omic_id
+		if(cmpt > 0):
+			#Flow Cytometry Vector
+			vector_cytometry = {}
+			col = 0
+			for scalar in lineInArray:
+				scalar = scalar.replace(" ", "")
+				if(col in positionToParameter_cytometry.keys()):
+					vector_cytometry[positionToParameter_cytometry[col]] = scalar
+				col +=1
+			vector_cytometry["OMIC_ID"] = omic_id
+			listOfVector_cytometry.append(vector_cytometry)
+			
+			#Autoantibody Vector
+			vector_autoantibody = {}
+			col = 0
+			for scalar in lineInArray:
+				scalar = scalar.replace(" ", "")
+				if(col in positionToParameter_autoantibody.keys()):
+					vector_autoantibody[positionToParameter_autoantibody[col]] = scalar
+				col +=1
+			vector_autoantibody["OMIC_ID"] = omic_id
+			listOfVector_autoantibody.append(vector_autoantibody)
+	
 		cmpt +=1
 
-		listOfVector.append(vector)
 	dataFile.close()
 
 	# Create Index file for db
@@ -716,15 +741,19 @@ def construct_database(inputFileName, DBFilename):
 	for pos in positionToParameter.keys():
 		lineToWrite = str(positionToParameter[pos])+";"+str(pos)+"\n"
 		indexFile.write(lineToWrite)
+	
 	# Add OMIC ID
 	indexFile.write("OMIC_ID;71\n")
-
 	indexFile.close()
 
 	CytometryTable = db.table('Flow cytometry')
-	for vector in listOfVector:
+	for vector in listOfVector_cytometry:
 		print "=> INSERT Patient "+str(vector["OMIC_ID"])+" INTO TABLE Flow cytometry"
 		CytometryTable.insert(vector)
+	AutoantibodyTable = db.table('Autoantibody')
+	for vector in listOfVector_autoantibody:
+		print "=> INSERT Patient "+str(vector["OMIC_ID"])+" INTO TABLE Autoantibody"
+		AutoantibodyTable.insert(vector)
 
 
 
@@ -751,13 +780,17 @@ def parse_request(request, listOfSelectedParameter):
 
 
 
+
 #construct_database("DATA/CYTOKINES/clinical_i2b2trans.txt", "DATA/DATABASES/machin.json")
 #print CytometryTable.all()
-
-
 #db = TinyDB("DATA/DATABASES/machin.json")
+#AutoantibodyTable = db.table('Autoantibody')
 #CytometryTable = db.table('Flow cytometry')
 #Patient = Query()
+#machin = AutoantibodyTable.search(Patient.OMIC_ID == '32152217')
+#print machin
 #machin = CytometryTable.search(Patient.OMIC_ID == '32152217')
 #listOfSelectedParameter = ["CD35POS_IN_PMN", "OMIC_ID"]
 #truc = parse_request(machin, listOfSelectedParameter)
+
+
