@@ -821,7 +821,7 @@ def plot_composanteOfEigenVector(matrixFileName, maxNumberOfVariables, numberOfC
 			limit = len(table[factor])
 			reste = limit % 2
 		else:
-			limit = maxNumberOfVariables
+			limit = int(maxNumberOfVariables)
 			reste = limit % 2
 
 		x = table[factor]
