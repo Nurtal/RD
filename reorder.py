@@ -646,7 +646,7 @@ def clean_report():
 # DATABASE GENERATION ################################################################
 #---------------------#
 
-#from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query
 
 def construct_database(inputFileName, DBFilename):
 	"""
