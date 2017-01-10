@@ -65,7 +65,7 @@ if(command == "generate_cytokines_associationRules"):
 	minsup = sys.argv[2]
 	confidenceThreshold = sys.argv[3]
 	if(minsup == "all"):
-		for x in xrange(40, 101):
+		for x in xrange(40, 101): # min set to 40
 			minsup = x
 			patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
 			rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
@@ -87,13 +87,16 @@ if(command == "describe_variableFromCyto"):
 	X = get_OneDimensionnalData("DATA/PATIENT", str(variableType), str(variable))
 	show_distribution(X)
 
-
-
+if(command == "describe_autoantibodies"):
+	diagnostic = sys.argv[2]
+	display = sys.argv[3]
+	plot_autoantibodiesData(diagnostic, display)
 
 
 #-------#
 # TRASH ###########################################################################
 #-------#
+
 
 
 # a few structure
@@ -731,3 +734,5 @@ check_patient()
 save_data()
 outlierDetection("disease", "Control", "disease", "SLE", "PROPORTION")
 """
+
+

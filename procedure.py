@@ -1018,3 +1018,323 @@ def visualisation2(disease, control, dataType, minSupport):
 	saveName2 = "IMAGES/"+disease+"_vs_"+control+"_"+dataType+"_PCA2D.jpg"
 	show_correlationMatrix("DATA/PATIENT", saveName1, dataType, 1)
 	show_PCA("DATA/PATIENT", "disease", "2d", saveName2, dataType, 1, 1)
+
+
+
+
+def plot_autoantibodiesData(diagnostic, displayAll):
+	"""
+	-> Plot 4 bar graphe to show the number
+	   of patient positive and negatove for each
+	   autoantobodies
+	-> diagnostuc could be a string:
+		- Control
+	   	- RA
+	   	- MCTD 
+	   	- PAPs 
+	   	- SjS 
+	   	- SLE 
+	   	- SSc 
+	   	- UCTD
+	   	- all
+	  Could be a list of string.
+	  Set to all, i.e list of all elements.
+	  
+	-> displayAll is a boolean, set to 1 all the data
+	   (i.e positive and negative count) are display, set to 0
+	   only the positive count are displayed
+	   only for multiple disease plot.
+	"""
+	displayAll = int(displayAll)
+
+	if isinstance(diagnostic, list):
+		
+		db = TinyDB("DATA/DATABASES/machin.json")
+		AutoantibodyTable = db.table('Autoantibody')
+		Patient = Query()
+
+		DiseaseToData = {}
+		DiseaseToParameterToCount = {}
+		for disease in diagnostic:
+			test_function = lambda s: s in get_listOfPatientWithDiagnostic(disease)
+			machin = AutoantibodyTable.search(Patient.OMIC_ID.test(test_function))
+			listOfSelectedParameter = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL", "B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL", "SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL", "U1_RNP_CALL", "ENA_CALL", "RF_CALL", "B2M_CALL", "CLM_CALL"]
+			data = parse_request(machin, listOfSelectedParameter)
+			DiseaseToData[disease] = data
+
+			# Initialise count dictionnary
+			parameterToCount = {}
+			for param in data[0]:
+				param_negative = str(param)+"_negative"
+				param_positive = str(param)+"_positive"
+				parameterToCount[param_negative] = 0
+				parameterToCount[param_positive] = 0
+
+			# Remplir dictionnary
+			for patient in data:
+				for key in patient.keys():
+					
+					key_negative = str(key)+"_negative"
+					key_positive = str(key)+"_positive"
+
+					if(patient[key] == "negative"):
+						parameterToCount[key_negative] += 1
+					elif(patient[key] == "positive"):
+						parameterToCount[key_positive] += 1
+
+			DiseaseToParameterToCount[disease] = parameterToCount
+
+		paramForSubPlot1 = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL"]
+		paramForSubPlot2 = ["B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL"]
+		paramForSubPlot3 = ["SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL"]
+		paramForSubPlot4 = ["U1_RNP_CALL", "ENA_CALL", "B2M_CALL", "CLM_CALL"]
+
+		listOfParametres = paramForSubPlot1 + paramForSubPlot2 + paramForSubPlot3 + paramForSubPlot4
+
+		fig = plt.figure()
+		ax = fig.add_subplot(111,projection='3d')
+		width = 1.5
+
+		for z in range(len(diagnostic)):
+			disease = diagnostic[z]
+			xs_positive = range(0, len(listOfParametres)*5, 5)
+			xs_negative = []
+			for position in xs_positive:
+				xs_negative.append(position + width)
+
+			ys_positive = []
+			ys_negative = []
+			for param in listOfParametres:
+				param_positive = str(param)+"_positive"
+				param_negative = str(param)+"_negative"
+				ys_positive.append(DiseaseToParameterToCount[disease][param_positive])
+				ys_negative.append(DiseaseToParameterToCount[disease][param_negative])		
+
+			ax.bar(xs_positive, ys_positive, zs=z, zdir='y', color="blue", alpha=0.8)
+			if(displayAll):
+				ax.bar(xs_negative, ys_negative, zs=z, zdir='y', color="red", alpha=0.8)
+
+			xTickMarks = [param for param in listOfParametres]
+			ax.set_xticks(xs_positive)
+			xtickNames = ax.set_xticklabels(xTickMarks)
+			plt.setp(xtickNames, rotation=90, fontsize=10)
+
+			yTickMarks = [param for param in diagnostic]
+			ax.set_yticks(range(len(diagnostic)))
+			ytickNames = ax.set_yticklabels(yTickMarks)
+			plt.setp(ytickNames, rotation=45, fontsize=10)
+
+		ax.set_zlabel('Count')
+		fig.canvas.set_window_title("Autoantobodies")
+		plt.show()
+		
+	elif(diagnostic == "all"):
+		db = TinyDB("DATA/DATABASES/machin.json")
+		AutoantibodyTable = db.table('Autoantibody')
+		Patient = Query()
+		diagnostic = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+		DiseaseToData = {}
+		DiseaseToParameterToCount = {}
+		for disease in diagnostic:
+			test_function = lambda s: s in get_listOfPatientWithDiagnostic(disease)
+			machin = AutoantibodyTable.search(Patient.OMIC_ID.test(test_function))
+			listOfSelectedParameter = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL", "B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL", "SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL", "U1_RNP_CALL", "ENA_CALL", "RF_CALL", "B2M_CALL", "CLM_CALL"]
+			data = parse_request(machin, listOfSelectedParameter)
+			DiseaseToData[disease] = data
+
+			# Initialise count dictionnary
+			parameterToCount = {}
+			for param in data[0]:
+				param_negative = str(param)+"_negative"
+				param_positive = str(param)+"_positive"
+				parameterToCount[param_negative] = 0
+				parameterToCount[param_positive] = 0
+
+			# Remplir dictionnary
+			for patient in data:
+				for key in patient.keys():
+					key_negative = str(key)+"_negative"
+					key_positive = str(key)+"_positive"
+					if(patient[key] == "negative"):
+						parameterToCount[key_negative] += 1
+					elif(patient[key] == "positive"):
+						parameterToCount[key_positive] += 1
+
+			DiseaseToParameterToCount[disease] = parameterToCount
+		paramForSubPlot1 = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL"]
+		paramForSubPlot2 = ["B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL"]
+		paramForSubPlot3 = ["SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL"]
+		paramForSubPlot4 = ["U1_RNP_CALL", "ENA_CALL", "B2M_CALL", "CLM_CALL"]
+		listOfParametres = paramForSubPlot1 + paramForSubPlot2 + paramForSubPlot3 + paramForSubPlot4
+
+		fig = plt.figure()
+		ax = fig.add_subplot(111,projection='3d')
+		width = 1.5
+		for z in range(len(diagnostic)):
+			disease = diagnostic[z]
+			xs_positive = range(0, len(listOfParametres)*5, 5)
+			xs_negative = []
+			for position in xs_positive:
+				xs_negative.append(position + width)
+
+			ys_positive = []
+			ys_negative = []
+			for param in listOfParametres:
+				param_positive = str(param)+"_positive"
+				param_negative = str(param)+"_negative"
+				ys_positive.append(DiseaseToParameterToCount[disease][param_positive])
+				ys_negative.append(DiseaseToParameterToCount[disease][param_negative])		
+
+			ax.bar(xs_positive, ys_positive, zs=z, zdir='y', color="blue", alpha=0.8)
+			if(displayAll):
+				ax.bar(xs_negative, ys_negative, zs=z, zdir='y', color="red", alpha=0.8)
+
+			xTickMarks = [param for param in listOfParametres]
+			ax.set_xticks(xs_positive)
+			xtickNames = ax.set_xticklabels(xTickMarks)
+			plt.setp(xtickNames, rotation=90, fontsize=10)
+
+			yTickMarks = [param for param in diagnostic]
+			ax.set_yticks(range(len(diagnostic)))
+			ytickNames = ax.set_yticklabels(yTickMarks)
+			plt.setp(ytickNames, rotation=45, fontsize=10)
+
+		ax.set_zlabel('Count')
+		fig.canvas.set_window_title("Autoantobodies")
+		plt.show()
+
+	else:
+		db = TinyDB("DATA/DATABASES/machin.json")
+		AutoantibodyTable = db.table('Autoantibody')
+		Patient = Query()
+		test_function = lambda s: s in get_listOfPatientWithDiagnostic(diagnostic)
+		machin = AutoantibodyTable.search(Patient.OMIC_ID.test(test_function))
+		listOfSelectedParameter = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL", "B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL", "SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL",
+		"U1_RNP_CALL", "ENA_CALL", "RF_CALL", "B2M_CALL", "CLM_CALL"]
+		data = parse_request(machin, listOfSelectedParameter)
+
+		# Initialise count dictionnary
+		parameterToCount = {}
+		for param in data[0]:
+			param_negative = str(param)+"_negative"
+			param_positive = str(param)+"_positive"
+			parameterToCount[param_negative] = 0
+			parameterToCount[param_positive] = 0
+
+		# Remplir dictionnary
+		for patient in data:
+			for key in patient.keys():
+				
+				key_negative = str(key)+"_negative"
+				key_positive = str(key)+"_positive"
+
+				if(patient[key] == "negative"):
+					parameterToCount[key_negative] += 1
+				elif(patient[key] == "positive"):
+					parameterToCount[key_positive] += 1
+
+		structureToPlot = parameterToCount
+
+		paramForSubPlot1 = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL"]
+		paramForSubPlot2 = ["B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL"]
+		paramForSubPlot3 = ["SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL"]
+		paramForSubPlot4 = ["U1_RNP_CALL", "ENA_CALL", "B2M_CALL", "CLM_CALL"]
+
+		# Graphic representation
+		fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
+
+		# Subplot 1
+		N = 4
+		positiveCount = []
+		negativeCount = []
+		for param in paramForSubPlot1:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+			positiveCount.append(parameterToCount[param_positive])
+			negativeCount.append(parameterToCount[param_negative])
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.35                      # the width of the bars
+		rects1 = ax1.bar(ind, positiveCount, width, color='blue')
+		rects2 = ax1.bar(ind+width, negativeCount, width, color='red')
+		ax1.set_xlim(-width,len(ind)+width)
+		ax1.set_ylim(0,45)
+		ax1.set_ylabel('Count')
+		ax1.set_title('Autoantibody')
+		xTickMarks = [param for param in paramForSubPlot1]
+		ax1.set_xticks(ind+width)
+		xtickNames = ax1.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		# Subplot 2
+		N = 4
+		positiveCount = []
+		negativeCount = []
+		for param in paramForSubPlot2:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+			positiveCount.append(parameterToCount[param_positive])
+			negativeCount.append(parameterToCount[param_negative])
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.35                      # the width of the bars
+		rects1 = ax2.bar(ind, positiveCount, width, color='blue')
+		rects2 = ax2.bar(ind+width, negativeCount, width, color='red')
+		ax2.set_xlim(-width,len(ind)+width)
+		ax2.set_ylim(0,45)
+		ax2.set_ylabel('Count')
+		ax2.set_title('Autoantibody')
+		xTickMarks = [param for param in paramForSubPlot2]
+		ax2.set_xticks(ind+width)
+		xtickNames = ax2.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		# Subplot 3
+		N = 4
+		positiveCount = []
+		negativeCount = []
+		for param in paramForSubPlot3:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+			positiveCount.append(parameterToCount[param_positive])
+			negativeCount.append(parameterToCount[param_negative])
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.35                      # the width of the bars
+		rects1 = ax3.bar(ind, positiveCount, width, color='blue')
+		rects2 = ax3.bar(ind+width, negativeCount, width, color='red')
+		ax3.set_xlim(-width,len(ind)+width)
+		ax3.set_ylim(0,45)
+		ax3.set_ylabel('Count')
+		ax3.set_title('Autoantibody')
+		xTickMarks = [param for param in paramForSubPlot3]
+		ax3.set_xticks(ind+width)
+		xtickNames = ax3.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		# Subplot 4
+		N = 4
+		positiveCount = []
+		negativeCount = []
+		for param in paramForSubPlot4:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+			positiveCount.append(parameterToCount[param_positive])
+			negativeCount.append(parameterToCount[param_negative])
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.35                      # the width of the bars
+		rects1 = ax4.bar(ind, positiveCount, width, color='blue')
+		rects2 = ax4.bar(ind+width, negativeCount, width, color='red')
+		ax4.set_xlim(-width,len(ind)+width)
+		ax4.set_ylim(0,45)
+		ax4.set_ylabel('Count')
+		ax4.set_title('Autoantibody')
+		xTickMarks = [param for param in paramForSubPlot3]
+		ax4.set_xticks(ind+width)
+		xtickNames = ax4.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		ax1.legend( (rects1[0], rects2[0]), ('Positive', 'Negative') )
+		fig.canvas.set_window_title(diagnostic)
+		plt.show()

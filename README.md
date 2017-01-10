@@ -52,15 +52,31 @@ trashlib.py
 
 ## Command list
 
-1. program_size
+1. program_size  
    print the number of lines in the program
 
-2. build_cytokines_data
+2. build_cytokines_data  
    run a few functions in order to prepare the cytokines data for analysis  
    1. Create the patient index file
    2. Create the matrix from cytokines data
    3. format the matrix (drop the OMICID)
    4. split matrix into quantitative and others values 
+
+3. describe_autoantibodies <diagnostic> <display> 
+   run a procedure to plot the actual number of patient postive and negative  
+   for the autoantibodies.  
+   diagnostic could be pick among the list:  
+   1. Control  
+   2. RA
+   3. MCTD  
+   4. PAPs  
+   5. SjS 
+   6. SLE  
+   7. SSc  
+   8. UCTD
+   could be a combinaison (list) of the terms  
+   could be set to "all" (i.e a list of all terms)  
+  Display is a boolean, 1 to see the negative count AND the positive count, 0 for  only the positive count  
 
 
 

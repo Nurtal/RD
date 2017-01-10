@@ -769,7 +769,7 @@ def parse_request(request, listOfSelectedParameter):
 	   present in listOfSelectedParameter. 
 	"""
 	structureToReturn = []
-	for patient in machin:
+	for patient in request:
 		vectorToReturn = {}
 		for parameter in listOfSelectedParameter:
 			vectorToReturn[parameter] = patient[parameter]
@@ -781,16 +781,80 @@ def parse_request(request, listOfSelectedParameter):
 
 
 
+
+def get_listOfPatientWithDiagnostic(diagnostic):
+	"""
+	IN PRGRESS
+	-> get the list of OMIC ID for patients
+	   matching diagnostic
+	-> diagnostic is a string, could be:
+	   - Control
+	   - RA
+	   - MCTD 
+	   - PAPs 
+	   - SjS 
+	   - SLE 
+	   - SSc 
+	   - UCTD
+	-> return a list of OMIC ID
+	"""
+	patientIdList = []
+
+	indexFile = open("DATA/patientIndex.csv", "r")
+	for line in indexFile:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		ID = lineInArray[0]
+		status = lineInArray[1]
+		if(status == diagnostic):
+			patientIdList.append(ID)
+	indexFile.close()
+	
+	return patientIdList
+
+
+
+"""
 #construct_database("DATA/CYTOKINES/clinical_i2b2trans.txt", "DATA/DATABASES/machin.json")
 #print CytometryTable.all()
-#db = TinyDB("DATA/DATABASES/machin.json")
-#AutoantibodyTable = db.table('Autoantibody')
+db = TinyDB("DATA/DATABASES/machin.json")
+AutoantibodyTable = db.table('Autoantibody')
 #CytometryTable = db.table('Flow cytometry')
-#Patient = Query()
-#machin = AutoantibodyTable.search(Patient.OMIC_ID == '32152217')
-#print machin
+Patient = Query()
+
+test_function = lambda s: s in get_listOfPatientWithDiagnostic("Control")
+machin = AutoantibodyTable.search(Patient.OMIC_ID.test(test_function))
+
+listOfSelectedParameter = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL", "B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL", "SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL",
+"U1_RNP_CALL", "ENA_CALL", "RF_CALL", "B2M_CALL", "CLM_CALL"]
+data = parse_request(machin, listOfSelectedParameter)
+
+
+# Initialise count dictionnary
+parameterToCount = {}
+for param in data[0]:
+	param_negative = str(param)+"_negative"
+	param_positive = str(param)+"_positive"
+	parameterToCount[param_negative] = 0
+	parameterToCount[param_positive] = 0
+
+# Remplir dictionnary
+for patient in data:
+	for key in patient.keys():
+		
+		key_negative = str(key)+"_negative"
+		key_positive = str(key)+"_positive"
+
+		if(patient[key] == "negative"):
+			parameterToCount[key_negative] += 1
+		elif(patient[key] == "positive"):
+			parameterToCount[key_positive] += 1
+
+print parameterToCount
+
+
 #machin = CytometryTable.search(Patient.OMIC_ID == '32152217')
 #listOfSelectedParameter = ["CD35POS_IN_PMN", "OMIC_ID"]
 #truc = parse_request(machin, listOfSelectedParameter)
 
-
+"""
