@@ -718,8 +718,10 @@ def reformat_RulesFile(rulesFileName):
 	"""
 
 	inputRulesFileName = rulesFileName
-	outputRulesFileName = inputRulesFileName.split(".")
-	outputRulesFileName = outputRulesFileName[0]+".clp"
+	outputRulesFileName = inputRulesFileName.split("/")
+	outputRulesFileName = outputRulesFileName[-1]
+	outputRulesFileName = outputRulesFileName.split(".")
+	outputRulesFileName = "DATA/RULES/FORMATED/"+outputRulesFileName[0]+".clp"
 	
 	inputRulesFile = open(inputRulesFileName, "r")
 	outputRulesFile = open(outputRulesFileName, "w")
@@ -798,8 +800,10 @@ def filter_associationRules_paramaterStatus(inputFileName):
 	"""
 
 	inputRulesFileName = inputFileName
-	outputRulesFileName = inputRulesFileName.split(".")
-	outputRulesFileName = outputRulesFileName[0]+"_pf.csv"
+	outputRulesFileName = inputRulesFileName.split("/")
+	outputRulesFileName = outputRulesFileName[-1]
+	outputRulesFileName = outputRulesFileName.split(".")
+	outputRulesFileName = "DATA/RULES/FILTERED/"+outputRulesFileName[0]+"_pf.csv"
 	inputRulesFile = open(inputRulesFileName, "r")
 	outputRulesFile = open(outputRulesFileName, "w")
 	for line in inputRulesFile:
@@ -835,3 +839,42 @@ def filter_associationRules_paramaterStatus(inputFileName):
 	outputRulesFile.close()
 	inputRulesFile.close()
 
+
+
+# TEST SPACE
+
+# Convert association Rules en clair
+# To be continued
+rulesFile = open("DATA/RULES/FILTERED/cytokines_rules_42_pf.csv", "r")
+for line in rulesFile:
+	line = line.split("\n")
+	lineInArray = line[0].split("->")
+
+	# Split Rules
+	leftMember = lineInArray[0]
+	rightMember = lineInArray[1]
+
+	# Parse Premice
+	leftMemberInArray = leftMember.split(";")
+	new_leftMember = ""
+	for element in leftMemberInArray:
+		elementInArray = element.split("_")
+		parameter_name = "undef"
+		parameter = elementInArray[0]
+		status = elementInArray[1]
+		
+		indexFile = open("PARAMETERS/RA_variable_index.csv") # diagnostic don't reall matter, all index files are identical		
+		for lineInIndexFile in indexFile:
+			lineInIndexFile = lineInIndexFile.split("\n")
+			lineInIndexFileInArray = lineInIndexFile[0].split(";")
+			index_paramater = lineInIndexFileInArray[0]
+
+			if(parameter == index_paramater):
+				parameter_name = lineInIndexFileInArray[1]		
+		indexFile.close()
+		new_leftMember = new_leftMember + parameter_name + ";"
+	
+	new_leftMember = new_leftMember[:-1]
+	print new_leftMember
+
+rulesFile.close()

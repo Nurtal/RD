@@ -99,6 +99,15 @@ if(command == "describe_autoantibodies"):
 
 
 
+ListOfRulesFile = glob.glob("DATA/RULES/RAW/*.csv")
+for ruleFile in ListOfRulesFile:
+	filter_associationRules_paramaterStatus(ruleFile)
+
+ListOfRulesFile = glob.glob("DATA/RULES/FILTERED/*.csv")
+for ruleFile in ListOfRulesFile:
+	reformat_RulesFile(ruleFile)
+
+
 # a few structure
 listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]
 listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
