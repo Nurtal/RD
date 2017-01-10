@@ -73,10 +73,9 @@ trashlib.py
    5. SjS 
    6. SLE  
    7. SSc  
-   8. UCTD
-   could be a combinaison (list) of the terms  
-   could be set to "all" (i.e a list of all terms)  
-  Display is a boolean, 1 to see the negative count AND the positive count, 0 for  only the positive count  
+   8. UCTD  
+   could be a combinaison (list) of the terms, could be set to "all" (i.e a list of all terms)  
+Display is a boolean, 1 to see the negative count AND the positive count, 0 for  only the positive count  
 
 
 
