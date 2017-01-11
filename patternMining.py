@@ -841,40 +841,80 @@ def filter_associationRules_paramaterStatus(inputFileName):
 
 
 
-# TEST SPACE
+def write_decryptedRulesFiles(inputFileName):
+	"""
+	-> write a "decrypted" rule file(in DATA/RULES/DECRYPTED), i.e convert
+	   param_X into real parameter name
+	-> inputFileName is the name of the input rule file
+	"""
 
-# Convert association Rules en clair
-# To be continued
-rulesFile = open("DATA/RULES/FILTERED/cytokines_rules_42_pf.csv", "r")
-for line in rulesFile:
-	line = line.split("\n")
-	lineInArray = line[0].split("->")
+	outputFileName = inputFileName.split("/")
+	outputFileName = outputFileName[-1]
+	outputFileName = outputFileName.split(".")
+	outputFileName = "DATA/RULES/DECRYPTED/"+outputFileName[0]+".csv"
 
-	# Split Rules
-	leftMember = lineInArray[0]
-	rightMember = lineInArray[1]
+	rulesFile = open(inputFileName, "r")
+	outputFile = open(outputFileName, "w")
+	for line in rulesFile:
+		line = line.split("\n")
+		lineInArray = line[0].split("->")
 
-	# Parse Premice
-	leftMemberInArray = leftMember.split(";")
-	new_leftMember = ""
-	for element in leftMemberInArray:
-		elementInArray = element.split("_")
-		parameter_name = "undef"
-		parameter = elementInArray[0]
-		status = elementInArray[1]
+		# Split Rules
+		leftMember = lineInArray[0]
+		rightMember = lineInArray[1]
+
+		# Parse Premice
+		leftMemberInArray = leftMember.split(";")
+		new_leftMember = ""
+		for element in leftMemberInArray:
+			elementInArray = element.split("_")
+			if(len(elementInArray) > 1):
+				parameter_name = "undef"
+				parameter = elementInArray[0]
+				status = elementInArray[1]
+				indexFile = open("PARAMETERS/RA_variable_index.csv") # diagnostic don't reall matter, all index files are identical		
+				for lineInIndexFile in indexFile:
+					lineInIndexFile = lineInIndexFile.split("\n")
+					lineInIndexFileInArray = lineInIndexFile[0].split(";")
+					index_paramater = lineInIndexFileInArray[0]
+					if(parameter == index_paramater):
+						parameter_name = lineInIndexFileInArray[1]		
+				indexFile.close()
+			else:
+				parameter_name = element
+			new_leftMember = new_leftMember + parameter_name + ";"	
+		new_leftMember = new_leftMember[:-1]
+
+		# Parse Connclusion
+		rightMemberInArray = rightMember.split(" ")
+		conclusion = rightMemberInArray[1]
+		conclusionInArray = conclusion.split(";")
+		new_conclusion = ""
+		for element in conclusionInArray:
+			elementInArray = element.split("_")
+			if(len(elementInArray) > 1):
+				parameter_name = "undef"
+				parameter = elementInArray[0]
+				status = elementInArray[1]
+				indexFile = open("PARAMETERS/RA_variable_index.csv") # diagnostic don't reall matter, all index files are identical		
+				for lineInIndexFile in indexFile:
+					lineInIndexFile = lineInIndexFile.split("\n")
+					lineInIndexFileInArray = lineInIndexFile[0].split(";")
+					index_paramater = lineInIndexFileInArray[0]
+					if(parameter == index_paramater):
+						parameter_name = lineInIndexFileInArray[1]		
+				indexFile.close()
+			else:
+				parameter_name = element
+			new_conclusion = new_conclusion + parameter_name + ";"	
+		new_conclusion = new_conclusion[:-1]
 		
-		indexFile = open("PARAMETERS/RA_variable_index.csv") # diagnostic don't reall matter, all index files are identical		
-		for lineInIndexFile in indexFile:
-			lineInIndexFile = lineInIndexFile.split("\n")
-			lineInIndexFileInArray = lineInIndexFile[0].split(";")
-			index_paramater = lineInIndexFileInArray[0]
+		# Parse confidence
+		confidence = rightMemberInArray[2]
 
-			if(parameter == index_paramater):
-				parameter_name = lineInIndexFileInArray[1]		
-		indexFile.close()
-		new_leftMember = new_leftMember + parameter_name + ";"
-	
-	new_leftMember = new_leftMember[:-1]
-	print new_leftMember
+		# write in outputFile
+		new_rule = new_leftMember +" -> "+new_conclusion+" "+confidence
+		outputFile.write(new_rule+"\n")
 
-rulesFile.close()
+	outputFile.close()
+	rulesFile.close()

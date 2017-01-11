@@ -77,6 +77,7 @@ trashlib.py
    could be a combinaison (list) of the terms, could be set to "all" (i.e a list of all terms)  
 Display is a boolean, 1 to see the negative count AND the positive count, 0 for  only the positive count  
 
-
+3. process_associationRules  
+Filter, format (clp format) and translate association rules.
 
 

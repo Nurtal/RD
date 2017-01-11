@@ -92,20 +92,25 @@ if(command == "describe_autoantibodies"):
 	display = sys.argv[3]
 	plot_autoantibodiesData(diagnostic, display)
 
+if(command == "process_associationRules"):
+	ListOfRulesFile = glob.glob("DATA/RULES/RAW/*.csv")
+	for ruleFile in ListOfRulesFile:
+		filter_associationRules_paramaterStatus(ruleFile)
+
+	ListOfRulesFile = glob.glob("DATA/RULES/FILTERED/*.csv")
+	for ruleFile in ListOfRulesFile:
+		reformat_RulesFile(ruleFile)
+
+	ListOfRulesFile = glob.glob("DATA/RULES/FILTERED/*.csv")
+	for ruleFile in ListOfRulesFile:
+		write_decryptedRulesFiles(ruleFile)
+
+
 
 #-------#
 # TRASH ###########################################################################
 #-------#
 
-
-
-ListOfRulesFile = glob.glob("DATA/RULES/RAW/*.csv")
-for ruleFile in ListOfRulesFile:
-	filter_associationRules_paramaterStatus(ruleFile)
-
-ListOfRulesFile = glob.glob("DATA/RULES/FILTERED/*.csv")
-for ruleFile in ListOfRulesFile:
-	reformat_RulesFile(ruleFile)
 
 
 # a few structure
