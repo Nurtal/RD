@@ -111,6 +111,11 @@ if(command == "process_associationRules"):
 # TRASH ###########################################################################
 #-------#
 
+# Pattern mining on discrete data
+# To be continued (Imputation)
+splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix.csv", "DATA/patientIndex.csv")
+machin = assemble_CohorteFromDiscreteAllFiles()
+print machin
 
 
 # a few structure

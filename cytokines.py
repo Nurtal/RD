@@ -162,6 +162,7 @@ def extractQuantitativeMatrix():
 	matrixData = open("DATA/CYTOKINES/matrix.csv", "r")
 	# catch the binary variable
 	listOfIndex = []
+	listOfIndex_discrete = []
 	for line in matrixData:
 		lineInArray = line.split("\n")
 		lineInArray = lineInArray[0].split(";")
@@ -193,6 +194,23 @@ def extractQuantitativeMatrix():
 
 	newMatrix.close()
 	matrixData.close()
+
+	matrixData = open("DATA/CYTOKINES/matrix.csv", "r")
+	newMatrix_discrete = open("DATA/CYTOKINES/discreteMatrix.csv", "w")
+	for line in matrixData:
+		lineToWrite = ""
+		lineInArray = line.split("\n")
+		lineInArray = lineInArray[0].split(";")
+		index = 0
+		for element in lineInArray:
+			if(index not in listOfIndex or index == 71):
+				lineToWrite = lineToWrite + str(element) + ";"
+			index = index + 1	
+		newMatrix_discrete.write(lineToWrite[:-1]+"\n")
+
+	newMatrix_discrete.close()
+	matrixData.close()
+
 
 
 def AssembleMatrixFromFile(fileName):
@@ -931,28 +949,47 @@ def splitCohorteAccordingToDiagnostic(originalMatrixFile, patientIndexFile):
 	data.close()
 
 	# Initialise les news matrix files
-	for diagnostic in IdToDiagnostic.values():
-		matrixFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix.csv"
-		matrixFile = open(matrixFileName, "w")
-		matrixFile.write(header)
-		matrixFile.close()
+	import re
+	if(re.match(r"(.)*discrete(.)*", originalMatrixFile) is not None):
+		for diagnostic in IdToDiagnostic.values():
+			matrixFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_discreteMatrix.csv"
+			suffix = "_discreteMatrix.csv"
+			matrixFile = open(matrixFileName, "w")
+			matrixFile.write(header)
+			matrixFile.close()
+		
+	elif(re.match(r"(.)*quantitave(.)*", originalMatrixFile) is not None):
+		for diagnostic in IdToDiagnostic.values():
+			matrixFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix.csv"
+			suffix = "_quantitativeMatrix.csv"
+			matrixFile = open(matrixFileName, "w")
+			matrixFile.write(header)
+			matrixFile.close()
 
 	# Remplir new matrix files
 	data = open(originalMatrixFile, "r")
+	cmpt_line = 0
 	for line in data:
 		line = line.split("\n")
 		lineInArray = line[0].split(";")
-		patientId = lineInArray[52]
-		if(patientId != "\Clinical\Sampling\OMICID"):
-			try:
-				diagnostic = IdToDiagnostic[patientId]
-				destinationFileName = "DATA/CYTOKINES/"+str(diagnostic)+"_quantitativeMatrix.csv"
-				destinationFile = open(destinationFileName, "a")
-				destinationFile.write(line[0]+"\n")
-				destinationFile.close()
-			except:
-				print "[WARNINGS] => No Diagnostic found for patient "+str(patientId)
-
+		if(cmpt_line == 0):
+			cmpt_col = 0
+			for element in lineInArray:
+				if(element == "\Clinical\Sampling\OMICID"):
+					indexOfPatientId = cmpt_col
+				cmpt_col += 1
+		else:
+			patientId = lineInArray[indexOfPatientId]
+			if(patientId != "\Clinical\Sampling\OMICID"):
+				try:
+					diagnostic = IdToDiagnostic[patientId]
+					destinationFileName = "DATA/CYTOKINES/"+str(diagnostic)+suffix
+					destinationFile = open(destinationFileName, "a")
+					destinationFile.write(line[0]+"\n")
+					destinationFile.close()
+				except:
+					print "[WARNINGS] => No Diagnostic found for patient "+str(patientId)
+		cmpt_line +=1
 	data.close()
 
 

@@ -574,6 +574,10 @@ def assemble_CohorteFromFile(fileName):
 
 
 
+
+
+
+
 def assemble_CohorteFromAllFiles():
 	"""
 	-> Assemble a "meta" cohorte, with all discrete reduce files
@@ -918,3 +922,65 @@ def write_decryptedRulesFiles(inputFileName):
 
 	outputFile.close()
 	rulesFile.close()
+
+
+
+"""
+def assemble_discreteCohorte():
+
+	cohorte = []
+	listOfVariable = []
+	data = open("DATA/CYTOKINES/discreteMatrix.csv", "r")
+	cmpt = 0
+	for line in data:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+		vector = []
+		if(cmpt == 0):
+			for variable in lineInArray:
+				listOfVariable.append(variable)
+		else:
+			index = 1
+			for scalar in lineInArray:
+				newScalar = "p"+str(index)+"_"+scalar
+				vector.append(newScalar)
+				index += 1
+			vector.append(diagnostic)
+		cohorte.append(vector)
+		cmpt += 1
+	data.close()
+
+	# Write indexFile
+	indexFile = open("PARAMETERS/"+str(diagnostic)+"_variable_index.csv", "w")
+	cmpt = 1
+	for variable in listOfVariable:
+		indexFile.write("p"+str(cmpt)+";"+variable+"\n")
+		cmpt += 1
+	indexFile.close()
+	return cohorte
+machin = assemble_discreteCohorte()
+print machin
+"""
+
+
+def assemble_CohorteFromDiscreteAllFiles():
+	"""
+	-> Assemble a "meta" cohorte, with all discrete files
+	   in CYTOKINES folder (already discrete data, have not pass by 
+	   the discretisation procedure)
+	-> return a cohorte
+	-> Designed for pattern mining
+	"""
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD", "Control"]
+	listOfCohorte = []
+	for diagnostic in listOfDisease:
+		cohorte = assemble_CohorteFromFile("DATA/CYTOKINES/"+str(diagnostic)+"_discreteMatrix.csv")
+		listOfCohorte.append(cohorte)
+
+	metaCohorte = []
+	for cohorte in listOfCohorte:
+		for vector in cohorte:
+			if(len(vector) > 0):
+				metaCohorte.append(vector)
+
+	return metaCohorte
