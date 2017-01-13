@@ -105,6 +105,11 @@ if(command == "process_associationRules"):
 	for ruleFile in ListOfRulesFile:
 		write_decryptedRulesFiles(ruleFile)
 
+if(command == "describe_discrete_variable"):
+	variableName = sys.argv[2]
+	splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix.csv", "DATA/patientIndex.csv")
+	cohorte = assemble_CohorteFromDiscreteAllFiles()
+	describe_discreteVariable(cohorte, variableName)
 
 
 #-------#
@@ -113,10 +118,10 @@ if(command == "process_associationRules"):
 
 # Pattern mining on discrete data
 # To be continued (Imputation)
-splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix.csv", "DATA/patientIndex.csv")
-machin = assemble_CohorteFromDiscreteAllFiles()
-print machin
-
+#splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix.csv", "DATA/patientIndex.csv")
+#cohorte = assemble_CohorteFromDiscreteAllFiles()
+#describe_discreteVariable(cohorte, "p25")
+#describe_discreteVariable(cohorte, "\\Clinical\\Symptom\\ABNORMINFLAM")
 
 # a few structure
 listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]

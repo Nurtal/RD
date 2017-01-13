@@ -1039,6 +1039,7 @@ def plot_autoantibodiesData(diagnostic, displayAll):
 	   	- all
 	  Could be a list of string.
 	  Set to all, i.e list of all elements.
+	  Set to overview, list of all elements, display % (not raw count)
 	  
 	-> displayAll is a boolean, set to 1 all the data
 	   (i.e positive and negative count) are display, set to 0
@@ -1203,6 +1204,195 @@ def plot_autoantibodiesData(diagnostic, displayAll):
 		fig.canvas.set_window_title("Autoantobodies")
 		plt.show()
 
+	
+
+	elif(diagnostic == "overview"):
+		
+		db = TinyDB("DATA/DATABASES/machin.json")
+		AutoantibodyTable = db.table('Autoantibody')
+		Patient = Query()
+		diagnostic = ["Control", "RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD"]
+		DiseaseToData = {}
+		DiseaseToParameterToCount = {}
+		for disease in diagnostic:
+			test_function = lambda s: s in get_listOfPatientWithDiagnostic(disease)
+			machin = AutoantibodyTable.search(Patient.OMIC_ID.test(test_function))
+			listOfSelectedParameter = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL", "B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL", "SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL", "U1_RNP_CALL", "ENA_CALL", "RF_CALL", "B2M_CALL", "CLM_CALL"]
+			data = parse_request(machin, listOfSelectedParameter)
+			DiseaseToData[disease] = data
+
+			# Initialise count dictionnary
+			parameterToCount = {}
+			for param in data[0]:
+				param_negative = str(param)+"_negative"
+				param_positive = str(param)+"_positive"
+				parameterToCount[param_negative] = 0
+				parameterToCount[param_positive] = 0
+
+			# Remplir dictionnary
+			for patient in data:
+				for key in patient.keys():
+					key_negative = str(key)+"_negative"
+					key_positive = str(key)+"_positive"
+					if(patient[key] == "negative"):
+						parameterToCount[key_negative] += 1
+					elif(patient[key] == "positive"):
+						parameterToCount[key_positive] += 1
+
+			DiseaseToParameterToCount[disease] = parameterToCount
+		paramForSubPlot1 = ["CLG_CALL", "RF_CALL", "SSB_CALL", "SCL70_CALL"]
+		paramForSubPlot2 = ["B2G_CALL", "CCP2_CALL", "SSA_CALL", "DNA_CALL"]
+		paramForSubPlot3 = ["SM_CALL", "MPO_CALL", "JO1_CALL", "PR3_CALL"]
+		paramForSubPlot4 = ["U1_RNP_CALL", "ENA_CALL", "B2M_CALL", "CLM_CALL"]
+		listOfParametres = paramForSubPlot1 + paramForSubPlot2 + paramForSubPlot3 + paramForSubPlot4
+		listOfParametres_part1 = paramForSubPlot1 + paramForSubPlot2
+		listOfParametres_part2 = paramForSubPlot3 + paramForSubPlot4
+
+		fig, ((ax1), (ax2)) = plt.subplots(nrows=2, ncols=1)
+
+		N = 8
+		positiveCount_Control = []
+		positiveCount_RA = []
+		positiveCount_MCTD = []
+		positiveCount_PAPs = []
+		positiveCount_SjS = []
+		positiveCount_SLE = []
+		positiveCount_SSc = []
+		positiveCount_UCTD = []
+		for param in listOfParametres_part1:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+		
+			parameterToCount = DiseaseToParameterToCount["Control"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_Control.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["RA"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_RA.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["MCTD"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_MCTD.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["PAPs"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_PAPs.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SjS"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SjS.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SLE"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SLE.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SSc"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SSc.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["UCTD"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_UCTD.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.10                      # the width of the bars
+		
+		rects_Control = ax1.bar(ind, positiveCount_Control, width, color='blue')
+		rects_RA = ax1.bar(ind+width, positiveCount_RA, width, color='red')
+		rects_MCTD = ax1.bar(ind+width*2, positiveCount_MCTD, width, color='green')
+		rects_PAPs = ax1.bar(ind+width*3, positiveCount_PAPs, width, color='yellow')
+		rects_SjS = ax1.bar(ind+width*4, positiveCount_SjS, width, color='grey')
+		rects_SLE = ax1.bar(ind+width*5, positiveCount_SLE, width, color='black')
+		rects_SSc = ax1.bar(ind+width*6, positiveCount_SSc, width, color='orange')
+		rects_UCTD = ax1.bar(ind+width*7, positiveCount_UCTD, width, color='cyan')
+
+
+		ax1.set_xlim(-width,len(ind)+width)
+		ax1.set_ylim(0,100)
+		ax1.set_ylabel("% of positive")
+		#ax1.set_title('Autoantibody')
+		xTickMarks = [param for param in listOfParametres_part1]
+		ax1.set_xticks(ind+width*4)
+		xtickNames = ax1.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		N = 8
+		positiveCount_Control = []
+		positiveCount_RA = []
+		positiveCount_MCTD = []
+		positiveCount_PAPs = []
+		positiveCount_SjS = []
+		positiveCount_SLE = []
+		positiveCount_SSc = []
+		positiveCount_UCTD = []
+		for param in listOfParametres_part2:
+			param_positive = str(param)+"_positive"
+			param_negative = str(param)+"_negative"
+		
+			parameterToCount = DiseaseToParameterToCount["Control"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_Control.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["RA"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_RA.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["MCTD"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_MCTD.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["PAPs"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_PAPs.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SjS"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SjS.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SLE"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SLE.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["SSc"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_SSc.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+			parameterToCount = DiseaseToParameterToCount["UCTD"]
+			total_count = parameterToCount[param_positive] + parameterToCount[param_negative]
+			positiveCount_UCTD.append((float(parameterToCount[param_positive])/float(total_count))*100)
+
+
+		ind = np.arange(N)                # the x locations for the groups
+		width = 0.10                      # the width of the bars
+		
+		rects_Control = ax2.bar(ind+10, positiveCount_Control, width, color='blue')
+		rects_RA = ax2.bar(ind+width, positiveCount_RA, width, color='red')
+		rects_MCTD = ax2.bar(ind+width*2, positiveCount_MCTD, width, color='green')
+		rects_PAPs = ax2.bar(ind+width*3, positiveCount_PAPs, width, color='yellow')
+		rects_SjS = ax2.bar(ind+width*4, positiveCount_SjS, width, color='grey')
+		rects_SLE = ax2.bar(ind+width*5, positiveCount_SLE, width, color='black')
+		rects_SSc = ax2.bar(ind+width*6, positiveCount_SSc, width, color='orange')
+		rects_UCTD = ax2.bar(ind+width*7, positiveCount_UCTD, width, color='cyan')
+
+
+		ax2.set_xlim(-width,len(ind)+width)
+		ax2.set_ylim(0,100)
+		ax2.set_ylabel("% of positive")
+		#ax2.set_title('Autoantibody')
+		xTickMarks = [param for param in listOfParametres_part2]
+		ax2.set_xticks(ind+width*4)
+		xtickNames = ax2.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+
+		ax1.legend( (rects_Control[0], rects_RA[0], rects_MCTD[0], rects_SSc[0], rects_UCTD[0], rects_SLE[0], rects_SjS[0], rects_PAPs[0]), 
+			('Control', 'RA', 'MCTD', 'SSc', 'UCTD', 'SLE', 'SjS', 'PAPs') )
+		fig.canvas.set_window_title("Overview")
+		plt.show()
+
 	else:
 		db = TinyDB("DATA/DATABASES/machin.json")
 		AutoantibodyTable = db.table('Autoantibody')
@@ -1338,3 +1528,168 @@ def plot_autoantibodiesData(diagnostic, displayAll):
 		ax1.legend( (rects1[0], rects2[0]), ('Positive', 'Negative') )
 		fig.canvas.set_window_title(diagnostic)
 		plt.show()
+
+def describe_discreteVariable(discreteCohorte, discreteVariableName):
+	"""
+	-> Describe discrete variable, enumerate possible status
+	   and dispplay proportion of NA values
+	-> discreteCohorte is a cohorte of discrete parameter
+	   (obtain with the assemble_CohorteFromDiscreteAllFiles function)
+	-> discreteVariableName the name of the discrete variable to check
+	   (could be the real name or just the pX associated)
+	"""
+	numberOfPatientINCohorte = len(discreteCohorte)
+	paramToNonAvailableCount = {}
+
+	# Init paramToNonAvailableCount 
+	for patient in discreteCohorte:
+		cmpt = 1
+		for scalar in patient:
+			scalarInArray = scalar.split("_")
+			if(len(scalarInArray) > 1):
+				paramToNonAvailableCount[scalarInArray[0]] = 0
+			cmpt += 1
+
+	# Remplir Dict
+	for patient in discreteCohorte:
+		cmpt = 1
+		for scalar in patient:
+			scalarInArray = scalar.split("_")
+			if(len(scalarInArray) > 1):
+				if(scalarInArray[1] == "NA"):
+					paramToNonAvailableCount[scalarInArray[0]] += 1
+			cmpt += 1
+	# Parse variable
+	if("\\" in discreteVariableName):
+
+		realVariableName = discreteVariableName
+		parameterIndexNumber = "undef"
+		parameterIndex = open("PARAMETERS/Control_variable_index.csv")
+
+		for line in parameterIndex:
+			line = line.split("\n")
+			lineInArray = line[0].split(";")
+			if(lineInArray[1] == discreteVariableName):
+				parameterIndexNumber = lineInArray[0]
+		parameterIndex.close()
+
+
+		listOfPossibleStatus = []
+		statusToCount = {}
+		for patient in discreteCohorte:
+			for scalar in patient:
+				scalarInArray = scalar.split("_")
+				if(len(scalarInArray) > 1):
+					param = scalarInArray[0]
+					if(param == parameterIndexNumber):
+						if(scalarInArray[1] != "NA" and scalarInArray[1] not in listOfPossibleStatus):
+							listOfPossibleStatus.append(scalarInArray[1])
+		
+		for status in listOfPossibleStatus:
+			statusToCount[status] = 0
+		for patient in discreteCohorte:
+			for scalar in patient:
+				scalarInArray = scalar.split("_")
+				if(len(scalarInArray) > 1):
+					param = scalarInArray[0]
+					if(param == parameterIndexNumber):
+						if(scalarInArray[1] in listOfPossibleStatus):
+							statusToCount[scalarInArray[1]] += 1
+		print statusToCount
+
+
+		fig, ((ax1), (ax2)) = plt.subplots(nrows=1, ncols=2)
+		nonAvailableProportion = (float(paramToNonAvailableCount[parameterIndexNumber]) / float(len(discreteCohorte)))*100
+		print paramToNonAvailableCount[parameterIndexNumber]
+		name = ['NA', 'A']
+		data = [ paramToNonAvailableCount[parameterIndexNumber], (len(discreteCohorte) - paramToNonAvailableCount[parameterIndexNumber])]
+		explode=(0, 0.15)
+		ax1.pie(data, explode=explode, labels=name, autopct='%1.1f%%', startangle=90, shadow=True)
+		ax1.axis('equal')
+			
+		data = []
+		for status in listOfPossibleStatus:
+			data.append(statusToCount[status])
+		ind = np.arange(len(listOfPossibleStatus))
+		width = 0.10
+
+		rects1 = ax2.bar(ind, data, width, color='cyan')
+		ax2.set_xlim(-width,len(ind)+width)
+		ax2.set_ylabel("Count")
+		xTickMarks = [param for param in listOfPossibleStatus]
+		ax2.set_xticks(ind+width)
+		xtickNames = ax2.set_xticklabels(xTickMarks)
+		plt.setp(xtickNames, rotation=45, fontsize=10)
+		plt.tight_layout()
+
+		realVariableName_formated = realVariableName.replace("\\", " ")
+		fig.canvas.set_window_title(realVariableName_formated)
+		plt.show()
+
+	else:
+		if(discreteVariableName in paramToNonAvailableCount.keys()):
+			
+			realVariableName = "undef"
+			parameterIndex = open("PARAMETERS/Control_variable_index.csv")
+
+			for line in parameterIndex:
+				line = line.split("\n")
+				lineInArray = line[0].split(";")
+				if(lineInArray[0] == discreteVariableName):
+					realVariableName = lineInArray[1]
+
+			parameterIndex.close()
+			listOfPossibleStatus = []
+			statusToCount = {}
+			for patient in discreteCohorte:
+				for scalar in patient:
+					scalarInArray = scalar.split("_")
+					if(len(scalarInArray) > 1):
+						param = scalarInArray[0]
+						if(param == discreteVariableName):
+							if(scalarInArray[1] != "NA" and scalarInArray[1] not in listOfPossibleStatus):
+								listOfPossibleStatus.append(scalarInArray[1])
+			
+			for status in listOfPossibleStatus:
+				statusToCount[status] = 0
+			for patient in discreteCohorte:
+				for scalar in patient:
+					scalarInArray = scalar.split("_")
+					if(len(scalarInArray) > 1):
+						param = scalarInArray[0]
+						if(param == discreteVariableName):
+							if(scalarInArray[1] in listOfPossibleStatus):
+								statusToCount[scalarInArray[1]] += 1
+
+			fig, ((ax1), (ax2)) = plt.subplots(nrows=1, ncols=2)
+			nonAvailableProportion = (float(paramToNonAvailableCount[discreteVariableName]) / float(len(discreteCohorte)))*100
+			name = ['NA', 'A']
+			data = [ paramToNonAvailableCount[discreteVariableName], (len(discreteCohorte) - paramToNonAvailableCount[discreteVariableName])]
+			explode=(0, 0.15)
+			ax1.pie(data, explode=explode, labels=name, autopct='%1.1f%%', startangle=90, shadow=True)
+			ax1.axis('equal')
+			
+			data = []
+			for status in listOfPossibleStatus:
+				data.append(statusToCount[status])
+			ind = np.arange(len(listOfPossibleStatus))
+			width = 0.10
+
+			rects1 = ax2.bar(ind, data, width, color='cyan')
+			ax2.set_xlim(-width,len(ind)+width)
+			ax2.set_ylabel("Count")
+			xTickMarks = [param for param in listOfPossibleStatus]
+			ax2.set_xticks(ind+width)
+			xtickNames = ax2.set_xticklabels(xTickMarks)
+			plt.setp(xtickNames, rotation=45, fontsize=10)
+			plt.tight_layout()
+
+			realVariableName_formated = realVariableName.replace("\\", " ")
+			fig.canvas.set_window_title(realVariableName_formated)
+
+			plt.show()
+
+		else:
+			print "[WARNINGS] => Parameter " +str(discreteVariableName) + " not found"
+
+
