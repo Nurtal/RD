@@ -210,6 +210,22 @@ listOfGarbageParameterForRA2 = ["CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryT
 							  "CD43posCD69negCD27posCD20pos B1 Bcells"]
 
 
+"""
+#####################
+# CLUSTER ON CENTER #
+#####################
+# Preprocessing
+for panel in listOfPanelToConcat:
+	clean_folders("ALL")
+	checkAndFormat("DATA/"+panel, "DATA/PATIENT")
+	check_patient()
+	save_data()
+
+	# PCA
+	show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "ABSOLUTE", 1, 1)
+	#OverviewOnDisease("RA", "MCTD" , "ABSOLUTE", "center", 1)
+"""
+
 
 """
 listOfVersus = []
@@ -226,20 +242,20 @@ for disease1 in listOfDisease:
 			remove_parameter("ABSOLUTE", "Lymphocytes")
 			check_patient()
 			save_data()
-			print "Perform Outlier Detection"
-			outlierDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
-			print " => Done"
-			print "Perform Novelty Detection"
-			noveltyDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
-			print " => Done"
+			#print "Perform Outlier Detection"
+			#outlierDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+			#print " => Done"
+			#print "Perform Novelty Detection"
+			#noveltyDetection("disease", disease1, "disease", disease2, "ABSOLUTE", 0)
+			#print " => Done"
 			print "Perform Overview on "+str(disease1)
-			OverviewOnDisease(disease1, disease2, "ABSOLUTE", "disease", 0)
+			OverviewOnDisease(disease1, disease2, "ABSOLUTE", "disease", 1)
 			print " => Done"
 			listOfVersus.append(versus)
-			write_OverviewReport(disease1, disease2, "ABSOLUTE", "1 to 6", 2016)
+			#write_OverviewReport(disease1, disease2, "ABSOLUTE", "1 to 6", 2016)
 			print "###################"
 	
-write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
+#write_ClassificationReport("ALL", "1 to 6", 2016, listOfVersus)
 """
 
 
