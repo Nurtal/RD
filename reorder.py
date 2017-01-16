@@ -294,11 +294,15 @@ def check_patient():
 			if(line_cmpt == 1):
 				patient_id = lineInArray[0]
 			else:
-				dataType = lineInArray[2]
-				parameterValue = lineInArray[4]
-				parameterValue = parameterValue[:-1]
-				if("N" in str(parameterValue)):
+				if(len(lineInArray) < 5):
+					print "[WARNINGS] "+ str(patient_id) +" can't parse line"
 					rejected = 1
+				else:
+					dataType = lineInArray[2]
+					parameterValue = lineInArray[4]
+					parameterValue = parameterValue[:-1]
+					if("N" in str(parameterValue)):
+						rejected = 1
 
 		patientData.close()
 
@@ -419,6 +423,34 @@ def remove_parameter(typeOfParameter, parameter):
 		for line in correctedData:
 			dataToCorrect.write(line)
 
+		dataToCorrect.close()
+		dataToInspect.close()
+		os.remove(patientFile_save)
+
+
+
+
+def remove_typeOfParameter(typeOfParameter):
+	"""
+	IN PROGRESS
+	"""
+
+	listOfPatientFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		shutil.copy(patientFile, str(patientFile_save))
+	for patientFile in listOfPatientFiles:
+		patientFile_save = str(patientFile)+"_save.tmp"
+		dataToInspect = open(patientFile_save, "r")
+		dataToCorrect = open(patientFile, "w")
+		correctedData = []
+		for line in dataToInspect:
+			lineInArray = line.split(";")
+			parameterName = ""
+			if(lineInArray[2] != typeOfParameter):
+				correctedData.append(line)
+		for line in correctedData:
+			dataToCorrect.write(line)
 		dataToCorrect.close()
 		dataToInspect.close()
 		os.remove(patientFile_save)
@@ -642,6 +674,40 @@ def clean_report():
 		os.remove(texFile)
 
 
+
+def add_diagnosticTag(panel):
+	"""
+	-> Add diagnostic tag to filename in 
+	DATA/panel folder
+	-> use DATA/patientIndex file 
+	-> panel is a string, name of folder where
+	   the files are converted
+	"""
+
+	listOfFiles = glob.glob("DATA/"+str(panel)+"/*.csv")
+	for files in listOfFiles:
+
+		patientDiagnostic = "undef"
+
+		fileNameInArray = files.split("\\")
+		fileNameInArray2 = fileNameInArray[1].split("_")
+		patientID = fileNameInArray2[0]
+
+		indexFile = open("DATA/patientIndex.csv", "r")
+		for line in indexFile:
+			line = line.split("\n")
+			lineInArray = line[0].split(";")
+			indexId = lineInArray[0]
+			diagnostic = lineInArray[1]
+			if(patientID == indexId):
+				patientDiagnostic = diagnostic
+		indexFile.close()
+
+		newFileName = fileNameInArray[0]+"/"+patientDiagnostic+"_"+fileNameInArray[1]
+		shutil.copy(files, newFileName)
+		os.remove(files)
+
+
 #---------------------#
 # DATABASE GENERATION ################################################################
 #---------------------#
@@ -858,3 +924,57 @@ print parameterToCount
 #truc = parse_request(machin, listOfSelectedParameter)
 
 """
+
+
+def write_matrixFromPatientFolder():
+	"""
+	IN PROGRESS
+	"""
+
+	# initialise list of variableName
+	listfOfVariables = []
+	listOfInputFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patient in listOfInputFiles:
+		dataInPatient = open(patient, "r")
+		for line in dataInPatient:
+			line = line.split("\n")
+			lineInArray = line[0].split(";")
+			variableName = lineInArray[1]+"_"+lineInArray[2]
+			if(lineInArray[2] == "PROPORTION"):
+				variableName = variableName + "_in_"+lineInArray[3]
+			if(variableName not in listfOfVariables):
+				if(variableName != "POPULATION_TYPE"):
+					listfOfVariables.append(variableName)
+		dataInPatient.close()
+
+	matrixFile = open("DATA/CYTOKINES/matrixTestFromCyto.csv", "w")
+	# write header
+	header = ""
+	for variable in listfOfVariables:
+		header = header + variable +";"
+	header = header[:-1]+"\n"
+	matrixFile.write(header)
+
+	# write vector
+	listOfInputFiles = glob.glob("DATA/PATIENT/*.csv")
+	for patient in listOfInputFiles:
+		vector = ""
+		dataInPatient = open(patient, "r")
+		cmpt = 0
+		for line in dataInPatient:
+			if(cmpt != 0):
+				line = line.split("\n")
+				lineInArray = line[0].split(";")
+				scalar = "undef"
+				variableName = lineInArray[1]+"_"+lineInArray[2]
+				if(lineInArray[2] == "PROPORTION"):
+					variableName = variableName + "_in_"+lineInArray[3]
+					scalar = lineInArray[4]
+				else:
+					scalar = lineInArray[4]
+				vector = vector + scalar + ";"
+			cmpt += 1
+		dataInPatient.close()
+		vector = vector[:-1]+"\n"
+		matrixFile.write(vector)	
+	matrixFile.close()

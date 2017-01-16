@@ -210,21 +210,51 @@ listOfGarbageParameterForRA2 = ["CD45RAnegCD62LhighCD27posCD8pos_Central_MemoryT
 							  "CD43posCD69negCD27posCD20pos B1 Bcells"]
 
 
-"""
+
 #####################
 # CLUSTER ON CENTER #
 #####################
 # Preprocessing
-for panel in listOfPanelToConcat:
-	clean_folders("ALL")
-	checkAndFormat("DATA/"+panel, "DATA/PATIENT")
-	check_patient()
-	save_data()
 
-	# PCA
-	show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "ABSOLUTE", 1, 1)
-	#OverviewOnDisease("RA", "MCTD" , "ABSOLUTE", "center", 1)
+
+
+
+panel = "PANEL_4"
+
+print "=> " +str(panel)
+
+clean_folders("ALL")
+checkAndFormat("DATA/"+panel, "DATA/PATIENT")
+	
+#remove_typeOfParameter("PROPORTION")
+remove_typeOfParameter("ABSOLUTE")
+remove_typeOfParameter("RATIO")
+remove_typeOfParameter("MFI")
+
 """
+if(panel == "PANEL_8"):
+	remove_parameter("ABSOLUTE", "CD11bpos_in_Classic")
+	remove_parameter("ABSOLUTE", "CD64pos_in_Classic")
+	remove_parameter("ABSOLUTE", "CD18pos_in_Classic")
+	remove_parameter("ABSOLUTE", "CD32pos_in_Classic")
+"""
+check_patient()
+save_data()
+
+
+
+
+# PCA
+show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 1, 1)
+#show_PCA("DATA/PATIENT", "disease", "2d", "IMAGES/test.png", "MFI", 1, 1)
+#OverviewOnDisease("RA", "MCTD" , "ABSOLUTE", "center", 1)
+
+write_matrixFromPatientFolder()
+plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", "all", 3)
+
+# Reformat file name
+#for panel in listOfPanelToConcat:
+#add_diagnosticTag("PANEL_9")
 
 
 """

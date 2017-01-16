@@ -856,7 +856,7 @@ def plot_composanteOfEigenVector(matrixFileName, maxNumberOfVariables, numberOfC
 		# Graphic representation
 		dictionary = plt.figure()
 		plt.bar(range(len(structureToPlot)), structureToPlot.values(), align='center')
-		plt.xticks(range(len(structureToPlot)), structureToPlot.keys())
+		plt.xticks(range(len(structureToPlot)), structureToPlot.keys(), rotation=10)
 		plt.title(factor)
 		plt.show()
 
@@ -1150,3 +1150,5 @@ def discretisation_Procedure():
 #discretisation_Procedure()
 #cohorte = assemble_CohorteFromAllFiles()
 #extractPatternFromCohorte(cohorte, 30)
+
+
