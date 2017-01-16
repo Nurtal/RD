@@ -286,7 +286,11 @@ def quickPCA(data, y, target_name, projection, saveName, details, show):
 	elif(projection =="3d"):
 		fig = plt.figure(1, figsize=(8, 6))
 		ax = Axes3D(fig, elev=-150, azim=110)
-		ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=y, cmap=plt.cm.Paired)
+		# ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=y, label=target_name)
+		for c, i, target_name in zip("rgbcmykrgb", [0,1,2,3,4,5,6,7,8,9], target_name):
+			ax.scatter(C[y == i,0], C[y == i,1], C[y == i,2], c=c, label=target_name)
+		
+
 		ax.set_title("ACP: trois premieres composantes")
 		ax.set_xlabel("Comp1")
 		ax.w_xaxis.set_ticklabels([])
@@ -294,7 +298,9 @@ def quickPCA(data, y, target_name, projection, saveName, details, show):
 		ax.w_yaxis.set_ticklabels([])
 		ax.set_zlabel("Comp3")
 		ax.w_zaxis.set_ticklabels([])
+		plt.legend()
 		plt.savefig(saveName)
+
 		if(show):
 			plt.show()
 		plt.close()
