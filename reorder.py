@@ -1023,3 +1023,51 @@ def remove_variableFromMatrixFile(matrixFile, variableToDelete):
 	outputMatrix.close()
 	inputMatrixFile.close()
 	os.remove(tmpFileName)
+
+
+
+
+def remove_PatientsWithNAValues(matrixFile):
+	"""
+	-> rewrite a matrix file without any patient containing NA values
+	-> matrixFile is a string, name of the input matrix file.
+	"""
+
+	inputMatrixFileName = matrixFile
+	inputMatrixFileNameInArray = inputMatrixFileName.split(".")
+	tmpFileName = inputMatrixFileNameInArray[0]+"_tmp.csv"
+	shutil.copy(inputMatrixFileName, tmpFileName)
+	inputMatrixFile = open(tmpFileName, "r")
+	outputMatrix = open(inputMatrixFileName, "w")
+	cmpt = 0
+	delete_cmpt = 0
+	index_id = "undef"
+	for line in inputMatrixFile:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+
+		patient_id = "undef"
+
+		if(cmpt == 0):
+			index = 0
+			for parameterName in lineInArray:
+				parameterNameInArray = parameterName.split("\\")
+				if("OMICID" in parameterName):
+					index_id = index
+				index+=1
+			outputMatrix.write(line[0][:-1]+"\n")
+		else:
+			patientIsClean = 1
+			patient_id = lineInArray[index_id]
+			for value in lineInArray:
+				if(value == "NA"):
+					patientIsClean = 0
+			if(patientIsClean):
+				outputMatrix.write(line[0][:-1]+"\n")
+			else:
+				print "=> Remove patient "+str(patient_id)
+		cmpt +=1
+
+	outputMatrix.close()
+	inputMatrixFile.close()
+	os.remove(tmpFileName)
