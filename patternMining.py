@@ -227,7 +227,6 @@ def get_optimalValueOfThreshold(cohorte, maxTry, expectedNumberOfRemovedParamete
 
 	return threshold
 
-"""TEST SPACE"""
 
 
 
@@ -513,9 +512,6 @@ def search_FrequentItem(cohorte, saveFileName, minSupport):
 
 
 #search_FrequentItem(cohorte, "test5.csv", 20)
-
-
-
 #searchForPattern(cohorte, 30, 4, "DATA/PATTERN/test2.csv")
 #fileName = "DATA/PATTERN/test2.csv"
 
@@ -602,15 +598,16 @@ def assemble_CohorteFromAllFiles():
 
 
 
-def extractPatternFromCohorte(cohorte, minsup):
+def extractPatternFromCohorte(cohorte, minsup, tag):
 	"""
 	-> Store all frequent pattern (i.e set of items present more than minsup in 
 	   cohorte)
 	-> cohorte is an array of array, discrete value (obtain via the assemble_CohorteFromAllFiles
 	   function)
 	-> minsup is an int between 0 and 100
+	-> tag is a string, insert in the output file name
 	"""
-	saveFileName = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
+	saveFileName = "DATA/PATTERN/"+str(tag)+"_pattern_"+str(minsup)+".csv"
 	patternFile = open(saveFileName, "w")
 	for itemset in find_frequent_itemsets(cohorte, minsup):
 		line = ""
@@ -924,43 +921,6 @@ def write_decryptedRulesFiles(inputFileName):
 	rulesFile.close()
 
 
-
-"""
-def assemble_discreteCohorte():
-
-	cohorte = []
-	listOfVariable = []
-	data = open("DATA/CYTOKINES/discreteMatrix.csv", "r")
-	cmpt = 0
-	for line in data:
-		line = line.split("\n")
-		lineInArray = line[0].split(";")
-		vector = []
-		if(cmpt == 0):
-			for variable in lineInArray:
-				listOfVariable.append(variable)
-		else:
-			index = 1
-			for scalar in lineInArray:
-				newScalar = "p"+str(index)+"_"+scalar
-				vector.append(newScalar)
-				index += 1
-			vector.append(diagnostic)
-		cohorte.append(vector)
-		cmpt += 1
-	data.close()
-
-	# Write indexFile
-	indexFile = open("PARAMETERS/"+str(diagnostic)+"_variable_index.csv", "w")
-	cmpt = 1
-	for variable in listOfVariable:
-		indexFile.write("p"+str(cmpt)+";"+variable+"\n")
-		cmpt += 1
-	indexFile.close()
-	return cohorte
-machin = assemble_discreteCohorte()
-print machin
-"""
 
 
 def assemble_CohorteFromDiscreteAllFiles():

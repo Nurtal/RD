@@ -55,11 +55,11 @@ if(command == "extract_cytokines_pattern"):
 		discretisation_Procedure()
 		cohorte = assemble_CohorteFromAllFiles()
 		for x in xrange(0, 101):
-			extractPatternFromCohorte(cohorte, x)
+			extractPatternFromCohorte(cohorte, x, "cytokines")
 	else:
 		discretisation_Procedure()
 		cohorte = assemble_CohorteFromAllFiles()
-		extractPatternFromCohorte(cohorte, minsup)
+		extractPatternFromCohorte(cohorte, minsup, "cytokines")
 
 if(command == "generate_cytokines_associationRules"):
 	minsup = sys.argv[2]
@@ -119,20 +119,32 @@ if(command == "describe_discrete_variable"):
 # Pattern mining on discrete data
 # To be continued (Imputation)
 
-
-
 # Impute Clinical variable for Control patient
-
 convert_NonAvailableClinicalVariable_forControl("DATA/CYTOKINES/discreteMatrix.csv")
+
+# Delete variables in the matrix file (i.e delete a column)
+listOfVariableToDelete = ["\\Clinical\\Medication\\CMATNF", "\\Clinical\\Medication\\CMABATACEPT", "\\Clinical\\Medication\\CMTOCILIZUMAB"]
+for variableToDelete in listOfVariableToDelete:
+	remove_variableFromMatrixFile("DATA/CYTOKINES/discreteMatrix_imputed.csv", variableToDelete)
+
+# Delete patient with NA values after imputation
+remove_PatientsWithNAValues("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+
+# Assemble cohorte
 splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix_imputed.csv", "DATA/patientIndex.csv")
 cohorte = assemble_CohorteFromDiscreteAllFiles()
 
+# Describe variables
+#for x in range(len(cohorte[0])):
+#	parameter = "p"+str(x)
+#	describe_discreteVariable(cohorte, parameter)
 
+# Pattern Mining
+extractPatternFromCohorte(cohorte, 98, "discreteVariables")
 
-
-for x in range(len(cohorte[0])):
-	parameter = "p"+str(x)
-	describe_discreteVariable(cohorte, parameter)
+# Generate association rules
+rulesFile = "DATA/RULES/discreteVariables_rules_98.csv"
+generate_AssociationRulesFromPatternFile("DATA/PATTERN/discreteVariables_pattern_98.csv", rulesFile, 80, 1)
 
 #describe_discreteVariable(cohorte, "p25")
 #describe_discreteVariable(cohorte, "\\Clinical\\Symptom\\ABNORMINFLAM")
