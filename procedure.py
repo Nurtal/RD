@@ -1573,58 +1573,60 @@ def describe_discreteVariable(discreteCohorte, discreteVariableName):
 				parameterIndexNumber = lineInArray[0]
 		parameterIndex.close()
 
-
-		listOfPossibleStatus = []
-		statusToCount = {}
-		for patient in discreteCohorte:
-			for scalar in patient:
-				scalarInArray = scalar.split("_")
-				if(len(scalarInArray) > 1):
-					param = scalarInArray[0]
-					if(param == parameterIndexNumber):
-						if(scalarInArray[1] != "NA" and scalarInArray[1] not in listOfPossibleStatus):
-							listOfPossibleStatus.append(scalarInArray[1])
-		
-		for status in listOfPossibleStatus:
-			statusToCount[status] = 0
-		for patient in discreteCohorte:
-			for scalar in patient:
-				scalarInArray = scalar.split("_")
-				if(len(scalarInArray) > 1):
-					param = scalarInArray[0]
-					if(param == parameterIndexNumber):
-						if(scalarInArray[1] in listOfPossibleStatus):
-							statusToCount[scalarInArray[1]] += 1
-		print statusToCount
+		if(parameterIndex != "undef"):
 
 
-		fig, ((ax1), (ax2)) = plt.subplots(nrows=1, ncols=2)
-		nonAvailableProportion = (float(paramToNonAvailableCount[parameterIndexNumber]) / float(len(discreteCohorte)))*100
-		print paramToNonAvailableCount[parameterIndexNumber]
-		name = ['NA', 'A']
-		data = [ paramToNonAvailableCount[parameterIndexNumber], (len(discreteCohorte) - paramToNonAvailableCount[parameterIndexNumber])]
-		explode=(0, 0.15)
-		ax1.pie(data, explode=explode, labels=name, autopct='%1.1f%%', startangle=90, shadow=True)
-		ax1.axis('equal')
+			listOfPossibleStatus = []
+			statusToCount = {}
+			for patient in discreteCohorte:
+				for scalar in patient:
+					scalarInArray = scalar.split("_")
+					if(len(scalarInArray) > 1):
+						param = scalarInArray[0]
+						if(param == parameterIndexNumber):
+							if(scalarInArray[1] != "NA" and scalarInArray[1] not in listOfPossibleStatus):
+								listOfPossibleStatus.append(scalarInArray[1])
 			
-		data = []
-		for status in listOfPossibleStatus:
-			data.append(statusToCount[status])
-		ind = np.arange(len(listOfPossibleStatus))
-		width = 0.10
+			for status in listOfPossibleStatus:
+				statusToCount[status] = 0
+			for patient in discreteCohorte:
+				for scalar in patient:
+					scalarInArray = scalar.split("_")
+					if(len(scalarInArray) > 1):
+						param = scalarInArray[0]
+						if(param == parameterIndexNumber):
+							if(scalarInArray[1] in listOfPossibleStatus):
+								statusToCount[scalarInArray[1]] += 1
 
-		rects1 = ax2.bar(ind, data, width, color='cyan')
-		ax2.set_xlim(-width,len(ind)+width)
-		ax2.set_ylabel("Count")
-		xTickMarks = [param for param in listOfPossibleStatus]
-		ax2.set_xticks(ind+width)
-		xtickNames = ax2.set_xticklabels(xTickMarks)
-		plt.setp(xtickNames, rotation=45, fontsize=10)
-		plt.tight_layout()
 
-		realVariableName_formated = realVariableName.replace("\\", " ")
-		fig.canvas.set_window_title(realVariableName_formated)
-		plt.show()
+			fig, ((ax1), (ax2)) = plt.subplots(nrows=1, ncols=2)
+			nonAvailableProportion = (float(paramToNonAvailableCount[parameterIndexNumber]) / float(len(discreteCohorte)))*100
+			name = ['NA', 'A']
+			data = [ paramToNonAvailableCount[parameterIndexNumber], (len(discreteCohorte) - paramToNonAvailableCount[parameterIndexNumber])]
+			explode=(0, 0.15)
+			ax1.pie(data, explode=explode, labels=name, autopct='%1.1f%%', startangle=90, shadow=True)
+			ax1.axis('equal')
+				
+			data = []
+			for status in listOfPossibleStatus:
+				data.append(statusToCount[status])
+			ind = np.arange(len(listOfPossibleStatus))
+			width = 0.10
+
+			rects1 = ax2.bar(ind, data, width, color='cyan')
+			ax2.set_xlim(-width,len(ind)+width)
+			ax2.set_ylabel("Count")
+			xTickMarks = [param for param in listOfPossibleStatus]
+			ax2.set_xticks(ind+width)
+			xtickNames = ax2.set_xticklabels(xTickMarks)
+			plt.setp(xtickNames, rotation=45, fontsize=10)
+			plt.tight_layout()
+
+			realVariableName_formated = realVariableName.replace("\\", " ")
+			fig.canvas.set_window_title(realVariableName_formated)
+			plt.show()
+		else:
+			print "[WARNINGS] => Parameter " +str(discreteVariableName) + " not found"
 
 	else:
 		if(discreteVariableName in paramToNonAvailableCount.keys()):
