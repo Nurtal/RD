@@ -978,3 +978,48 @@ def write_matrixFromPatientFolder():
 		vector = vector[:-1]+"\n"
 		matrixFile.write(vector)	
 	matrixFile.close()
+
+
+
+def remove_variableFromMatrixFile(matrixFile, variableToDelete):
+	"""
+	-> rewrite a matrix file without a selected variable
+	-> matrixFile is the input matrixFile
+	-> variableToDelete is the name of the variableToDelete
+	"""
+
+	inputMatrixFileName = matrixFile
+	inputMatrixFileNameInArray = inputMatrixFileName.split(".")
+	tmpFileName = inputMatrixFileNameInArray[0]+"_tmp.csv"
+	shutil.copy(inputMatrixFileName, tmpFileName)
+	inputMatrixFile = open(tmpFileName, "r")
+	outputMatrix = open(inputMatrixFileName, "w")
+	cmpt = 0
+	variableToDelete_index = "undef"
+	for line in inputMatrixFile:
+		line = line.split("\n")
+		lineInArray = line[0].split(";")
+
+		if(cmpt == 0):
+			index = 0
+			new_header = ""
+			for parameterName in lineInArray:
+				if(parameterName == variableToDelete):
+					variableToDelete_index = index
+				else:
+					new_header = new_header + parameterName + ";"
+				index += 1
+			outputMatrix.write(new_header[:-1]+"\n")
+		else:
+			index = 0
+			new_line = ""
+			for value in lineInArray:
+				if(index != variableToDelete_index):
+					new_line = new_line + value + ";"
+				index += 1
+			outputMatrix.write(new_line[:-1]+"\n")
+
+		cmpt +=1
+	outputMatrix.close()
+	inputMatrixFile.close()
+	os.remove(tmpFileName)
