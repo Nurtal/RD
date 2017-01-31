@@ -116,8 +116,10 @@ if(command == "describe_discrete_variable"):
 # TRASH ###########################################################################
 #-------#
 
-# Pattern mining on discrete data
-# To be continued (Imputation)
+#---------------------------------#
+# Pattern mining on discrete data #
+# To be continued (Imputation)    #
+#---------------------------------#
 
 # Impute Clinical variable for Control patient
 convert_NonAvailableClinicalVariable_forControl("DATA/CYTOKINES/discreteMatrix.csv")
@@ -139,15 +141,18 @@ cohorte = assemble_CohorteFromDiscreteAllFiles()
 #	parameter = "p"+str(x)
 #	describe_discreteVariable(cohorte, parameter)
 
+
+cohorte = [["a", "b", "c"], ["a", "b", "e"], ["a", "b", "y"], ["y", "b", "x"], ["b", "z", "e"]]
+
+
 # Pattern Mining
-extractPatternFromCohorte(cohorte, 98, "discreteVariables")
+extractPatternFromCohorte(cohorte, 100, "discreteVariables")
 
 # Generate association rules
 rulesFile = "DATA/RULES/discreteVariables_rules_98.csv"
 generate_AssociationRulesFromPatternFile("DATA/PATTERN/discreteVariables_pattern_98.csv", rulesFile, 80, 1)
 
-#describe_discreteVariable(cohorte, "p25")
-#describe_discreteVariable(cohorte, "\\Clinical\\Symptom\\ABNORMINFLAM")
+
 
 # a few structure
 listOfPanel = ["PANEL_1","PANEL_2","PANEL_3","PANEL_4","PANEL_5","PANEL_6","PANEL_7","PANEL_8","PANEL_9"]

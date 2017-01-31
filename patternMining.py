@@ -604,12 +604,14 @@ def extractPatternFromCohorte(cohorte, minsup, tag):
 	   cohorte)
 	-> cohorte is an array of array, discrete value (obtain via the assemble_CohorteFromAllFiles
 	   function)
-	-> minsup is an int between 0 and 100
+	-> minsup is an int between 0 and 100 (% of support)
 	-> tag is a string, insert in the output file name
 	"""
 	saveFileName = "DATA/PATTERN/"+str(tag)+"_pattern_"+str(minsup)+".csv"
+	numberOfPatient = len(cohorte)
+	minimumSupport = (minsup * numberOfPatient) / 100
 	patternFile = open(saveFileName, "w")
-	for itemset in find_frequent_itemsets(cohorte, minsup):
+	for itemset in find_frequent_itemsets(cohorte, minimumSupport):
 		line = ""
 		for element in itemset:
 			line = line + str(element) + ";"
@@ -919,7 +921,6 @@ def write_decryptedRulesFiles(inputFileName):
 
 	outputFile.close()
 	rulesFile.close()
-
 
 
 
