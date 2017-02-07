@@ -21,7 +21,18 @@ import sys
 # GET SCRIPT ARGUMENTS ################################################################
 #----------------------#
 command = sys.argv[1]
-
+listOfCommand = ["program_size",
+				 "display_commands",
+				 "build_cytokines_data",
+				 "show_cytokines_data",
+				 "describe_cytokines_eigenVectors",
+				 "extract_cytokines_pattern",
+				 "generate_cytokines_associationRules",
+				 "describe_variableFromCyto",
+				 "describe_autoantibodies",
+				 "process_associationRules",
+				 "describe_discrete_variable",
+				 "run_pattern_mining" ]
 
 
 
@@ -33,6 +44,10 @@ command = sys.argv[1]
 if(command == "program_size"):
 	machin = count_line()
 	print "program contain "+str(machin)+" lines."
+
+if(command == "display_commands"):
+	for element in listOfCommand:
+		print "[*] " + element
                                                                                                                                                                                                                                                                                                                                         
 if(command == "build_cytokines_data"):
 	CreateIndexFile()
@@ -69,11 +84,11 @@ if(command == "generate_cytokines_associationRules"):
 			minsup = x
 			patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
 			rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
-			generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1)	
+			generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1, "all")	
 	else:
 		patternFile = "DATA/PATTERN/cytokines_pattern_"+str(minsup)+".csv"
 		rulesFile = "DATA/RULES/cytokines_rules_"+str(minsup)+".csv"
-		generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1)
+		generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, 1, "all")
 
 if(command == "describe_variableFromCyto"):
 	variableType = sys.argv[2]
@@ -112,45 +127,44 @@ if(command == "describe_discrete_variable"):
 	describe_discreteVariable(cohorte, variableName)
 
 
+if(command == "run_pattern_mining"):
+	#---------------------------------#
+	# Pattern mining on discrete data #
+	# To be continued (Imputation)    #
+	# Work on Discrete Data  		  #
+	#---------------------------------#
+
+	# Impute Clinical variable for Control patient
+	convert_NonAvailableClinicalVariable_forControl("DATA/CYTOKINES/discreteMatrix.csv")
+
+	# Delete variables in the matrix file (i.e delete a column)
+	listOfVariableToDelete = ["\\Clinical\\Medication\\CMATNF", "\\Clinical\\Medication\\CMABATACEPT", "\\Clinical\\Medication\\CMTOCILIZUMAB"]
+	for variableToDelete in listOfVariableToDelete:
+		remove_variableFromMatrixFile("DATA/CYTOKINES/discreteMatrix_imputed.csv", variableToDelete)
+
+	# Delete patient with NA values after imputation
+	remove_PatientsWithNAValues("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+
+	# Assemble cohorte
+	splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix_imputed.csv", "DATA/patientIndex.csv")
+	cohorte = assemble_CohorteFromDiscreteAllFiles()
+
+	# Pattern Mining
+	expectedSupport = sys.argv[2]
+	extractPatternFromCohorte(cohorte, expectedSupport, "discreteVariables")
+
+	# Generate association rules
+	rulesFile = "DATA/RULES/discreteVariables_rules_"+str(expectedSupport)+".csv"
+	generate_AssociationRulesFromPatternFile("DATA/PATTERN/discreteVariables_pattern_"+str(expectedSupport)+".csv", rulesFile, 80, 1, "discrete")
+
+
+
+
+
 #-------#
 # TRASH ###########################################################################
 #-------#
 
-#---------------------------------#
-# Pattern mining on discrete data #
-# To be continued (Imputation)    #
-#---------------------------------#
-
-# Impute Clinical variable for Control patient
-convert_NonAvailableClinicalVariable_forControl("DATA/CYTOKINES/discreteMatrix.csv")
-
-# Delete variables in the matrix file (i.e delete a column)
-listOfVariableToDelete = ["\\Clinical\\Medication\\CMATNF", "\\Clinical\\Medication\\CMABATACEPT", "\\Clinical\\Medication\\CMTOCILIZUMAB"]
-for variableToDelete in listOfVariableToDelete:
-	remove_variableFromMatrixFile("DATA/CYTOKINES/discreteMatrix_imputed.csv", variableToDelete)
-
-# Delete patient with NA values after imputation
-remove_PatientsWithNAValues("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-
-# Assemble cohorte
-splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/discreteMatrix_imputed.csv", "DATA/patientIndex.csv")
-cohorte = assemble_CohorteFromDiscreteAllFiles()
-
-# Describe variables
-#for x in range(len(cohorte[0])):
-#	parameter = "p"+str(x)
-#	describe_discreteVariable(cohorte, parameter)
-
-
-cohorte = [["a", "b", "c"], ["a", "b", "e"], ["a", "b", "y"], ["y", "b", "x"], ["b", "z", "e"]]
-
-
-# Pattern Mining
-extractPatternFromCohorte(cohorte, 100, "discreteVariables")
-
-# Generate association rules
-rulesFile = "DATA/RULES/discreteVariables_rules_98.csv"
-generate_AssociationRulesFromPatternFile("DATA/PATTERN/discreteVariables_pattern_98.csv", rulesFile, 80, 1)
 
 
 

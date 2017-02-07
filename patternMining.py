@@ -630,10 +630,13 @@ def get_support(patternToTest, controlFile):
 	-> patternToTest is a list of item
 	-> controlFile is the file conatining the cohorte
 	   (designed for discrete cohorte), could be "all"
-	   for use all the "splited into disease" files
+	   for use all the "splited into disease" files, could
+	   be "discrete" when using only discrete data.
 	"""
 	if(controlFile == "all"):
 		cohorte = assemble_CohorteFromAllFiles()
+	elif(controlFile == "discrete"):
+		cohorte = assemble_CohorteFromDiscreteAllFiles()
 	else:
 		cohorte = assemble_CohorteFromFile(controlFile)
 	numberOfPatient = len(cohorte)
@@ -650,7 +653,7 @@ def get_support(patternToTest, controlFile):
 
 
 
-def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, display):
+def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceThreshold, display, dataType):
 	"""
 	-> generate association rules from a list of pattern
 	-> patternFile is a fileName (file containing pattern)
@@ -658,6 +661,13 @@ def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceT
 	-> confidenceThreshold is the confidence threshold for
 	   the rules.
 	-> display is a boolean
+	-> dataType is a string, could be:
+		-all
+		-discrete
+		-filename
+		where filename is the name of the file used to compute
+		support (used as input for get_support() function)
+
 	TODO:
 		-> run a few tests
 	"""
@@ -685,10 +695,9 @@ def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceT
 					if(element not in h and element not in complementList):
 						complementList.append(element)
 
-				
 				rule_confidence = 0
-				if(get_support(complementList, "all") != 0):
-					rule_confidence = (get_support(frequentItemSet, "all") / get_support(complementList, "all") * 100)
+				if(get_support(complementList, dataType) != 0):
+					rule_confidence = (get_support(frequentItemSet, dataType) / get_support(complementList, dataType) * 100)
 
 				if(rule_confidence > float(confidenceThreshold)):
 					if(display):
