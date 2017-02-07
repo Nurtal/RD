@@ -609,6 +609,7 @@ def extractPatternFromCohorte(cohorte, minsup, tag):
 	"""
 	saveFileName = "DATA/PATTERN/"+str(tag)+"_pattern_"+str(minsup)+".csv"
 	numberOfPatient = len(cohorte)
+	minsup = int(minsup)
 	minimumSupport = (minsup * numberOfPatient) / 100
 	patternFile = open(saveFileName, "w")
 	for itemset in find_frequent_itemsets(cohorte, minimumSupport):
