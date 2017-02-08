@@ -138,7 +138,21 @@ if(command == "run_pattern_mining"):
 	convert_NonAvailableClinicalVariable_forControl("DATA/CYTOKINES/discreteMatrix.csv")
 
 	# Delete variables in the matrix file (i.e delete a column)
-	listOfVariableToDelete = ["\\Clinical\\Medication\\CMATNF", "\\Clinical\\Medication\\CMABATACEPT", "\\Clinical\\Medication\\CMTOCILIZUMAB"]
+	# SAMPLE CODES : all variable are set to "null", not very useful ...
+	# \\Clinical\\Consent\\CSPHASE : all patient are PHASE I for now
+	# \\Clinical\\Demography\\RACE : almost all patient are white/caucasien.
+	# \\Clinical\\Comorbidity\\MHCANCER : almost all patient are set to "No"
+	# \\Clinical\\Comorbidity\\MHCOPD : almost all patient are set to "No"
+	# \\Clinical\\Comorbidity\\MHHEREDANEMIA : almost all patient are set to "No"
+	listOfVariableToDelete = ["\\Clinical\\Medication\\CMATNF",
+	 						  "\\Clinical\\Medication\\CMABATACEPT",
+	 						  "\\Clinical\\Medication\\CMTOCILIZUMAB",
+	 						  "SAMPLECODES",
+	 						  "\\Clinical\\Consent\\CSPHASE",
+	 						  "\\Clinical\\Demography\\RACE",
+	 						  "\\Clinical\\Comorbidity\\MHCANCER",
+	 						  "\\Clinical\\Comorbidity\\MHCOPD",
+	 						  "\\Clinical\\Comorbidity\\MHHEREDANEMIA"]
 	for variableToDelete in listOfVariableToDelete:
 		remove_variableFromMatrixFile("DATA/CYTOKINES/discreteMatrix_imputed.csv", variableToDelete)
 
@@ -156,7 +170,7 @@ if(command == "run_pattern_mining"):
 	# Generate association rules
 	rulesFile = "DATA/RULES/discreteVariables_rules_"+str(expectedSupport)+".csv"
 	generate_AssociationRulesFromPatternFile("DATA/PATTERN/discreteVariables_pattern_"+str(expectedSupport)+".csv", rulesFile, 80, 1, "discrete")
-
+	write_decryptedRulesFiles(rulesFile)
 
 
 

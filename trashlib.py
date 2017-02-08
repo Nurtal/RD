@@ -280,3 +280,27 @@ def get_targetedY2(target, inputFolder):
 
 
 """Test Space"""
+
+
+def print_parametersInRules():
+
+	"""
+	IN PROGRESS
+	"""
+
+	data = open("DATA/RULES/DECRYPTED/discreteVariables_rules_95.csv", "r")
+	for line in data:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+
+		lineInArray = lineWithoutBackN.split("->")
+		
+
+		for element in lineInArray:
+			elementInArray = element.split(";")
+			print elementInArray
+	
+
+	data.close()
+
+print_parametersInRules()
