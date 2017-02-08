@@ -891,7 +891,7 @@ def write_decryptedRulesFiles(inputFileName):
 					lineInIndexFileInArray = lineInIndexFile[0].split(";")
 					index_paramater = lineInIndexFileInArray[0]
 					if(parameter == index_paramater):
-						parameter_name = lineInIndexFileInArray[1]		
+						parameter_name = lineInIndexFileInArray[1] +" ("+str(status)+")"	
 				indexFile.close()
 			else:
 				parameter_name = element
@@ -915,7 +915,7 @@ def write_decryptedRulesFiles(inputFileName):
 					lineInIndexFileInArray = lineInIndexFile[0].split(";")
 					index_paramater = lineInIndexFileInArray[0]
 					if(parameter == index_paramater):
-						parameter_name = lineInIndexFileInArray[1]		
+						parameter_name = lineInIndexFileInArray[1] +" ("+str(status)+")"	
 				indexFile.close()
 			else:
 				parameter_name = element
