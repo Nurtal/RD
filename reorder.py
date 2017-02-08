@@ -1055,7 +1055,7 @@ def remove_PatientsWithNAValues(matrixFile):
 				if("OMICID" in parameterName):
 					index_id = index
 				index+=1
-			outputMatrix.write(line[0][:-1]+"\n")
+			outputMatrix.write(line[0]+"\n")
 		else:
 			patientIsClean = 1
 			patient_id = lineInArray[index_id]
@@ -1063,7 +1063,7 @@ def remove_PatientsWithNAValues(matrixFile):
 				if(value == "NA"):
 					patientIsClean = 0
 			if(patientIsClean):
-				outputMatrix.write(line[0][:-1]+"\n")
+				outputMatrix.write(line[0]+"\n")
 			else:
 				print "=> Remove patient "+str(patient_id)
 		cmpt +=1
@@ -1077,7 +1077,7 @@ def remove_PatientsWithNAValues(matrixFile):
 
 def convert_NonAvailableClinicalVariable_forControl(inputMatrixFileName):
 	"""
-	-> Cconvert all "NA" values for Clinical variable into "control"
+	-> Convert all "NA" values for Clinical variable into "control"
 	   values for control patient. Part of the imputation procedure,
 	   i.e data CAN'T be available for control patient.
 
