@@ -303,4 +303,183 @@ def print_parametersInRules():
 
 	data.close()
 
-print_parametersInRules()
+
+
+
+
+
+
+
+
+
+
+import numpy as np
+from cytokines import *
+
+def describe_variable(variableOfInterest):
+	"""
+	IN PROGRESS
+	"""
+
+
+	DataFile = open("DATA/CYTOKINES/clinical_i2b2trans.txt", "r")
+	cmpt = 0
+	patientId_index = "undef"
+	variableOfInterest = "\\Flow cytometry\\P9\\CD46POS IN PMN"
+	variableOfInterest_index = "undef"
+	listOfParameters = []
+	listOfDisease = ["RA", "MCTD", "PAPs", "SjS", "SLE", "SSc", "UCTD", "Control"]
+
+	NA_count = 0
+	variable_scalars = []
+	data_is_numeric = 0
+	proportionOfNA = "undef"
+
+	for line in DataFile:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split("\t")
+		if(cmpt == 0):
+			index = 0
+			for element in lineInArray:
+				if("OMICID" in element):
+					patientId_index = index
+				if(element == variableOfInterest):
+					variableOfInterest_index = index
+				listOfParameters.append(element)
+				index += 1
+
+		# parsing data, have to work for both discrete & continue parameter
+		else:
+			index = 0
+			for element in lineInArray:
+				if(index == variableOfInterest_index):
+					element = element.replace(" ", "")
+					if(element == "NA" or element == "N.A"):
+						NA_count += 1
+					else:
+						try:
+							element = float(element)
+							data_is_numeric = 1
+						except:
+							print "tardis"
+						variable_scalars.append(element)	
+				index += 1
+		cmpt += 1
+	DataFile.close()
+
+
+	if(data_is_numeric):
+		proportionOfNA = (float(NA_count) / float(len(variable_scalars))*100)
+		
+		fig, ((ax1), (ax2), (ax3),(ax4),(ax5),(ax6),(ax7),(ax8),(ax9),(ax10)) = plt.subplots(nrows=1, ncols=10)
+		name = ['NA', 'A']
+		data = [ NA_count, len(variable_scalars)]
+		explode=(0, 0.15)
+		ax1.pie(data, explode=explode, labels=name, autopct='%1.1f%%', startangle=90, shadow=True)
+		ax1.axis('equal')
+
+		x = variable_scalars
+		x = np.sort(x)
+		ax2.hist(x)
+		ax2.set_xlabel("Global")
+
+
+		#####
+		
+		diagnosticToVariable = {}	
+
+		splitCohorteAccordingToDiagnostic("DATA/CYTOKINES/clinical_i2b2trans.txt", "DATA/patientIndex.csv")
+		for disease in listOfDisease:
+			diagnosticMatrixFileName = "DATA/CYTOKINES/"+str(disease)+".csv"
+			diagnosticMatrixFile = open(diagnosticMatrixFileName, "r")
+			variable_scalars = []
+			data_is_numeric = 0
+			proportionOfNA = "undef"
+
+			cmpt = 0
+			for line in diagnosticMatrixFile:
+				lineWithoutBackN = line.split("\n")
+				lineWithoutBackN = lineWithoutBackN[0]
+				lineInArray = lineWithoutBackN.split("\t")
+				if(cmpt == 0):
+					index = 0
+					for element in lineInArray:
+						if("OMICID" in element):
+							patientId_index = index
+						if(element == variableOfInterest):
+							variableOfInterest_index = index
+						listOfParameters.append(element)
+						index += 1
+
+				# parsing data, have to work for both discrete & continue parameter
+				else:
+					index = 0
+					for element in lineInArray:
+						if(index == variableOfInterest_index):
+							element = element.replace(" ", "")
+							if(element == "NA" or element == "N.A"):
+								NA_count += 1
+							else:
+								try:
+									element = float(element)
+									data_is_numeric = 1
+								except:
+									print "tardis"
+								variable_scalars.append(element)	
+						index += 1
+				cmpt += 1
+			diagnosticMatrixFile.close()
+
+			diagnosticToVariable[disease] = variable_scalars
+
+		####
+
+		k = np.sort(diagnosticToVariable["RA"])
+		ax3.hist(k)
+		ax3.set_xlabel("RA")
+
+		k = np.sort(diagnosticToVariable["MCTD"])
+		ax4.hist(k)
+		ax4.set_xlabel("MCTD")
+
+		k = np.sort(diagnosticToVariable["PAPs"])
+		ax5.hist(k)
+		ax5.set_xlabel("PAPs")
+
+		k = np.sort(diagnosticToVariable["SjS"])
+		ax6.hist(k)
+		ax6.set_xlabel("SjS")
+
+		k = np.sort(diagnosticToVariable["SLE"])
+		ax7.hist(k)
+		ax7.set_xlabel("SLE")
+
+		k = np.sort(diagnosticToVariable["SSc"])
+		ax8.hist(k)
+		ax8.set_xlabel("SSc")
+
+		k = np.sort(diagnosticToVariable["UCTD"])
+		ax9.hist(k)
+		ax9.set_xlabel("UCTD")
+
+		k = np.sort(diagnosticToVariable["Control"])
+		ax10.hist(k)
+		ax10.set_xlabel("Control")
+
+
+		realVariableName_formated = variableOfInterest.replace("\\", " ")
+		fig.canvas.set_window_title(realVariableName_formated)
+
+		plt.show()
+		plt.close()
+
+	else:
+		print "non implemented"
+
+
+
+	
+
+
+describe_variable("test")
