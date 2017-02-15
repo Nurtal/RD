@@ -482,4 +482,72 @@ def describe_variable(variableOfInterest):
 	
 
 
-describe_variable("test")
+#describe_variable("test")
+
+"""
+### count NA
+dataFile = open("DATA/CYTOKINES/matrix.csv", "r")
+#dataFile = open("DATA/CYTOKINES/discreteMatrix_imputed.csv", "r")
+nb_patient = 0
+nb_variable = 0
+nb_NA = 0
+for line in dataFile:
+	nb_patient += 1
+	lineWithoutBackN = line.split("\n")
+	lineWithoutBackN = lineWithoutBackN[0]
+	lineInArray = lineWithoutBackN.split(";")
+	nb_variable = len(lineInArray)
+	for scalar in lineInArray:
+		if(scalar == "NA"):
+			nb_NA += 1
+
+dataFile.close()
+
+
+total = (nb_patient-1) * nb_variable
+
+machin = (float(nb_NA) / float(total))*100
+print machin
+"""
+
+"""
+
+listOfDiag = []
+diagToCount = {}
+total = 0
+dataFile = open("DATA/patientIndex.csv", "r")
+for line in dataFile:
+	total +=1
+	lineWithoutBackN = line.split("\n")
+	lineWithoutBackN = lineWithoutBackN[0]
+	lineInArray = lineWithoutBackN.split(";")
+	diag = lineInArray[1]
+
+	if(diag not in listOfDiag):
+		listOfDiag.append(diag)
+dataFile.close
+
+
+for diag in listOfDiag:
+	diagToCount[diag] = 0
+
+
+dataFile = open("DATA/patientIndex.csv", "r")
+for line in dataFile:
+	lineWithoutBackN = line.split("\n")
+	lineWithoutBackN = lineWithoutBackN[0]
+	lineInArray = lineWithoutBackN.split(";")
+	diag = lineInArray[1]
+
+	for k in diagToCount.keys():
+		if(k == diag):
+			diagToCount[diag] += 1
+	
+dataFile.close
+
+
+for k in diagToCount.keys():
+	diagToCount[k] = (float(diagToCount[k]) / float(total))*100
+
+print diagToCount
+"""
