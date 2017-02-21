@@ -261,7 +261,6 @@ def fusion_panel(listOfPanels):
 				for line in source:
 					if(cmptInSource > 0):
 						destination.write(line)
-						print cmptInSource
 					cmptInSource += 1
 				source.close()
 			
