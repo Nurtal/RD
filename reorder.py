@@ -152,7 +152,10 @@ def fusion_panel(listOfPanels):
 
 		patientFileName = patientFileInArray[-1]
 		patientFileNameInArray = patientFileName.split("_")
-		patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+"CENTER"+"_"+"DATE"+".csv"
+		center = patientFileNameInArray[2]
+		date = patientFileNameInArray[3]
+		#patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+"CENTER"+"_"+"DATE"+".csv"
+		patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+center+"_"+"DATE"+".csv"
 		newPatientFileName = "DATA/FUSION/"+str(patientFileName)
 		newFile = open(newPatientFileName, "w")
 		newFile.close()
@@ -168,7 +171,10 @@ def fusion_panel(listOfPanels):
 			patientFileName = patientFileInArray[-1]
 
 			patientFileNameInArray = patientFileName.split("_")
-			patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+"CENTER"+"_"+"DATE"+".csv"
+			center = patientFileNameInArray[2]
+			date = patientFileNameInArray[3]
+			#patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+"CENTER"+"_"+"DATE"+".csv"
+			patientFileName = patientFileNameInArray[0]+"_"+patientFileNameInArray[1]+"_"+center+"_"+"DATE"+".csv"
 			newPatientFileName = "DATA/FUSION/"+str(patientFileName)
 
 			sourceFile = open(patientFile, "r")
@@ -209,6 +215,61 @@ def fusion_panel(listOfPanels):
 		dataToInspect.close()
 		os.remove(patientFile_save)
 		
+	
+	# Fusionner les fichiers avec un Id identique
+	# mais un centre differents (...)
+	# garde le nom du premier centre.
+	listOfPatientFilesToCheck = glob.glob("DATA/FUSION/*.csv")
+	for patientToCheck in listOfPatientFilesToCheck:
+		patientToCheck_nameInArray = ""
+		listOfPatientWithSameId = []
+		if(platform.system() == "Linux"):
+			patientToCheckInArray = patientToCheck.split("/")
+			patientToCheck_nameInArray = patientToCheckInArray[-1]
+		elif(platform.system() == "Windows"):
+			patientToCheckInArray =patientToCheck.split("\\")
+			patientToCheck_nameInArray = patientToCheckInArray[-1]
+		patientToCheck_nameInArray = patientToCheck_nameInArray.split("_")
+		patientToCheck_id = patientToCheck_nameInArray[1]
+
+	
+		listOfPatientFiles = glob.glob("DATA/FUSION/*.csv")
+		for patientFile in listOfPatientFiles:
+			patient_nameInArray = ""
+			if(platform.system() == "Linux"):
+				patientInArray = patientFile.split("/")
+				patient_nameInArray = patientInArray[-1]
+			elif(platform.system() == "Windows"):
+				patientInArray =patientFile.split("\\")
+				patient_nameInArray = patientInArray[-1]
+			patient_nameInArray = patient_nameInArray.split("_")
+			patient_id = patient_nameInArray[1]
+
+	
+			if(patient_id == patientToCheck_id):
+				if(patientFile not in listOfPatientWithSameId):
+					listOfPatientWithSameId.append(patientFile)
+
+	
+		if(len(listOfPatientWithSameId) > 1):
+			modelFile = listOfPatientWithSameId[0]
+			listOfPatientWithSameId.remove(modelFile)		
+			for patientFile in listOfPatientWithSameId:
+				destination = open(modelFile, "a")
+				source = open(patientFile, "r")
+				cmptInSource = 0
+				for line in source:
+					if(cmptInSource > 0):
+						destination.write(line)
+						print cmptInSource
+					cmptInSource += 1
+				source.close()
+			
+				os.remove(patientFile)
+				destination.close()
+
+
+
 
 	# Trier les fichiers
 	# Verifier que le patient apparait bien dans
