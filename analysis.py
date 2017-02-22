@@ -148,6 +148,7 @@ def get_targetNames(target, inputFolder):
 	listOfCenter = []
 	listOfDate = []
 	listOfDisease = []
+	listOfId = []
 	for patientFile in listOfPatientFiles:
 		if(platform.system() == "Linux"):
 			patientFileInArray = patientFile.split("/")
@@ -170,6 +171,9 @@ def get_targetNames(target, inputFolder):
 		elif(target == "disease"):
 			if(patient_disease not in listOfDisease):
 				listOfDisease.append(patient_disease)
+		elif(target == "id"):
+			if(patient_disease not in listOfId):
+				listOfId.append(patient_id)
 
 	if(target == "center"):
 		return listOfCenter
@@ -177,6 +181,8 @@ def get_targetNames(target, inputFolder):
 		return listOfDate
 	elif(target == "disease"):
 		return listOfDisease
+	elif(target == "id"):
+		return listOfId
 
 
 def get_targetedY(target, inputFolder):
@@ -192,6 +198,7 @@ def get_targetedY(target, inputFolder):
 	listOfCenter = []
 	listOfDate = []
 	listOfDisease = []
+	listOfId = []
 
 	for patientFile in listOfPatientFiles:
 		
@@ -218,6 +225,8 @@ def get_targetedY(target, inputFolder):
 				listOfDate.append(cmpt_color)
 			elif(target == "disease" and patient_disease == element):
 				listOfDisease.append(cmpt_color)
+			elif(target == "id" and patient_id == element):
+				listOfId.append(cmpt_color)
 			cmpt_color = cmpt_color + 1	
 
 	if(target == "center"):
@@ -229,6 +238,9 @@ def get_targetedY(target, inputFolder):
 	elif(target == "disease"):
 		target_disease = numpy.array(tuple(listOfDisease))
 		return target_disease
+	elif(target == "id"):
+		target_id = numpy.array(tuple(listOfId))
+		return target_id
 
 
 def quickPCA(data, y, target_name, projection, saveName, details, show):

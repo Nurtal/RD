@@ -56,7 +56,7 @@ if(command == "case_2"):
 
 	# Analyse eigenVector
 	write_matrixFromPatientFolder()
-	plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 2)
+	plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 3)
 
 
 

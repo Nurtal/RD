@@ -551,3 +551,163 @@ for k in diagToCount.keys():
 
 print diagToCount
 """
+
+# 32150092=>22
+#32152215
+ 
+"""
+listOfPatientFiles = glob.glob("DATA/FUSION/*.csv")
+for patientFile in listOfPatientFiles:
+	lenOfFile = 0
+	patientFileInArray = patientFile.split("/")
+	patientFileInArray = patientFileInArray[-1].split("_")
+	patient_ID = patientFileInArray[1]
+	data = open(patientFile, "r")
+	for line in data:
+		lenOfFile += 1
+	data.close()
+	print str(patient_ID) +"=>"+ str(lenOfFile) 
+"""
+
+
+
+
+"""
+import matplotlib.pyplot as plt
+def on_pick(event):
+    artist = event.artist
+    xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
+    x, y = artist.get_xdata(), artist.get_ydata()
+    ind = event.ind
+    print 'Artist picked:', event.artist
+    print '{} vertices picked'.format(len(ind))
+    print 'Pick between vertices {} and {}'.format(min(ind), max(ind)+1)
+    print 'x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse)
+    print 'Data point:', x[ind[0]], y[ind[0]]
+    print
+
+fig, ax = plt.subplots()
+tolerance = 15 # points
+ax.plot(range(20), 'ro-', picker=tolerance)
+fig.canvas.callbacks.connect('pick_event', on_pick)
+plt.show()
+"""
+
+
+
+
+
+def quickPCA_test(data, y, target_name, projection, saveName, details, show):
+	"""
+	-> perform and display pca
+	-> data is a numpy.array object
+	-> y is a numpy.array object (contient aaprtenance data, i.e centre, maladie ...)
+		Encoder en int
+	-> target_name : le nom des parametre en y
+	-> projection: 2d ou 3d
+	-> saveName is a string, name of the file where fig is saved
+	-> details is a boolean, should be 0 for normal pca, should be 1
+	   for Additional Graphics
+	 -> show is a boolean, 1 for display graphe 
+	"""
+
+	# Get data for the clickable function
+	centers_data = get_targetedY("center", "DATA/PATIENT")
+	targetName = get_targetNames("center", "DATA/PATIENT")
+	disease_data = get_targetedY("disease", "DATA/PATIENT")
+	diseaseName = get_targetNames("disease", "DATA/PATIENT")
+	id_data = get_targetedY("id", "DATA/PATIENT")
+	idName = get_targetNames("id", "DATA/PATIENT")
+
+
+	# Define the Clickable function
+	def onclick(event):
+		if(projection == "2d"):
+			tolerance = 1
+			cmpt = 0
+			for vector in C:
+				if(event.xdata >= vector[0] - tolerance and event.xdata <= vector[0] + tolerance and event.ydata >= vector[1] - tolerance and event.ydata <= vector[1] + tolerance):
+					print "ID: "+str(idName[id_data[cmpt]])
+					print "center: "+str(targetName[centers_data[cmpt]])
+					print "disease: "+str(diseaseName[disease_data[cmpt]])
+					print "---------------------"
+				cmpt += 1
+		elif(projection == "3d"):
+			tolerance = 1
+			cmpt = 0
+			z = ax.format_coord(event.xdata,event.ydata)
+			print z
+			for vector in C:
+				if(event.xdata >= vector[0] - tolerance and event.xdata <= vector[0] + tolerance and event.ydata >= vector[1] - tolerance and event.ydata <= vector[1] + tolerance):
+					print "ID: "+str(idName[id_data[cmpt]])
+					print "center: "+str(targetName[centers_data[cmpt]])
+					print "disease: "+str(diseaseName[disease_data[cmpt]])
+					print "---------------------"
+				cmpt += 1
+
+
+
+    # Perform PCA
+	pca = PCA()
+	C = pca.fit(data).transform(data)
+	covar = numpy.cov(data.transpose())
+	
+	# Additional Graphics
+	# -> Decroissance de la variance explique
+	# -> Diagramme des premieres composante principales
+	#-------------------------------------------------
+	if(details):
+
+		saveNameInArray = saveName.split(".")
+		subSaveName1 = str(saveNameInArray[0]) + "_variance1.jpg"
+		subSaveName2 = str(saveNameInArray[0]) + "_variance2.jpg"
+
+		plt.figure()
+		plt.plot(pca.explained_variance_ratio_)
+		if(show):
+			plt.show()
+		plt.savefig(subSaveName1)
+		plt.close()
+
+		plt.figure()
+		plt.boxplot(C[:,0:20])
+		if(show):
+			plt.show()
+		plt.savefig(subSaveName2)
+		plt.close()
+
+	if(projection == "2d"):
+		fig, ax = plt.subplots()
+		for c, i, target_name in zip("rgbcmykrgb", [0,1,2,3,4,5,6,7,8,9], target_name):
+			#plt.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
+			ax.scatter(C[y == i,0], C[y == i,1], c=c, label=target_name)
+		plt.legend()
+		plt.title("ACP")
+		plt.savefig(saveName)
+		if(show):
+			cid = fig.canvas.mpl_connect('button_press_event', onclick)
+			plt.show()
+		plt.close()
+	elif(projection =="3d"):
+		fig = plt.figure(1, figsize=(8, 6))
+		ax = Axes3D(fig, elev=-150, azim=110)
+		# ax.scatter(C[:, 0], C[:, 1], C[:, 2], c=y, label=target_name)
+		for c, i, target_name in zip("rgbcmykrgb", [0,1,2,3,4,5,6,7,8,9], target_name):
+			ax.scatter(C[y == i,0], C[y == i,1], C[y == i,2], c=c, label=target_name)
+		
+		
+
+		ax.set_title("ACP: trois premieres composantes")
+		ax.set_xlabel("Comp1")
+		ax.w_xaxis.set_ticklabels([])
+		ax.set_ylabel("Comp2")
+		ax.w_yaxis.set_ticklabels([])
+		ax.set_zlabel("Comp3")
+		ax.w_zaxis.set_ticklabels([])
+		plt.legend()
+		plt.savefig(saveName)
+
+		if(show):
+			cid = fig.canvas.mpl_connect('button_press_event', onclick)
+			plt.show()
+		plt.close()
