@@ -53,3 +53,13 @@ if(command == "case_2"):
 	check_patient()
 	save_data()
 	show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
+
+	# Analyse eigenVector
+	write_matrixFromPatientFolder()
+	plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 2)
+
+
+
+
+
+
