@@ -219,6 +219,7 @@ def fusion_panel(listOfPanels):
 	# Fusionner les fichiers avec un Id identique
 	# mais un centre differents (...)
 	# garde le nom du premier centre.
+	# Genere des effets centres !
 	listOfPatientFilesToCheck = glob.glob("DATA/FUSION/*.csv")
 	for patientToCheck in listOfPatientFilesToCheck:
 		patientToCheck_nameInArray = ""
@@ -232,7 +233,6 @@ def fusion_panel(listOfPanels):
 		patientToCheck_nameInArray = patientToCheck_nameInArray.split("_")
 		patientToCheck_id = patientToCheck_nameInArray[1]
 
-	
 		listOfPatientFiles = glob.glob("DATA/FUSION/*.csv")
 		for patientFile in listOfPatientFiles:
 			patient_nameInArray = ""
@@ -766,6 +766,36 @@ def add_diagnosticTag(panel):
 		newFileName = fileNameInArray[0]+"/"+patientDiagnostic+"_"+fileNameInArray[1]
 		shutil.copy(files, newFileName)
 		os.remove(files)
+
+
+
+def convert_DRFZ_to_CHARITE():
+	"""
+	-> Convert all "DRFZ" file inti "CHARITE" file
+	-> use it before try to fusion the data
+	"""
+	listOfPanel = ["PANEL_1", "PANEL_2", "PANEL_3", "PANEL_4", "PANEL_5", "PANEL_6", "PANEL_7", "PANEL_8", "PANEL_9"]
+	for panel in listOfPanel:
+		listOfPatient = glob.glob("DATA/"+str(panel)+"/*.csv")
+		for patientFile in listOfPatient:
+			if(platform.system() == "Linux"):
+				patientFileInArray = patientFile.split("/")
+			elif(platform.system() == "Windows"):
+				patientFileInArray = patientFile.split("\\")
+			patientFileName = patientFileInArray[-1]
+
+			patientFileNameInArray = patientFileName.split("_")
+			center = patientFileNameInArray[2]
+			date = patientFileNameInArray[3]
+			patient_id = patientFileNameInArray[1]
+
+			if(center == "DRFZ"):
+				print str(patient_id) + " => convert from DRFZ to CHARITE center"
+				newPatientFile = patientFile.replace("DRFZ", "CHARITE")
+				shutil.copy(patientFile, newPatientFile)
+				os.remove(patientFile)
+
+
 
 
 #---------------------#
