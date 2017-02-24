@@ -32,6 +32,7 @@ def show_PCA(inputFolder, target, projection, saveFile, dataType, details, show)
 	y = get_targetedY(target, inputFolder)
 	target_name = get_targetNames(target, inputFolder)
 	quickPCA(data, y, target_name, projection, saveFile, details, show)
+	#quickPCA_test(data, y, target_name, projection, saveFile, details, show)
 
 
 def show_cluster(inputFolder, numberOfCluster, saveFile):
