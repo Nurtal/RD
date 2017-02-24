@@ -711,3 +711,101 @@ def quickPCA_test(data, y, target_name, projection, saveName, details, show):
 			cid = fig.canvas.mpl_connect('button_press_event', onclick)
 			plt.show()
 		plt.close()
+
+
+
+
+"""
+# Xml file generation
+indexToVariableName = {}
+indexToPossibleValues = {}
+xmlFile = open("PARAMETERS/variable_description.xml", "w")
+xmlFile.write("<?xml version=\"1.0\"?>" + "\n")
+inputData = open("DATA/CYTOKINES/discreteMatrix_imputed.csv", "r")
+cmpt=0
+for line in inputData:
+	lineWithoutBackN = line.split("\n")
+	lineWithoutBackN = lineWithoutBackN[0]
+	lineInArray = lineWithoutBackN.split(";")
+	if(cmpt==0):
+		index = 0
+		for variable in lineInArray:
+			indexToVariableName[index] = variable
+			indexToPossibleValues[index] = []
+			index += 1
+	
+	else:
+		index = 0
+		for scalar in lineInArray:
+			if(scalar not in indexToPossibleValues[index]):
+				indexToPossibleValues[index].append(scalar)
+			index += 1
+
+	cmpt += 1
+inputData.close()
+
+
+for key in indexToVariableName.keys():
+	#elementToWrite = element.replace("\\", " ")
+	element = indexToVariableName[key]
+	listOfPossibleValues = indexToPossibleValues[key]
+	valuesToWrite = ""
+	print "<"+str(element)+">"
+	lineOfValues = "\t<Possible Values>"
+	for values in listOfPossibleValues:
+		valuesToWrite = valuesToWrite + values +";"
+	valuesToWrite = valuesToWrite[:-1]
+	lineOfValues += valuesToWrite
+	lineOfValues += "</Possible Values>"
+	print lineOfValues
+	print "\t<Discrete Values></Discrete Values>"
+	print "\t<Binary Values></Binary Values>"
+	print "\t<Observations></Observations>"
+
+
+	print "</"+str(element)+">"
+
+
+xmlFile.close()
+"""
+
+def write_xmlDescriptionFile(matrixFile):
+	"""
+	-> Write the Backbone of an xml file for the
+	   description of each variable found in matrixFile
+	-> xml file have to be fill with other functions.
+	-> TODO :
+		- add new tag less discrete variables
+	"""
+	indexToVariableName = {}
+	indexToPossibleValues = {}
+	xmlFile = open("PARAMETERS/variable_description.xml", "w")
+	xmlFile.write("<?xml version=\"1.0\"?>" + "\n")
+	inputData = open(matrixFile, "r")
+	cmpt=0
+	for line in inputData:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split(";")
+		if(cmpt==0):
+			index = 0
+			for variable in lineInArray:
+				indexToVariableName[index] = variable
+				indexToPossibleValues[index] = []
+				index += 1
+		cmpt += 1
+	inputData.close()
+
+	for key in indexToVariableName.keys():	
+		element = indexToVariableName[key]
+		xmlFile.write("<"+str(element)+">" +"\n")
+		xmlFile.write("\t<Type></Type>" +"\n")
+		xmlFile.write("\t<Possible Values></Possible Values>" +"\n") 
+		xmlFile.write("\t<Discrete Values></Discrete Values>" +"\n") 
+		xmlFile.write("\t<Binary Values></Binary Values>" +"\n") 
+		xmlFile.write("\t<Description></Description>" +"\n")
+		xmlFile.write("\t<Observations></Observations>" +"\n") 
+		xmlFile.write("</"+str(element)+">" +"\n") 
+
+	xmlFile.close()
+

@@ -965,30 +965,40 @@ def splitCohorteAccordingToDiagnostic(originalMatrixFile, patientIndexFile):
 			matrixFile = open(matrixFileName, "w")
 			matrixFile.write(header)
 			matrixFile.close()
+	else:
+		for diagnostic in IdToDiagnostic.values():
+			matrixFileName = "DATA/CYTOKINES/"+str(diagnostic)+".csv"
+			suffix = ".csv"
+			matrixFile = open(matrixFileName, "w")
+			matrixFile.write(header)
+			matrixFile.close()
+
 
 	# Remplir new matrix files
 	data = open(originalMatrixFile, "r")
 	cmpt_line = 0
 	for line in data:
 		line = line.split("\n")
-		lineInArray = line[0].split(";")
+		lineInArray = line[0].split("\t")
 		if(cmpt_line == 0):
 			cmpt_col = 0
 			for element in lineInArray:
-				if(element == "\Clinical\Sampling\OMICID"):
+				if("OMICID" in element):
 					indexOfPatientId = cmpt_col
 				cmpt_col += 1
 		else:
 			patientId = lineInArray[indexOfPatientId]
-			if(patientId != "\Clinical\Sampling\OMICID"):
-				try:
-					diagnostic = IdToDiagnostic[patientId]
-					destinationFileName = "DATA/CYTOKINES/"+str(diagnostic)+suffix
-					destinationFile = open(destinationFileName, "a")
-					destinationFile.write(line[0]+"\n")
-					destinationFile.close()
-				except:
-					print "[WARNINGS] => No Diagnostic found for patient "+str(patientId)
+			patientId = patientId.replace(" ", "")
+			patientId = patientId[1:]
+			try:
+				diagnostic = IdToDiagnostic[patientId]
+				destinationFileName = "DATA/CYTOKINES/"+str(diagnostic)+suffix
+				destinationFile = open(destinationFileName, "a")
+				destinationFile.write(line[0]+"\n")
+				destinationFile.close()
+				
+			except:
+				print "[WARNINGS] => No Diagnostic found for patient "+str(patientId)
 		cmpt_line +=1
 	data.close()
 

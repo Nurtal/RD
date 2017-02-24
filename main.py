@@ -173,11 +173,20 @@ if(command == "run_pattern_mining"):
 	write_decryptedRulesFiles(rulesFile)
 
 
+if(command == "generate_data_for_NN"):
+	####################################
+	# Generate Data for the NN Project #
+	####################################
+	
+	generate_binaryDiscretizeData_forNN()
+
 
 
 #-------#
 # TRASH ###########################################################################
 #-------#
+
+
 
 
 

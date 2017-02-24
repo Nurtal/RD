@@ -1240,3 +1240,113 @@ def convert_NonAvailableClinicalVariable_forControl(inputMatrixFileName):
 		cmpt +=1
 	outputMatrix.close()
 	matrixFile.close()
+
+
+def generate_binaryDiscretizeData_forNN():
+	"""
+	-> Generate clean files (matrix and label) in
+	DATA/MATRIX directory for NN use
+
+	TODO:
+		-> disretization on more variable
+	"""
+
+	# Get the list of variable to convert
+	data = open("DATA/CYTOKINES/discreteMatrix_imputed.csv", "r")
+	indexToVariableName = {}
+	indexOfVariableToSave = []
+	cmpt = 0
+	for line in data:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split(";")
+		#print line
+		if(cmpt==0):
+			index = 0
+			for variable in lineInArray:
+				indexToVariableName[index] = variable
+				index += 1
+
+		else:
+			index = 0
+			for scalar in lineInArray:
+				if(scalar == "No" or scalar == "yes"):
+					if(index not in indexOfVariableToSave):
+						indexOfVariableToSave.append(index)
+				
+				elif(scalar == "negative"):
+					if(index not in indexOfVariableToSave):
+						indexOfVariableToSave.append(index)
+
+				elif(scalar == "Female" or scalar == "Male"):
+					if(index not in indexOfVariableToSave):
+						indexOfVariableToSave.append(index)
+				
+				#if(indexToVariableName[index] == "\\Clinical\\Vascular\\MHGANGRENE"):
+				#	print scalar
+
+				index +=1
+
+		cmpt += 1
+	data.close()
+
+
+	# Clean list of candidate
+	data = open("DATA/CYTOKINES/discreteMatrix_imputed.csv", "r")
+	cmpt = 0
+	for line in data:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split(";")
+		lineIsSuspect = 0
+
+		if(cmpt!=0):
+			index = 0
+			for scalar in lineInArray:
+				if(scalar == "Unknown" or scalar == "Past" or scalar == "Present"):
+					#print indexToVariableName[96]
+					lineIsSuspect = 1
+					if(index in indexOfVariableToSave):
+						indexOfVariableToSave.remove(index)
+
+				index +=1
+
+		cmpt += 1
+	data.close()
+
+
+	# Write new data file
+	# Write label file
+	data = open("DATA/CYTOKINES/discreteMatrix_imputed.csv", "r")
+	newData = open("DATA/MATRIX/discrete_processed_binary.csv", "w")
+	labelFile = open("DATA/MATRIX/discrete_processed_binary_label.csv", "w")
+	cmpt = 0
+	for line in data:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split(";")
+		newLine = ""
+
+		if(cmpt!=0):
+			index = 0
+			for scalar in lineInArray:
+				if(index == 96):
+					labelFile.write(scalar+"\n")
+				if(index in indexOfVariableToSave):
+					if(scalar == "No" or scalar == "negative" or scalar == "Female" or scalar == "control"):
+						newScalar = "0;"
+					elif(scalar == "Yes" or scalar == "Male" or scalar == "positive"):
+						newScalar = '1;'
+					else:
+						print "[!] can't attribute binary value to "+str(scalar)+ " ("+str(indexToVariableName[index])+")"
+
+					newLine = newLine + newScalar
+					
+				index +=1
+			newLine = newLine[:-1]
+			newData.write(newLine+"\n")
+		cmpt += 1
+
+	labelFile.close()
+	newData.close()
+	data.close()
