@@ -36,9 +36,9 @@ def write_xmlDescriptionFile(matrixFile):
 		element = indexToVariableName[key]
 		xmlFile.write("<"+str(element)+">" +"\n")
 		xmlFile.write("\t<Type></Type>" +"\n")
-		xmlFile.write("\t<Possible Values></Possible Values>" +"\n") 
-		xmlFile.write("\t<Discrete Values></Discrete Values>" +"\n") 
-		xmlFile.write("\t<Binary Values></Binary Values>" +"\n") 
+		xmlFile.write("\t<Possible_Values></Possible_Values>" +"\n") 
+		xmlFile.write("\t<Discrete_Values></Discrete_Values>" +"\n") 
+		xmlFile.write("\t<Binary_Values></Binary_Values>" +"\n") 
 		xmlFile.write("\t<Description></Description>" +"\n")
 		xmlFile.write("\t<Observations></Observations>" +"\n") 
 		xmlFile.write("</"+str(element)+">" +"\n") 
