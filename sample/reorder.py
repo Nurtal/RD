@@ -1350,3 +1350,20 @@ def generate_binaryDiscretizeData_forNN():
 	labelFile.close()
 	newData.close()
 	data.close()
+
+
+
+
+def remove_data_folders():
+	"""
+	-> Remove Folders:
+		- DATA
+		- PARAMETERS
+		- IMAGES
+		- REPORT
+		- RESULTATS
+	-> To use before a commit
+	"""
+	listOfFolder = ["DATA", "PARAMETERS", "IMAGES", "REPORT", "RESULTATS"]
+	for folder in listOfFolder:
+		shutil.rmtree(folder)

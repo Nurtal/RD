@@ -180,14 +180,18 @@ if(command == "generate_data_for_NN"):
 	
 	generate_binaryDiscretizeData_forNN()
 
+if(command == "remove_data"):
+	##################################
+	# Remove folders containing data #
+	# use it just before commit		 #
+	##################################
+	remove_data_folders()
+
 
 
 #-------#
 # TRASH ###########################################################################
 #-------#
-
-
-
 
 
 
