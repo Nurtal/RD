@@ -166,6 +166,96 @@ def set_typeValueFrom(matrixFile):
 
 
 
+
+
+def set_possibleValuesFrom(matrixFile):
+	"""
+	-> Edit the PARAMETERS/variable_description.xml file, 
+	   set the Possible_Values line with an array of possible values.
+	-> Determination of possible values is perform from the matrixFile
+	-> If a parameter is present in matrixFile but is not in original xml
+	   file the parameter is ignore (i.e you should give the same input as write_xmlDescriptionFile
+	   	function)
+
+	-> TODO:
+		- perfrom possible value search only on discrete data
+	"""
+
+	myDataToParse = open(matrixFile, "r")
+	indexToVariableName = {}
+	indexToPossibleValues = {}
+	variableNameToPossibleValues = {}
+	cmpt=0
+	for line in myDataToParse:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		lineInArray = lineWithoutBackN.split(";")
+		if(cmpt==0):
+			index = 0
+			for variable in lineInArray:
+				indexToVariableName[index] = variable
+				indexToPossibleValues[index] = []
+				index += 1
+		else:
+			index = 0
+			for scalar in lineInArray:
+				if(scalar not in indexToPossibleValues[index]):
+					indexToPossibleValues[index].append(scalar)
+				index += 1
+		cmpt += 1
+	myDataToParse.close()
+
+
+	for key in indexToPossibleValues.keys():
+		variableName = indexToVariableName[key]
+		listOfValues = indexToPossibleValues[key]
+		variableNameToPossibleValues[variableName] = listOfValues
+
+	xmlFile = open("PARAMETERS/variable_description.xml", "r")
+	xmlFile_edited = open("PARAMETERS/variable_description_edited.xml", "w")
+	cmpt = 0
+	record = 0
+	variableOnLine = "undef"
+	for line in xmlFile:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+		
+		newLine = lineWithoutBackN
+
+		if(cmpt != 0):
+			for variable in variableNameToPossibleValues.keys():
+				if(lineWithoutBackN == "<"+variable+">"):
+					variableOnLine = variable
+					record = 1
+					
+				if(lineWithoutBackN == "</"+variable+">"):
+					record = 0
+
+		if(record):
+			if(lineWithoutBackN == "\t<Possible_Values></Possible_Values>"):
+				possibleValueInString = ""
+				for element in variableNameToPossibleValues[variableOnLine]:
+					possibleValueInString += element + ";"
+				possibleValueInString = possibleValueInString[:-1]
+				newLine = "\t<Possible_Values>"+possibleValueInString+"</Possible_Values>"
+			
+		# Write into tmp file
+		xmlFile_edited.write(newLine+"\n")
+		cmpt += 1
+
+	xmlFile_edited.close()
+	xmlFile.close()
+
+	# remove source file and rename new file
+	os.remove("PARAMETERS/variable_description.xml")
+	os.rename("PARAMETERS/variable_description_edited.xml", "PARAMETERS/variable_description.xml")
+
+
+
+
+
 # TEST SPACE
 write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+
