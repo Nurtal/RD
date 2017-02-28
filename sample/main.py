@@ -11,6 +11,7 @@ from report import *
 from preprocessing import *
 from patternMining import *
 from cytokines import *
+import describe
 import sys
 
 
@@ -32,7 +33,9 @@ listOfCommand = ["program_size",
 				 "describe_autoantibodies",
 				 "process_associationRules",
 				 "describe_discrete_variable",
-				 "run_pattern_mining" ]
+				 "run_pattern_mining",
+				 "remove_data",
+				 "build_descriptionFile" ]
 
 
 
@@ -43,7 +46,7 @@ listOfCommand = ["program_size",
 #-----------------#
 if(command == "program_size"):
 	machin = count_line()
-	print "program contain "+str(machin)+" lines."
+	print "[*] program contain "+str(machin)+" lines."
 
 if(command == "display_commands"):
 	for element in listOfCommand:
@@ -186,6 +189,20 @@ if(command == "remove_data"):
 	# use it just before commit		 #
 	##################################
 	remove_data_folders()
+
+if(command == "build_descriptionFile"):
+	#################################################
+	# Write xml description file from a matrix file #
+	# First step for a "clean" discretization       #
+	################################################# 
+	matrixFileName = "DATA/CYTOKINES/discreteMatrix_imputed.csv"
+	print "[+] Write xml description file from "+str(matrixFileName)
+	describe.write_xmlDescriptionFile(matrixFileName)
+	describe.set_typeValueFrom(matrixFileName)
+	describe.set_possibleValuesFrom(matrixFileName)
+	describe.set_DiscreteValues()
+	describe.set_BinaryValues()
+	print "[*] xml description file complete"
 
 
 

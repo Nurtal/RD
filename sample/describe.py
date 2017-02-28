@@ -309,13 +309,84 @@ def set_DiscreteValues():
 
 
 
+
+def set_BinaryValues():
+	"""
+	-> Edit the PARAMETERS/variable_description.xml file, 
+	   set the Binary_Values line from the array of discrete values.
+	-> WARNINGS! force the conversion of any discrete value into 0 or 1, 
+	   for instance NA values are considered 0 (huge assumption), discretisation
+	   based on the binary values may introduce bias.
+	"""
+
+	listOfNAValues = ["NA", "N.A", "N/A", "Unknown"]
+	listOfPositiveDiscrete = ["Male", "pos", "positive", "yes", "Yes", 1, "Present", "1"]
+	listOfNegativeDiscrete = ["Female", "neg", "negative", "no", "No", 0, "Control", "control", "Past", "0"]
+
+	xmlfFile = open("PARAMETERS/variable_description.xml", "r")
+	xmlFile_edited = open("PARAMETERS/variable_description_edited.xml", "w")
+
+	line_edited = "\t<Binary_Values></Binary_Values>"
+	variableIsDiscrete = 0
+	for line in xmlfFile:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+
+		newLine = lineWithoutBackN
+
+		if("\t<Type>" in line):
+			lineInArray = lineWithoutBackN.split("<Type>")
+			lineInArray = lineInArray[1].split("</Type>")
+			variable_type = lineInArray[0]
+			if(variable_type == "Discrete"):
+				variableIsDiscrete = 1
+			else:
+				variableIsDiscrete = 0
+
+		if(variableIsDiscrete):
+
+			if("\t<Discrete_Values>" in lineWithoutBackN):
+				lineInArray = lineWithoutBackN.split("<Discrete_Values>")
+				lineInArray = lineInArray[1].split("</Discrete_Values>")
+				lineInArray = lineInArray[0].split(";")
+				listOfValues = lineInArray
+				BinaryValueInString = ""
+				for value in listOfValues:
+					BinaryValue = ""
+					if(value in listOfNAValues):
+						BinaryValue = 0 # Huge assumption
+					elif(value in listOfPositiveDiscrete):
+						BinaryValue = 1
+					elif(value in listOfNegativeDiscrete):
+						BinaryValue = 0
+					else:
+						BinaryValue = "ERROR"
+					BinaryValueInString += str(BinaryValue) +";"
+				BinaryValueInString = BinaryValueInString[:-1]
+				line_edited = "\t<Binary_Values>"+BinaryValueInString+"</Binary_Values>"
+
+		else:
+			line_edited = "\t<Binary_Values></Binary_Values>"
+
+		if("\t<Binary_Values>" in line):
+			xmlFile_edited.write(line_edited + "\n")
+		else:
+			xmlFile_edited.write(newLine + "\n")
+
+	xmlFile_edited.close()
+	xmlfFile.close()
+
+	# remove source file and rename new file
+	os.remove("PARAMETERS/variable_description.xml")
+	os.rename("PARAMETERS/variable_description_edited.xml", "PARAMETERS/variable_description.xml")
+
+
+
+
 # TEST SPACE
 write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_DiscreteValues()
-
-
-
-
+set_BinaryValues()
 
