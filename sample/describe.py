@@ -253,9 +253,69 @@ def set_possibleValuesFrom(matrixFile):
 
 
 
+def set_DiscreteValues():
+	"""
+	-> Edit the PARAMETERS/variable_description.xml file, 
+	   set the Discrete_Values line with an array of possible values.
+	-> Determination of possible values is perform from the Possible_Values line
+	"""
+
+	listOfNAValues = ["NA", "N.A", "N/A", "Unknown"]
+	listOfPositiveDiscrete = ["Male", "pos", "positive", "yes", "Yes", 1]
+	listOfNegativeDiscrete = ["Female", "neg", "negative", "no", "No", 0, "Control", "control"]
+
+	xmlfFile = open("PARAMETERS/variable_description.xml", "r")
+	xmlFile_edited = open("PARAMETERS/variable_description_edited.xml", "w")
+
+	line_edited = "\t<Discrete_Values></Discrete_Values>"
+	for line in xmlfFile:
+		lineWithoutBackN = line.split("\n")
+		lineWithoutBackN = lineWithoutBackN[0]
+
+		newLine = lineWithoutBackN
+
+		if("\t<Possible_Values>" in lineWithoutBackN):
+			lineInArray = lineWithoutBackN.split("<Possible_Values>")
+			lineInArray = lineInArray[1].split("</Possible_Values>")
+			lineInArray = lineInArray[0].split(";")
+			listOfValues = lineInArray
+			discreteValueInString = ""
+			for value in listOfValues:
+				discreteValue = ""
+				if(value in listOfNAValues):
+					discreteValue = "NA"
+				elif(value in listOfPositiveDiscrete):
+					discreteValue = 1
+				elif(value in listOfNegativeDiscrete):
+					discreteValue = 0
+				else:
+					discreteValue = value
+				discreteValueInString += str(discreteValue) +";"
+			discreteValueInString = discreteValueInString[:-1]
+			line_edited = "\t<Discrete_Values>"+discreteValueInString+"</Discrete_Values>"
+
+		if("\t<Discrete_Values>" in line):
+			xmlFile_edited.write(line_edited + "\n")
+		else:
+			xmlFile_edited.write(newLine + "\n")
+
+	xmlFile_edited.close()
+	xmlfFile.close()
+
+	# remove source file and rename new file
+	os.remove("PARAMETERS/variable_description.xml")
+	os.rename("PARAMETERS/variable_description_edited.xml", "PARAMETERS/variable_description.xml")
+
+
+
 
 # TEST SPACE
 write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
 set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+set_DiscreteValues()
+
+
+
+
 
