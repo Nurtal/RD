@@ -384,9 +384,9 @@ def set_BinaryValues():
 
 
 # TEST SPACE
-write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-set_DiscreteValues()
-set_BinaryValues()
+#write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+#set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+#set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+#set_DiscreteValues()
+#set_BinaryValues()
 
