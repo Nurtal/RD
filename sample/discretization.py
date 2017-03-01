@@ -7,7 +7,7 @@ discretization
 # Brute discretization, according to binary values
 description_file_name = "PARAMETERS/variable_description.xml"
 data_file_name = "DATA/CYTOKINES/discreteMatrix_imputed.csv"
-
+variableToPossibleValueToBinaryValue = {}
 
 data = open(data_file_name, "r")
 cmpt = 0
@@ -22,6 +22,7 @@ for line in data:
 		index = 0
 		for variable in lineInArray:	
 			indexToVariableName[index] = variable
+			variableToPossibleValueToBinaryValue[variable] = {}
 			index += 1
 	else:
 		index = 0
