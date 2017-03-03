@@ -54,8 +54,8 @@ if(command == "display_commands"):
                                                                                                                                                                                                                                                                                                                                         
 if(command == "build_cytokines_data"):
 	CreateIndexFile()
-	CreateMatrix()
-	format_OMICID()
+	CreateMatrix("DATA/CYTOKINES/clinical_i2b2trans.txt", "DATA/CYTOKINES/matrix.csv")
+	format_OMICID("DATA/CYTOKINES/matrix.csv")
 	extractBinaryMatrix()
 	extractQuantitativeMatrix()
 

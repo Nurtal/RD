@@ -18,7 +18,7 @@ from preprocessing import *
 import scipy.stats as stats
 import platform
 
-def CreateMatrix():
+def CreateMatrix(input_file_name, output_file_name):
 	"""
 	IN PROGRESS
 
@@ -30,7 +30,7 @@ def CreateMatrix():
 	"""
 
 	# catch header line
-	cytokineFile = open("DATA/CYTOKINES/clinical_i2b2trans.txt")
+	cytokineFile = open(input_file_name)
 	listOfPatient = []
 	cmpt = 0
 	for line in cytokineFile:
@@ -48,7 +48,7 @@ def CreateMatrix():
 	indexInHeader = 0
 	for element in headerLineInArray:
 		variable = []
-		cytokineFile = open("DATA/CYTOKINES/clinical_i2b2trans.txt")
+		cytokineFile = open(input_file_name)
 		listOfPatient = []
 		cmpt = 0
 		for line in cytokineFile:
@@ -86,8 +86,8 @@ def CreateMatrix():
 
 
 	# Ecriture des donnees filtrees dans un nouveau fichier
-	matrixFile = open("DATA/CYTOKINES/matrix.csv", "w")
-	rawDataFile = open("DATA/CYTOKINES/clinical_i2b2trans.txt")
+	matrixFile = open(output_file_name, "w")
+	rawDataFile = open(input_file_name)
 
 	for line in rawDataFile:
 		lineToWrite = ""
@@ -451,7 +451,7 @@ def CreateIndexFile():
 
 
 
-def format_OMICID():
+def format_OMICID(input_file_name):
 	"""
 	-> Format OMIC ID the matrix.csv file, rewrite
 	   the file with a functionnal OMIC ID (i.e remove the "N"
@@ -460,16 +460,19 @@ def format_OMICID():
 
 	"""
 
+	tmp_file_name = input_file_name.split(".")
+	tmp_file_name = tmp_file_name[0]+"_tmp.csv"
+
 	# copy the matrix file
-	inputData = open("DATA/CYTOKINES/matrix.csv", "r")
-	tmpData = open("DATA/CYTOKINES/matrix_tmp.csv", "w")
+	inputData = open(input_file_name, "r")
+	tmpData = open(tmp_file_name, "w")
 	for line in inputData:
 		tmpData.write(line)
 	inputData.close()
 	tmpData.close()
 
-	matrixData = open("DATA/CYTOKINES/matrix_tmp.csv", "r")
-	matrixFormated = open("DATA/CYTOKINES/matrix.csv", "w")
+	matrixData = open(tmp_file_name, "r")
+	matrixFormated = open(input_file_name, "w")
 	listOfIndex = []
 	cmpt = 0
 	id_index = "undef"
@@ -505,7 +508,7 @@ def format_OMICID():
 	matrixData.close()
 
 	# remove tmp file
-	os.remove("DATA/CYTOKINES/matrix_tmp.csv")
+	os.remove(tmp_file_name)
 
 
 

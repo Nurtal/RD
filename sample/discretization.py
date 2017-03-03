@@ -81,6 +81,9 @@ def binarization(data_file_name, conversion_dict):
 		- clean code
 	"""
 
+	output_file_name = data_file_name.split(".")
+	output_file_name = output_file_name[0]+"_binary.csv"
+
 	data = open(data_file_name, "r")
 	cmpt = 0
 	indexToVariableName = {}
@@ -118,7 +121,7 @@ def binarization(data_file_name, conversion_dict):
 
 	# Perform the conversion
 	data = open(data_file_name, "r")
-	data_converted = open("DATA/CYTOKINES/discreteMatrix_imputed_binary.csv", "w")
+	data_converted = open(output_file_name, "w")
 	cmpt =0
 	header_new = ""
 	for line in data:

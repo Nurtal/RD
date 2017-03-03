@@ -6,6 +6,8 @@ from report import *
 from preprocessing import *
 from patternMining import *
 from cytokines import *
+import describe
+import discretization
 import sys
 
 
@@ -58,6 +60,32 @@ if(command == "case_2"):
 	write_matrixFromPatientFolder()
 	plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 3)
 
+
+#######################################
+# PREPARATION DATA FOR NEURAL NETWORK #
+#######################################
+if(command == "prepare_data"):
+
+	raw_data_file = "DATA/MATRIX/clinical_i2b2trans.txt"
+	matrixFileName = "DATA/MATRIX/matrix.csv"
+
+	print "[+] Format data from "+str(raw_data_file)
+	CreateMatrix(raw_data_file, matrixFileName)
+	format_OMICID(matrixFileName)
+	print "[*] New file "+str(matrixFileName)+" created"
+
+	print "[+] Write xml description file from "+str(matrixFileName)
+	describe.write_xmlDescriptionFile(matrixFileName)
+	describe.set_typeValueFrom(matrixFileName)
+	describe.set_possibleValuesFrom(matrixFileName)
+	describe.set_DiscreteValues()
+	describe.set_BinaryValues()
+	print "[*] Xml description file complete"
+
+	print "[+] Initiate binarization for "+str(matrixFileName)
+	conversion_dict = discretization.create_conversion_dict()
+	discretization.binarization(matrixFileName, conversion_dict)
+	print "[*] Binarization complete"
 
 
 
