@@ -313,11 +313,20 @@ def set_DiscreteValues():
 def set_BinaryValues():
 	"""
 	-> Edit the PARAMETERS/variable_description.xml file, 
-	   set the Binary_Values line from the array of discrete values.
+	   set the Binary_Values line from the array of discrete values for
+	   discrete variable and from the array of possible values for the
+	   continuous variable
 	-> WARNINGS! force the conversion of any discrete value into 0 or 1, 
 	   for instance NA values are considered 0 (huge assumption), discretisation
 	   based on the binary values may introduce bias.
+	-> WARNINGS! Binary values for continuous variable are poorly informative,
+	   a value is set to 0 if <= to the mean of the variable, else set to 1.
+	
+	-> to perform binarization on discrete variable only, set 
+	   grant_binarization_on_cotinuous_variables to 0 
 	"""
+
+	grant_binarization_on_cotinuous_variables = 0
 
 	listOfNAValues = ["NA", "N.A", "N/A", "Unknown"]
 	listOfPositiveDiscrete = ["Male", "pos", "positive", "yes", "Yes", 1, "Present", "1"]
@@ -366,8 +375,51 @@ def set_BinaryValues():
 				line_edited = "\t<Binary_Values>"+BinaryValueInString+"</Binary_Values>"
 
 		else:
-			line_edited = "\t<Binary_Values></Binary_Values>"
+			#------------------------------------------------#
+			# => Operation on Continuous variables           #
+			#        WORK IN PROGRESS                        # 
+			# - very basic process: write 0 if value <= mean,#
+			#   else 1.                                      #
+			# - Assume NA i.e 0 (again, HUGE assemption ...) #
+			#------------------------------------------------#
 
+			if(grant_binarization_on_cotinuous_variables):
+
+				mean = "undef"
+				if("\t<Possible_Values>" in lineWithoutBackN):
+					lineInArray = lineWithoutBackN.split("<Possible_Values>")
+					lineInArray = lineInArray[1].split("</Possible_Values>")
+					lineInArray = lineInArray[0].split(";")
+					listOfValues = lineInArray
+					binary_values_string = ""
+					total = 0
+					for value in listOfValues:
+						value_cast = 0
+						try:
+							value_cast = float(value)
+						except:
+							value_cast = 0
+						total += value_cast
+
+					mean = float(total) / float(len(listOfValues))
+
+					for value in listOfValues:
+						value_cast = 0
+						value_binary = "ERROR"
+						try:
+							value_cast = float(value)
+							if(value_cast <= mean):
+								value_binary = 0
+							else:
+								value_binary = 1
+						except:
+							value_binary = 0
+
+						binary_values_string += str(value_binary) + ";"
+					binary_values_string = binary_values_string[:-1]
+					line_edited = "\t<Binary_Values>"+binary_values_string+"</Binary_Values>"
+			else:
+				line_edited = "\t<Binary_Values></Binary_Values>"
 		if("\t<Binary_Values>" in line):
 			xmlFile_edited.write(line_edited + "\n")
 		else:
@@ -384,9 +436,10 @@ def set_BinaryValues():
 
 
 # TEST SPACE
-#write_xmlDescriptionFile("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-#set_typeValueFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
-#set_possibleValuesFrom("DATA/CYTOKINES/discreteMatrix_imputed.csv")
+#write_xmlDescriptionFile("DATA/MATRIX/matrix.csv")
+#set_typeValueFrom("DATA/MATRIX/matrix.csv")
+#set_possibleValuesFrom("DATA/MATRIX/matrix.csv")
 #set_DiscreteValues()
 #set_BinaryValues()
+
 
