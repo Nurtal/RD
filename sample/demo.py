@@ -66,6 +66,7 @@ if(command == "prepare_data"):
 
 	raw_data_file = "DATA/MATRIX/clinical_i2b2trans.txt"
 	matrixFileName = "DATA/MATRIX/matrix.csv"
+	grant_binarization_on_cotinuous_variables = 0
 
 	print "[+] Format data from "+str(raw_data_file)
 	cytokines.CreateMatrix(raw_data_file, matrixFileName)
@@ -77,7 +78,7 @@ if(command == "prepare_data"):
 	describe.set_typeValueFrom(matrixFileName)
 	describe.set_possibleValuesFrom(matrixFileName)
 	describe.set_DiscreteValues()
-	describe.set_BinaryValues()
+	describe.set_BinaryValues(grant_binarization_on_cotinuous_variables)
 	print "[*] Xml description file complete"
 
 	print "[+] Initiate binarization for "+str(matrixFileName)
