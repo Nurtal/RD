@@ -1,13 +1,11 @@
 #-------------#
 # IMPORTATION #######################################################################
 #-------------#
-from procedure import *
-from report import *
-from preprocessing import *
-from patternMining import *
-from cytokines import *
+import procedure
 import describe
 import discretization
+import reorder
+import cytokines
 import sys
 
 
@@ -26,15 +24,15 @@ if(command == "case_1"):
 	# Preprocessing
 	panel = "PANEL_9"
 	print "=> " +str(panel)
-	clean_folders("ALL")
-	checkAndFormat("DATA/"+panel, "DATA/PATIENT")
+	reorder.clean_folders("ALL")
+	procedure.checkAndFormat("DATA/"+panel, "DATA/PATIENT")
 	#remove_typeOfParameter("PROPORTION")
-	remove_typeOfParameter("ABSOLUTE")
-	remove_typeOfParameter("RATIO")
-	remove_typeOfParameter("MFI")
-	check_patient()
-	save_data()
-	show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
+	reorder.remove_typeOfParameter("ABSOLUTE")
+	reorder.remove_typeOfParameter("RATIO")
+	reorder.remove_typeOfParameter("MFI")
+	reorder.check_patient()
+	reorder.save_data()
+	procedure.show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
 
 
 ###################################
@@ -42,23 +40,23 @@ if(command == "case_1"):
 ###################################
 if(command == "case_2"):
 	# Preprocessing
-	clean_folders("ALL")
+	reorder.clean_folders("ALL")
 	listOfPanelToConcat = ["PANEL_1","PANEL_2","PANEL_3", "PANEL_4", "PANEL_5", "PANEL_6"]
-	convert_DRFZ_to_CHARITE()
-	fusion_panel(listOfPanelToConcat)
-	checkAndFormat("DATA/FUSION", "DATA/PATIENT")
+	reorder.convert_DRFZ_to_CHARITE()
+	reorder.fusion_panel(listOfPanelToConcat)
+	procedure.checkAndFormat("DATA/FUSION", "DATA/PATIENT")
 	#remove_typeOfParameter("PROPORTION")
-	remove_typeOfParameter("ABSOLUTE")
-	remove_typeOfParameter("RATIO")
-	remove_typeOfParameter("MFI")
-	check_patient()
-	save_data()
+	reorder.remove_typeOfParameter("ABSOLUTE")
+	reorder.remove_typeOfParameter("RATIO")
+	reorder.remove_typeOfParameter("MFI")
+	reorder.check_patient()
+	reorder.save_data()
 	
-	show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
+	procedure.show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
 
 	# Analyse eigenVector
-	write_matrixFromPatientFolder()
-	plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 3)
+	reorder.write_matrixFromPatientFolder()
+	cytokines.plot_composanteOfEigenVector("DATA/CYTOKINES/matrixTestFromCyto.csv", 7, 3)
 
 
 #######################################
@@ -70,8 +68,8 @@ if(command == "prepare_data"):
 	matrixFileName = "DATA/MATRIX/matrix.csv"
 
 	print "[+] Format data from "+str(raw_data_file)
-	CreateMatrix(raw_data_file, matrixFileName)
-	format_OMICID(matrixFileName)
+	cytokines.CreateMatrix(raw_data_file, matrixFileName)
+	cytokines.format_OMICID(matrixFileName)
 	print "[*] New file "+str(matrixFileName)+" created"
 
 	print "[+] Write xml description file from "+str(matrixFileName)
