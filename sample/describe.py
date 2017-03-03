@@ -310,7 +310,7 @@ def set_DiscreteValues():
 
 
 
-def set_BinaryValues():
+def set_BinaryValues(grant_binarization_on_cotinuous_variables):
 	"""
 	-> Edit the PARAMETERS/variable_description.xml file, 
 	   set the Binary_Values line from the array of discrete values for
@@ -325,8 +325,6 @@ def set_BinaryValues():
 	-> to perform binarization on discrete variable only, set 
 	   grant_binarization_on_cotinuous_variables to 0 
 	"""
-
-	grant_binarization_on_cotinuous_variables = 0
 
 	listOfNAValues = ["NA", "N.A", "N/A", "Unknown"]
 	listOfPositiveDiscrete = ["Male", "pos", "positive", "yes", "Yes", 1, "Present", "1"]
@@ -440,6 +438,6 @@ def set_BinaryValues():
 #set_typeValueFrom("DATA/MATRIX/matrix.csv")
 #set_possibleValuesFrom("DATA/MATRIX/matrix.csv")
 #set_DiscreteValues()
-#set_BinaryValues()
+#set_BinaryValues(0)
 
 
