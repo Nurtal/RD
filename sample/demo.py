@@ -6,6 +6,7 @@ import describe
 import discretization
 import reorder
 import cytokines
+import analysis
 import sys
 
 
@@ -88,5 +89,47 @@ if(command == "prepare_data"):
 
 
 
+################
+# FAST CLUSTER #
+################
+if(command == "clustering"):
 
+	# Init parameters
+	data_file_name = "test1.txt"
+	line_delimiter = "\t"
+	header_in_file = 1
+	number_of_cluster = 2
+	saveFile = "test.png"
+	matrix = []
 
+	# Parse file and create matrix
+	data_file = open(data_file_name, "r")
+	cmpt = 0
+	for line in data_file:
+		line_parsed = line.split("\n")
+		line_parsed = line_parsed[0]
+		line_array = line_parsed.split(line_delimiter)
+		vector = []
+		vector_can_be_add = 1
+
+		if(header_in_file and cmpt == 0):
+			print "[+] Pass header"
+		else:
+			for scalar in line_array:
+				try:
+					scalar_int = float(scalar)
+					vector.append(float(scalar))
+				except:
+					print "[!] Can't cast "+ str(scalar) + " into int"
+					vector_can_be_add = 0
+
+			# Need at least 3 coordinates and all vectors
+			# have to be of the same size
+			if(len(vector) > 2 and vector_can_be_add):
+				matrix.append(vector)
+
+		cmpt += 1
+	data_file.close()
+
+	# Kmeans
+	analysis.quickClustering(matrix, number_of_cluster, saveFile)
