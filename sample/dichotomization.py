@@ -101,6 +101,38 @@ def create_disjonctTable_for_matrix(data, number_of_interval):
 
 	return variable_index_to_table
 
+
+def dichotomize(data, tables):
+	"""
+	-> perform dichotomization on data, using tables.
+	-> data is a matrix
+	-> tables is a listof disjonctif table (i.e 2D array)
+	-> return a new dichotomized matrix
+	"""
+	data_new = []
+	for vector in data:
+		variable_index = 1
+		vector_new = []
+		for scalar in vector:
+			scalar_new = []
+			interval_list = tables[variable_index]
+			for interval in interval_list:
+				interval_min = interval[0]
+				interval_max = interval[1]
+				if(scalar >= interval_min and scalar <= interval_max):
+					scalar_new.append(1)
+				else:
+					scalar_new.append(0)
+			vector_new.append(scalar_new)
+			variable_index += 1
+		vector_new_1D = []
+		for elt in vector_new:
+			vector_new_1D += elt
+		data_new.append(vector_new_1D)
+
+	return data_new
+
+
 """TEST SPACE"""
 data = numpy.array([[45, 10, 23,0], [21,12,87,5],[87,2,56,10]])
 variable = numpy.array([0,1,5,6,4,10])
@@ -114,3 +146,6 @@ table_test = create_disjonct_table(variable, "standard", 5)
 tables_test = create_disjonctTable_for_matrix(data, 5)
 
 # use disjonct table for dichotomization
+#	- use matrix and table as input
+#	- return a new matrix
+truc = dichotomize(data, tables_test)
