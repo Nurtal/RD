@@ -23,14 +23,14 @@ command = sys.argv[1]
 
 if(command == "case_1"):
 	# Preprocessing
-	panel = "PANEL_9"
+	panel = "PANEL_1"
 	print "=> " +str(panel)
 	reorder.clean_folders("ALL")
 	procedure.checkAndFormat("DATA/"+panel, "DATA/PATIENT")
 	#remove_typeOfParameter("PROPORTION")
 	reorder.remove_typeOfParameter("ABSOLUTE")
-	reorder.remove_typeOfParameter("RATIO")
-	reorder.remove_typeOfParameter("MFI")
+	#reorder.remove_typeOfParameter("RATIO")
+	#reorder.remove_typeOfParameter("MFI")
 	reorder.check_patient()
 	reorder.save_data()
 	procedure.show_PCA("DATA/PATIENT", "center", "3d", "IMAGES/test.png", "PROPORTION", 0, 1)
@@ -95,8 +95,8 @@ if(command == "prepare_data"):
 if(command == "clustering"):
 
 	# Init parameters
-	data_file_name = "test1.txt"
-	line_delimiter = "\t"
+	data_file_name = "data_luminex.csv"
+	line_delimiter = " "
 	header_in_file = 1
 	number_of_cluster = 2
 	saveFile = "test.png"
@@ -115,13 +115,19 @@ if(command == "clustering"):
 		if(header_in_file and cmpt == 0):
 			print "[+] Pass header"
 		else:
+			index = 0
 			for scalar in line_array:
-				try:
-					scalar_int = float(scalar)
-					vector.append(float(scalar))
-				except:
-					print "[!] Can't cast "+ str(scalar) + " into int"
-					vector_can_be_add = 0
+				# pass the first column, used 
+				# for data imported from R
+				if(index != 0):
+					try:
+						scalar_int = float(scalar)
+						vector.append(float(scalar))
+					except:
+						print "[!] Can't cast "+ str(scalar) + " into int"
+						vector_can_be_add = 0
+				
+				index += 1
 
 			# Need at least 3 coordinates and all vectors
 			# have to be of the same size
