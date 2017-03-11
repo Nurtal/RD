@@ -79,7 +79,27 @@ def create_disjonct_table(variable, method, number_of_interval):
 		return tableau
 
 
+def create_disjonctTable_for_matrix(data, number_of_interval):
+	"""
+	-> create all disjonctif table for the matrix
+	-> matrix is the input data
+	-> number_of_interval is an int, the number of interval
+	   to set for each variable.
 
+	TODO:
+		- select number_of_interval according to the description.xml
+		  file
+		- give a vector of number_of_interval
+
+	"""
+	variable_index_to_table = {}
+	index = 1
+	for variable in data.transpose():
+		table = create_disjonct_table(variable, "standard", number_of_interval)
+		variable_index_to_table[index] = table
+		index += 1
+
+	return variable_index_to_table
 
 """TEST SPACE"""
 data = numpy.array([[45, 10, 23,0], [21,12,87,5],[87,2,56,10]])
@@ -91,7 +111,6 @@ table_test = create_disjonct_table(variable, "standard", 5)
 # create disjonct table for all variable in a matrix
 #	-> input : a matrix
 #	-> output : dict of table {variableIndex : disjonctTable}
-
-
+tables_test = create_disjonctTable_for_matrix(data, 5)
 
 # use disjonct table for dichotomization
