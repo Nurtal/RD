@@ -3,6 +3,32 @@ library(Boruta)
 
 # load data
 flow_data <- read.csv("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample\\DATA\\MATRIX\\flowcyto.txt", header = T, stringsAsFactors = F, sep="\t")
+diagnosic_table = read.csv("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample\\DATA\\patientIndex.csv", header = F, sep=";")
+colnames(diagnosic_table) <- c("OMICID", "diagnostic")
+
+df <- diagnosic_table
+m <- as.matrix(df)
+m[m=="Control"] <- 0
+m[m=="SLE"] <- 1
+m[m=="RA"] <- 1
+m[m=="UCTD"] <- 1
+m[m=="undef"] <- 1
+m[m=="SSc"] <- 1
+m[m=="SjS"] <- 1
+m[m=="PAPs"] <- 1
+m[m=="MCTD"] <- 1
+diagnosic_table <- as.data.frame(m)
+
+
+rownames(diagnosic_table) <- diagnosic_table$OMICID
+rownames(flow_data) <- flow_data$OMICID
+
+flow_data$OMICID <- NULL
+diagnosic_table$OMICID <- NULL
+
+
+flow_data <- merge(diagnosic_table, flow_data, by=0)
+
 
 # Delete some variables
 flow_data$P1_CD14LOWCD16POS_NONCLASSICMONOCYTES <- NULL
@@ -16,12 +42,19 @@ flow_data<-flow_data[!(traindata$OMICID=="32151646"),]
 flow_data<-flow_data[!(traindata$OMICID=="32151888"),]
 
 # Split into Panel
-flow_data_panel_1 <- flow_data[,grep("P1_", colnames(flow_data))]
+flow_data_panel_1 <- flow_data[,grep("P1_|OMICID", colnames(flow_data))]
 flow_data_panel_2 <- flow_data[,grep("P2_", colnames(flow_data))]
 flow_data_panel_3 <- flow_data[,grep("P3_", colnames(flow_data))]
 flow_data_panel_4 <- flow_data[,grep("P4_", colnames(flow_data))]
 flow_data_panel_5 <- flow_data[,grep("P5_", colnames(flow_data))]
 flow_data_panel_6 <- flow_data[,grep("P6_", colnames(flow_data))]
+
+
+flow_data_panel_2 <- flow_data[,grep("P2_|OMICID", colnames(flow_data))]
+flow_data_panel_2 <- merge(flow_data_panel_2, diagnosic_table, by="OMICID")
+
+flow_data_panel_1 <- merge(flow_data_panel_1, diagnosic_table, by="OMICID")
+flow_data_panel_1$OMICID <- NULL
 
 # Remove NA or perform Imputation
 flow_data_panel_1 <- flow_data_panel_1[complete.cases(flow_data_panel_1),]
@@ -33,12 +66,12 @@ flow_data_panel_6 <- flow_data_panel_6[complete.cases(flow_data_panel_6),]
 
 
 # Panel to Process:
-panel_to_process <- flow_data_panel_6
-names(panel_to_process)[1]
+panel_to_process <- flow_data_panel_1
+names(panel_to_process)[12]
 
 # Run Boruta
 f <- paste(names(panel_to_process)[1], "~.", sep="")
-boruta.train <- Boruta(P6_CD27POS_CD43POS_BCELLS~., data = panel_to_process, doTrace = 2)
+boruta.train <- Boruta(diagnostic~., data = panel_to_process, doTrace = 2)
 
 
 # Display results
