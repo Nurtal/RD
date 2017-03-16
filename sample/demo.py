@@ -4,6 +4,7 @@
 import procedure
 import describe
 import discretization
+import dichotomization
 import reorder
 import cytokines
 import analysis
@@ -139,3 +140,24 @@ if(command == "clustering"):
 
 	# Kmeans
 	analysis.quickClustering(matrix, number_of_cluster, saveFile)
+
+
+##############
+# TEST SPACE #
+##############
+if(command == "test"):
+
+	# => pattern mining on dichotomized data
+	# Generate matrix from data file
+	pack = dichotomization.extract_matrix_from("DATA/MATRIX/panel_1_filtered_processed.txt")
+	data = pack[0]
+
+	# create disjonct table for all variable in a matrix
+	#	-> input : a matrix
+	#	-> output : dict of table {variableIndex : disjonctTable}
+	tables_test = dichotomization.create_disjonctTable_for_matrix(data, 5)
+
+	# use disjonct table for dichotomization
+	#	- use matrix and table as input
+	#	- return a new matrix
+	truc = dichotomization.dichotomize(data, tables_test)
