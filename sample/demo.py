@@ -8,6 +8,7 @@ import dichotomization
 import reorder
 import cytokines
 import analysis
+import patternMining
 import sys
 
 
@@ -148,6 +149,12 @@ if(command == "clustering"):
 if(command == "test"):
 
 	# => pattern mining on dichotomized data
+	
+
+	#--------------------#
+	# => Dichotomization #
+	#--------------------#
+
 	# Generate matrix from data file
 	pack = dichotomization.extract_matrix_from("DATA/MATRIX/panel_1_filtered_processed.txt")
 	data = pack[0]
@@ -161,3 +168,13 @@ if(command == "test"):
 	#	- use matrix and table as input
 	#	- return a new matrix
 	truc = dichotomization.dichotomize(data, tables_test)
+
+	#-------------------#
+	# => Pattern mining #
+	#-------------------#
+
+	# need to reformat data !
+
+	patternMining.extractPatternFromCohorte(truc, 80, "dichototest")
+
+
