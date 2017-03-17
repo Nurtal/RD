@@ -240,8 +240,20 @@ def save_dichotomized_matrix_in_file(index_to_variable, row_to_patient, data, nu
 
 
 """TEST SPACE"""
-data = numpy.array([[45, 10, 23,0], [21,12,87,5],[87,2,56,10]])
+data = numpy.array([[45, 10, 23,0], [21,12,56,5],[87,2,87,10]])
 variable = numpy.array([0,1,5,6,4,10])
+
+tables = create_disjonctTable_for_matrix(data, 3)
+truc = dichotomize(data, tables)
+
+
+cmpt_vector = 0
+for vector in truc:
+	print data[cmpt_vector]
+	print vector
+	cmpt_vector += 1
+
+
 
 # Generate matrix from data file
 pack = extract_matrix_from("DATA/MATRIX/panel_1_filtered_processed.txt")
@@ -250,16 +262,16 @@ data = pack[0]
 # create disjonct table for all variable in a matrix
 #	-> input : a matrix
 #	-> output : dict of table {variableIndex : disjonctTable}
-tables_test = create_disjonctTable_for_matrix(data, 5)
+#tables_test = create_disjonctTable_for_matrix(data, 5)
 
 # use disjonct table for dichotomization
 #	- use matrix and table as input
 #	- return a new matrix
-truc = dichotomize(data, tables_test)
+#truc = dichotomize(data, tables_test)
 
 
 # save dichotomized matrix in a file to be processed by NN
-save_dichotomized_matrix_in_file(pack[1], pack[2], truc, 5, "DATA/MATRIX/data_dichotomized_test.csv")
+#save_dichotomized_matrix_in_file(pack[1], pack[2], truc, 5, "DATA/MATRIX/data_dichotomized_test.csv")
 
 	
 

@@ -955,3 +955,48 @@ def assemble_CohorteFromDiscreteAllFiles():
 				metaCohorte.append(vector)
 
 	return metaCohorte
+
+
+
+def build_cohorte_for_pm(data_file_name):
+		"""
+		-> Build a cohorte for pattern mining
+		-> data_file_name is the name of the file containing data,
+		   supposed to be dichotomized data
+		-> return a matrix (list of list)
+		"""
+
+		cohorte = []
+		variables_list = []
+
+		file_data = open(data_file_name, "r")
+		cmpt_line = 0
+		for line in file_data:
+			line = line.split("\n")
+			line = line[0]
+			line_array = line.split(";")
+			
+			vector = []
+
+			if(cmpt_line == 0):
+				for variable_name in line_array:
+					variable_name = variable_name.replace("\t", "")
+					variable_name = variable_name.replace(" ", "")
+					variables_list.append(variable_name)
+			else:
+				cmpt_index = 0
+				for scalar_value in line_array:
+
+					if(int(scalar_value) == 1):
+						vector.append(variables_list[cmpt_index])
+
+					cmpt_index += 1
+					if(len(scalar_value) > 4):
+						vector.append("OMICID_"+str(scalar_value))
+
+			cohorte.append(vector)
+
+			cmpt_line+=1
+		file_data.close()
+
+		return cohorte
