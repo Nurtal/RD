@@ -7,7 +7,8 @@ from reorder import *
 from fp_growth import find_frequent_itemsets
 import glob
 import itertools
-
+import math
+import sys
 
 def assemble_Cohorte():
 	"""
@@ -684,8 +685,26 @@ def generate_AssociationRulesFromPatternFile(patternFile, rulesFile, confidenceT
 			listOffrequentItemset.append(frequentItemSet)
 	data.close()
 
+
+	cmpt_progress = 0
+
 	rulesFile = open(rulesFile, "w")
 	for frequentItemSet in listOffrequentItemset:
+
+		progress = float(cmpt_progress / float(len(listOffrequentItemset))) *100
+		progress = math.ceil(progress)
+
+		progress_bar = "#" * int(progress)
+		progress_bar += "-" * int(50-progress)
+		display_line = "|"+progress_bar+"|"
+
+		sys.stdout.write("\r%d%%" % progress)
+		sys.stdout.write(display_line)
+		sys.stdout.flush()
+
+		print progress
+		cmpt_progress += 1
+
 		tupleLen = 1
 		while(tupleLen < len(frequentItemSet)):
 			for h in itertools.combinations(frequentItemSet, tupleLen):
@@ -955,7 +974,6 @@ def assemble_CohorteFromDiscreteAllFiles():
 				metaCohorte.append(vector)
 
 	return metaCohorte
-
 
 
 def build_cohorte_for_pm(data_file_name):

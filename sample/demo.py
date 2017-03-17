@@ -189,6 +189,6 @@ if(command == "test"):
 
 	# Generate association rules
 	rulesFile = "DATA/RULES/dichotomized_data.csv"
-	#patternMining.generate_AssociationRulesFromPatternFile("DATA/PATTERN/dichototest_pattern_80.csv", rulesFile, 80, 1, "discrete")
+	patternMining.generate_AssociationRulesFromPatternFile("DATA/PATTERN/dichototest_pattern_80.csv", rulesFile, 95, 1, "discrete")
 	#patternMining.write_decryptedRulesFiles(rulesFile)
 
