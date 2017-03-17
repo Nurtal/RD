@@ -146,7 +146,52 @@ def create_disjonct_table(variable, method, number_of_interval):
 			interval.append(interval_max)
 			tableau.append(interval)
 
-		return tableau
+
+	elif(method == "quantiles"):
+
+		#!!!!!!!!!!!!!!!!#
+		# THE ONE TO USE #
+		#!!!!!!!!!!!!!!!!#
+
+		step = (100 / number_of_interval)
+		limit_list = []
+
+		for number in range(1, number_of_interval):
+			limit = numpy.percentile(variable, (step*number))
+			limit_list.append(limit)
+			
+		interval_min = -1
+		interval_max = -1
+
+		cmpt_list = 0
+
+		for limit in limit_list:
+
+			interval =  []
+
+			if(cmpt_list == 0):
+				interval_min = minimum
+				interval_max = limit
+
+			elif(cmpt_list < len(limit_list)):
+				interval_min = limit_list[cmpt_list-1]
+				interval_max = limit
+
+			cmpt_list += 1
+
+			interval.append(interval_min)
+			interval.append(interval_max)
+			tableau.append(interval)
+		
+		# Last interval
+		interval = []	
+		interval_min = limit
+		interval_max = maximum
+		interval.append(interval_min)
+		interval.append(interval_max)
+		tableau.append(interval)
+
+	return tableau
 
 
 def create_disjonctTable_for_matrix(data, number_of_interval):
@@ -165,7 +210,7 @@ def create_disjonctTable_for_matrix(data, number_of_interval):
 	variable_index_to_table = {}
 	index = 1
 	for variable in data.transpose():
-		table = create_disjonct_table(variable, "standard", number_of_interval)
+		table = create_disjonct_table(variable, "quantiles", number_of_interval)
 		variable_index_to_table[index] = table
 		index += 1
 
@@ -240,19 +285,15 @@ def save_dichotomized_matrix_in_file(index_to_variable, row_to_patient, data, nu
 
 
 """TEST SPACE"""
-data = numpy.array([[45, 10, 23,0], [21,12,56,5],[87,2,87,10]])
+
+"""
+data = numpy.array([[45, 10, 23,0], [21,12,56,5],[87, 2, 87, 10]], dtype=float)
 variable = numpy.array([0,1,5,6,4,10])
+
+#table = create_disjonct_table(variable, "quantiles", 3)
 
 tables = create_disjonctTable_for_matrix(data, 3)
 truc = dichotomize(data, tables)
-
-
-cmpt_vector = 0
-for vector in truc:
-	print data[cmpt_vector]
-	print vector
-	cmpt_vector += 1
-
 
 
 # Generate matrix from data file
@@ -262,17 +303,17 @@ data = pack[0]
 # create disjonct table for all variable in a matrix
 #	-> input : a matrix
 #	-> output : dict of table {variableIndex : disjonctTable}
-#tables_test = create_disjonctTable_for_matrix(data, 5)
+tables_test = create_disjonctTable_for_matrix(data, 5)
 
 # use disjonct table for dichotomization
 #	- use matrix and table as input
 #	- return a new matrix
-#truc = dichotomize(data, tables_test)
+truc = dichotomize(data, tables_test)
 
 
 # save dichotomized matrix in a file to be processed by NN
-#save_dichotomized_matrix_in_file(pack[1], pack[2], truc, 5, "DATA/MATRIX/data_dichotomized_test.csv")
-
+save_dichotomized_matrix_in_file(pack[1], pack[2], truc, 5, "DATA/MATRIX/data_dichotomized_test.csv")
+"""
 	
 
 

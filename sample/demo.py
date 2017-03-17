@@ -179,8 +179,9 @@ if(command == "test"):
 	# need to reformat data
 	cohorte = patternMining.build_cohorte_for_pm("DATA/MATRIX/data_dichotomized_pattern_test.csv")	
 
+
 	# find pattern
-	patternMining.extractPatternFromCohorte(cohorte, 80, "dichototest")
+	patternMining.extractPatternFromCohorte(cohorte, 98, "dichototest")
 
 	#-----------------------------#
 	# => Create association rules #
@@ -188,6 +189,6 @@ if(command == "test"):
 
 	# Generate association rules
 	rulesFile = "DATA/RULES/dichotomized_data.csv"
-	patternMining.generate_AssociationRulesFromPatternFile("DATA/PATTERN/dichototest_pattern_80.csv", rulesFile, 80, 1, "discrete")
-	patternMining.write_decryptedRulesFiles(rulesFile)
+	#patternMining.generate_AssociationRulesFromPatternFile("DATA/PATTERN/dichototest_pattern_80.csv", rulesFile, 80, 1, "discrete")
+	#patternMining.write_decryptedRulesFiles(rulesFile)
 
