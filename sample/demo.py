@@ -11,7 +11,7 @@ import analysis
 import patternMining
 import sys
 import os
-
+import math
 
 
 #----------------------#
@@ -160,14 +160,33 @@ if(command == "dichotomization"):
 		log_file = open("../../NN/dichotomization_exploration_panel_"+str(panel)+".log", "w")
 		log_file.close()
 
-	for x in range(2, max_interval):
-		number_of_interval = x
+	
 
-		for panel in panel_list:
+	
+	for panel in panel_list:
+
+		progress = 0
+		for x in range(2, max_interval):
+			number_of_interval = x
+			amplitude = max_interval - 2
+			step = float((100/amplitude))
+
+
+			# progress bar
+			progress += 1
+			progress_perc = progress*step
+			factor = math.ceil((progress_perc/2))
+			progress_bar = "#" * int(factor)
+			progress_bar += "-" * int(50 - factor)
+			display_line = "[panel "+str(panel)+"]|"+progress_bar+"|"
+			sys.stdout.write("\r%d%%" % progress_perc)
+			sys.stdout.write(display_line)
+			sys.stdout.flush()
 
 			# Generate matrix from data file
 			pack = dichotomization.extract_matrix_from("DATA/MATRIX/panel_"+str(panel)+"_filtered_processed.txt")
 			data = pack[0]
+
 
 			# create disjonct table for all variable in a matrix
 			#	-> input : a matrix
@@ -187,6 +206,7 @@ if(command == "dichotomization"):
 			os.remove("DATA\\MATRIX\\data_dichotomized_pattern_"+str(number_of_interval)+".csv")
 
 
+	print "\n=> [EXPLORATION COMPLETE] <="
 
 
 
