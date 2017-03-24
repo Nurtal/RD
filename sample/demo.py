@@ -10,6 +10,7 @@ import cytokines
 import analysis
 import patternMining
 import sys
+import os
 
 
 
@@ -142,6 +143,64 @@ if(command == "clustering"):
 
 	# Kmeans
 	analysis.quickClustering(matrix, number_of_cluster, saveFile)
+
+
+
+
+if(command == "dichotomization"):
+
+	max_interval = 5
+
+	panel_list = [1,2,3,4,5,6]
+
+	
+	for panel in panel_list:
+
+		# create log file
+		log_file = open("../../NN/dichotomization_exploration_panel_"+str(panel)+".log", "w")
+		log_file.close()
+
+	for x in range(2, max_interval):
+		number_of_interval = x
+
+		for panel in panel_list:
+
+			# Generate matrix from data file
+			pack = dichotomization.extract_matrix_from("DATA/MATRIX/panel_"+str(panel)+"_filtered_processed.txt")
+			data = pack[0]
+
+			# create disjonct table for all variable in a matrix
+			#	-> input : a matrix
+			#	-> output : dict of table {variableIndex : disjonctTable}
+			tables_test = dichotomization.create_disjonctTable_for_matrix(data, number_of_interval)
+
+			# use disjonct table for dichotomization
+			#	- use matrix and table as input
+			#	- return a new matrix
+			truc = dichotomization.dichotomize(data, tables_test)
+
+			dichotomization.save_dichotomized_matrix_in_file(pack[1], pack[2], truc, number_of_interval, "DATA/MATRIX/data_dichotomized_pattern_"+str(number_of_interval)+".csv")
+
+			os.chdir("..\\..\\NN")
+			os.system("python demo.py "+str(number_of_interval)+" "+str(panel))
+			os.chdir("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample")
+			os.remove("DATA\\MATRIX\\data_dichotomized_pattern_"+str(number_of_interval)+".csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ##############
