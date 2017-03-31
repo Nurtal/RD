@@ -21,24 +21,6 @@ class Individual(object):
 		self._id=-1
 		self._intervals_to_variables = {}
 
-	def create_random_genes(variable_to_position, intervals_min, intervals_max):
-		"""
-		-> init _intervals_to_variables with a dict structure
-		where variable match to number of intervals for discretization
-		(init randomly between intervals_min and intervals_max)
-		-> intervals_min is always >= 2
-		-> variable_to_position is a dict, obtain from the dichotomization.extract_matrix_from
-	   	function
-
-	   	=> Not functionnal, use create_random_individual to init _intervals_to_variables
-
-		"""
-		individual = {}
-		for variable_name in variable_to_position.values():
-			intervals = random.randint(2, intervals_max)
-			individual[variable_name] = intervals
-		self._intervals_to_variables = individual
-
 
 
 
@@ -493,12 +475,14 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 
 
 """TEST SPACE"""
+ 
 
+for x in range(1,6):
+	data_file = "DATA/MATRIX/panel_"+str(x)+"_filtered_processed.txt"
+	max_iteration = 100
+	number_of_individual_per_generation = 25
+	run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration)
 
-data_file = "DATA/MATRIX/panel_1_filtered_processed.txt"
-max_iteration = 10
-number_of_individual_per_generation = 15
-run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration)
 
 
 
