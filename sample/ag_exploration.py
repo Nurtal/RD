@@ -372,10 +372,10 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 	
 	progress = 0
 	max_solution_saved = 5
-	mutation_rate = 20
+	mutation_rate = 2
 	mutation_min = 2
 	mutation_max = 100
-	number_of_good_parents = 4
+	number_of_good_parents = 8
 	number_of_bad_parents = 2
 
 	result_file_name = "undef"
@@ -395,8 +395,17 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 		solution_file_name = "DATA/EXPLORATION/"+solution_file_name	
 
 	elif(platform.system() == "Windows"):
-		print "[NEED TO BE FIXED]"
+		result_file_name = data_file.split("\\")
+		result_file_name = result_file_name[-1]
+		result_file_name = result_file_name.split(".")
+		result_file_name = result_file_name[0]+".csv"
+		result_file_name = "DATA\\EXPLORATION\\"+result_file_name
 
+		solution_file_name = data_file.split("\\")
+		solution_file_name = solution_file_name[-1]
+		solution_file_name = solution_file_name.split(".")
+		solution_file_name = solution_file_name[0]+"_FixeStep.log"
+		solution_file_name = "DATA\\EXPLORATION\\"+solution_file_name
 
 	#--------------------#
 	# Prepare Population #
@@ -467,7 +476,7 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 		factor = math.ceil((progress_perc/2))
 		progress_bar = "#" * int(factor)
 		progress_bar += "-" * int(50 - factor)
-		display_line = "[AG]|"+progress_bar+"|"
+		display_line = "[AG]|"+progress_bar+"|"+str(progress)+"|"+str(g[0])
 		sys.stdout.write("\r%d%%" % progress_perc)
 		sys.stdout.write(display_line)
 		sys.stdout.flush()
@@ -478,9 +487,10 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
  
 
 for x in range(1,6):
-	data_file = "DATA/MATRIX/panel_"+str(x)+"_filtered_processed.txt"
-	max_iteration = 100
-	number_of_individual_per_generation = 25
+	print "=> Panel "+str(x)
+	data_file = "DATA\\MATRIX\\panel_"+str(x)+"_filtered_processed.txt"
+	max_iteration = 1000
+	number_of_individual_per_generation = 20
 	run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration)
 
 
