@@ -131,12 +131,21 @@ def save_dichotomized_matrix_in_file(index_to_variable, row_to_patient, data, in
 	data_save.close()
 
 
-def evaluate_individual(individual, data_file_name):
+def evaluate_individual(individual, data_file_name, method, filter_strat):
 	"""
 	-> Evaluate the individual using NN project
 	-> individual is a Individual object
 	-> data_file_name is the matrix file name
-	-> use the evaluation.py script in NN project
+	-> method is a string, the method to use to compute the score,
+	   could be:
+	   		- nn (for neural network)
+	   		- svm (for support vector machine)
+	   		- tree (decision tree)
+	-> filter_strat is a string, name of the filter aplly n cohorte,
+	   could be:
+	   			- random
+	   			- any disesae (SLE, SjS ...)
+	-> run evaluation script in the NN folder
 	"""
 
 	# Generate matrix from data file
@@ -157,17 +166,46 @@ def evaluate_individual(individual, data_file_name):
 		save_file_name = "DATA/MATRIX/data_dichotomized_pattern_individual_to_evaluate.csv"
 	save_dichotomized_matrix_in_file(pack[1], pack[2], data_dichotomized, individual._intervals_to_variables, save_file_name)
 
-	# Run the NN and clean the data
-	if(platform.system() == "Windows"):
-		os.chdir("..\\..\\NN")
-		os.system("python evaluation.py")
-		os.chdir("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample")
-	elif(platform.system() == "Linux"):
-		os.chdir("../../NN")
-		os.system("python evaluation.py")
-		os.chdir("/home/foulquier/Bureau/SpellCraft/WorkSpace/Github/RD/sample")
+	# compute the score
+	if(method == "nn"):
+		# Run the NN and clean the data
+		if(platform.system() == "Windows"):
+			os.chdir("..\\..\\NN")
+			os.system("python evaluation.py "+str(filter_strat))
+			os.chdir("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample")
+		elif(platform.system() == "Linux"):
+			os.chdir("../../NN")
+			os.system("python evaluation.py "+str(filter_strat))
+			os.chdir("/home/foulquier/Bureau/SpellCraft/WorkSpace/Github/RD/sample")
+	
+	elif(method == "svm"):
+		# Run SVM evaluation in NN folder
+		if(platform.system() == "Windows"):
+			os.chdir("..\\..\\NN")
+			os.system("python svm_evaluation.py "+str(filter_strat))
+			os.chdir("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample")
+		elif(platform.system() == "Linux"):
+			os.chdir("../../NN")
+			os.system("python svm_evaluation.py "+str(filter_strat))
+			os.chdir("/home/foulquier/Bureau/SpellCraft/WorkSpace/Github/RD/sample")
+	
+	elif(method == "tree"):
+		# Run decision tree evaluation in NN folder
+		if(platform.system() == "Windows"):
+			os.chdir("..\\..\\NN")
+			os.system("python svm_evaluation.py "+str(filter_strat))
+			os.chdir("C:\\Users\\PC_immuno\\Desktop\\Nathan\\SpellCraft\\RD\\sample")
+		elif(platform.system() == "Linux"):
+			os.chdir("../../NN")
+			os.system("python tree_evaluation.py "+str(filter_strat))
+			os.chdir("/home/foulquier/Bureau/SpellCraft/WorkSpace/Github/RD/sample")
+	
 
-	os.remove(save_file_name)
+
+	else:
+		print "[ERROR] method: "+str(method)+" is not recognized"
+
+	#os.remove(save_file_name)
 
 	# Get the score
 	score = -1
@@ -183,7 +221,7 @@ def evaluate_individual(individual, data_file_name):
 	return score
 
 
-def create_population(number_of_individual, data_file_name):
+def create_population(number_of_individual, data_file_name, intervals_min, intervals_max):
 	"""
 	-> Create a population of random initialized individuals
 	"""
@@ -191,8 +229,6 @@ def create_population(number_of_individual, data_file_name):
 	variable_to_position = pack[1]
 
 	population = []
-	intervals_min = 2
-	intervals_max = 100
 	for x in range(0, number_of_individual):
 		individual = Individual()
 		individual._id = x
@@ -203,20 +239,25 @@ def create_population(number_of_individual, data_file_name):
 
 
 
-def grade_population(population, data_file_name):
+def grade_population(population, data_file_name, score_method, filter_strat):
 	"""
 	-> Compute score for the population 
 	(i.e average of individuals score in population)
+	-> score_method is a string, the method to use for scoring, could be:
+		- nn (neural network)
+		- svm (support vector machine)
+	-> filter_strat is a string, name of the filter aplly n cohorte,
+	   could be:
+	   			- random
+	   			- any disesae (SLE, SjS ...)
 	-> return also the dict individual : score
 
-	=> Problem there, have to resolve identification
-	   of individuals
 	"""
 
 	score_list = []
 	score_to_individuals = {}
 	for individual in population:
-		score = evaluate_individual(individual, data_file_name)
+		score = evaluate_individual(individual, data_file_name, score_method, filter_strat)
 		score_list.append(float(score))
 		score_to_individuals[individual._id] = score
 	
@@ -357,12 +398,20 @@ def create_children(parents, population):
 """The Big One"""
 
 
-def run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration):
+def run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration, score_method, filter_strat):
 	"""
 	-> Run the genetic algorithm
 	-> data_file used in the evaluation process
 	-> number_of_individual_per_generation is an int
 	-> max_iteration is an int
+	-> score_method is a string, the method to use for scoring, could be:
+		- nn (neural network)
+		- svm (support vector machine)
+		- tree (decision tree)
+	-> filter_strat is a string, name of the filter aplly n cohorte,
+	   could be:
+	   			- random
+	   			- any disesae (SLE, SjS ...)
 	-> return nothing but write a few results file in DATA/EXPLORATION
 	"""
 
@@ -371,41 +420,50 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 	#--------------------#
 	
 	progress = 0
-	max_solution_saved = 10
-	mutation_rate = 20
-	mutation_min = 2
-	mutation_max = 100
-	number_of_good_parents = 20
-	number_of_bad_parents = 4
+	mutation_rate = 10
+	intervals_min = 2
+	intervals_max = 10
+	number_of_good_parents = 8
+	number_of_bad_parents = 2
+	score_threshold = 80
 
 
 	result_file_name = "undef"
 	solution_file_name = "undef"
+	filter_name = "control_vs_"+str(filter_strat)
 
 	if(platform.system() == "Linux"):
 		result_file_name = data_file.split("/")
 		result_file_name = result_file_name[-1]
 		result_file_name = result_file_name.split(".")
-		result_file_name = result_file_name[0]+".csv"
+		max_result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_max.csv"
+		min_result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_min.csv"
+		result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+".csv"
 		result_file_name = "DATA/EXPLORATION/"+result_file_name
+		max_result_file_name = "DATA/EXPLORATION/"+max_result_file_name
+		min_result_file_name = "DATA/EXPLORATION/"+min_result_file_name
 
 		solution_file_name = data_file.split("/")
 		solution_file_name = solution_file_name[-1]
 		solution_file_name = solution_file_name.split(".")
-		solution_file_name = solution_file_name[0]+"_FixeStep.log"
+		solution_file_name = solution_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_FixeStep.log"
 		solution_file_name = "DATA/EXPLORATION/"+solution_file_name	
 
 	elif(platform.system() == "Windows"):
 		result_file_name = data_file.split("\\")
 		result_file_name = result_file_name[-1]
 		result_file_name = result_file_name.split(".")
-		result_file_name = result_file_name[0]+".csv"
+		max_result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_max.csv"
+		min_result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_min.csv"
+		result_file_name = result_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+".csv"
 		result_file_name = "DATA\\EXPLORATION\\"+result_file_name
+		max_result_file_name = "DATA\\EXPLORATION\\"+max_result_file_name
+		min_result_file_name = "DATA\\EXPLORATION\\"+min_result_file_name
 
 		solution_file_name = data_file.split("\\")
 		solution_file_name = solution_file_name[-1]
 		solution_file_name = solution_file_name.split(".")
-		solution_file_name = solution_file_name[0]+"_FixeStep.log"
+		solution_file_name = solution_file_name[0]+"_"+str(filter_name)+"_"+str(score_method)+"_FixeStep.log"
 		solution_file_name = "DATA\\EXPLORATION\\"+solution_file_name
 
 	#--------------------#
@@ -418,11 +476,17 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 	variable_to_position = pack[1]
 
 	# init population
-	pop = create_population(number_of_individual_per_generation, data_file)
+	pop = create_population(number_of_individual_per_generation, data_file, intervals_min, intervals_max)
 
-	# init result file
+	# init results files
 	result_file = open(result_file_name, "w")
 	result_file.close()
+
+	max_result_file = open(max_result_file_name, "w")
+	max_result_file.close()
+
+	min_result_file = open(min_result_file_name, "w")
+	min_result_file.close()
 
 	for x in range(0, max_iteration):
 
@@ -431,15 +495,24 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 		#-------------------------#
 
 		# evaluate population
-		g = grade_population(pop, data_file)
+		g = grade_population(pop, data_file, score_method, filter_strat)
 
 		# write result in file
 		result_file = open(result_file_name, "a")
 		result_file.write(str(x)+","+str(g[0])+"\n")
 		result_file.close()
 
-		# write solution in file
-		if(progress + max_solution_saved >= max_iteration):
+		# write solution in file if one of the individual in
+		# population looks like a good solution (i.e score >= threshold)
+		save_pop = False
+		score_list = []
+		for individual in pop:
+			individual_score = g[1][individual._id]
+			score_list.append(individual_score)
+			if(float(individual_score) >= float(score_threshold)):
+				save_pop = True
+
+		if(save_pop):
 			solution_file_name_processed = solution_file_name.replace("FixeStep", str(progress))
 			solution_file = open(solution_file_name_processed, "w")
 			for individual in pop:
@@ -447,6 +520,20 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 				for key in individual._intervals_to_variables.keys():
 					solution_file.write(str(key) +","+str(individual._intervals_to_variables[key])+"\n")
 			solution_file.close()
+
+		# Get the best score in population and write 
+		# the result in a file
+		best_score = max(score_list)
+		max_score_file = open(max_result_file_name, "a")
+		max_score_file.write(str(progress)+","+str(best_score)+"\n")
+		max_score_file.close()
+
+		# Get the worst score in population and write 
+		# the result in a file
+		worst_score = min(score_list)
+		min_score_file = open(min_result_file_name, "a")
+		min_score_file.write(str(progress)+","+str(worst_score)+"\n")
+		min_score_file.close()
 
 
 
@@ -462,7 +549,7 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 
 		# => Mutate a small random portion of the population
 		parents = bests + bads
-		mutation(mutation_rate, mutation_min, mutation_max, parents)
+		mutation(mutation_rate, intervals_min, intervals_max, parents)
 
 		# => crossover parents to create children
 		children = create_children(parents, pop)
@@ -477,7 +564,7 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 		factor = math.ceil((progress_perc/2))
 		progress_bar = "#" * int(factor)
 		progress_bar += "-" * int(50 - factor)
-		display_line = "[AG]|"+progress_bar+"|"+str(progress)+"|"+str(g[0])
+		display_line = "["+str(score_method)+"]|"+progress_bar+"|"+str(progress)+"|"+str(g[0])
 		sys.stdout.write("\r%d%%" % progress_perc)
 		sys.stdout.write(display_line)
 		sys.stdout.flush()
@@ -487,13 +574,18 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 """TEST SPACE"""
  
 
-for x in range(1,6):
+classifier_list = ["svm", "tree", "nn"]
+filter_list = ["SLE", "SSc", "SjS", "random"]
+
+for x in range(1,2):
 	print "\n => Processing Panel "+str(x)+"\n"
 	data_file = "DATA/MATRIX/panel_"+str(x)+"_filtered_processed.txt"
-	#data_file = "DATA\\MATRIX\\panel_"+str(x)+"_filtered_processed.txt"	
-	max_iteration = 500
-	number_of_individual_per_generation = 50
-	run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration)
+	
+	for classifier in classifier_list:
+		for cohorte_filter in filter_list:
+			max_iteration = 10
+			number_of_individual_per_generation = 16
+			run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration, classifier, cohorte_filter)
 
 
 
