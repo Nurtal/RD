@@ -371,12 +371,12 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
 	#--------------------#
 	
 	progress = 0
-	max_solution_saved = 5
+	max_solution_saved = 10
 	mutation_rate = 20
 	mutation_min = 2
 	mutation_max = 100
-	number_of_good_parents = 4
-	number_of_bad_parents = 2
+	number_of_good_parents = 20
+	number_of_bad_parents = 4
 
 	result_file_name = "undef"
 	solution_file_name = "undef"
@@ -478,9 +478,10 @@ def run_ag_exploration(data_file, number_of_individual_per_generation, max_itera
  
 
 for x in range(1,6):
+	print "\n => Processing Panel "+str(x)+"\n"
 	data_file = "DATA/MATRIX/panel_"+str(x)+"_filtered_processed.txt"
-	max_iteration = 100
-	number_of_individual_per_generation = 25
+	max_iteration = 500
+	number_of_individual_per_generation = 50
 	run_ag_exploration(data_file, number_of_individual_per_generation, max_iteration)
 
 
